@@ -1,5 +1,7 @@
-/* Tailwind v4 import */
-@import "tailwindcss";
+/* Tailwind base, components, utilities — processed by PostCSS + Tailwind */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 /* Custom base styles */
 html, body, #root {
@@ -11,9 +13,4 @@ body {
   color: #e6eef8;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-/* Utility demo */
-.btn {
-  @apply px-4 py-2 rounded-md text-sm font-medium;
 }
