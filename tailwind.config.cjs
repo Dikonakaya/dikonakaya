@@ -7,7 +7,12 @@ module.exports = {
     './public/**/*.html',
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        Akrobat: ['"Akrobat"', 'ui-sans-serif', 'system-ui'],
+        Manrope: ['"Manrope"', 'ui-sans-serif', 'system-ui'],
+      }
+    }
   },
   plugins: [],
 };
