@@ -1,87 +1,41 @@
-# Welcome to React Router!
+# dikonakaya — Developer Portfolio (Starter Template)
 
-A modern, production-ready template for building full-stack React applications using React Router.
+This is a starter template generated for the user **dikonakaya**.
+Tech stack (locked): **React + Vite + TypeScript + Tailwind v4 + Framer Motion**
+Design: **Dark-only, Clean Developer Aesthetic**
+Architecture: **Feature-based**
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/remix-run/react-router-templates/tree/main/default)
+## Quickstart
 
-## Features
-
-- 🚀 Server-side rendering
-- ⚡️ Hot Module Replacement (HMR)
-- 📦 Asset bundling and optimization
-- 🔄 Data loading and mutations
-- 🔒 TypeScript by default
-- 🎉 TailwindCSS for styling
-- 📖 [React Router docs](https://reactrouter.com/)
-
-## Getting Started
-
-### Installation
-
-Install the dependencies:
-
+1. Install dependencies
 ```bash
 npm install
 ```
 
-### Development
-
-Start the development server with HMR:
-
+2. Run dev server
 ```bash
 npm run dev
 ```
 
-Your application will be available at `http://localhost:5173`.
-
-## Building for Production
-
-Create a production build:
-
+3. Build for production
 ```bash
 npm run build
 ```
 
-## Deployment
+## Notes & Next Steps
 
-### Docker Deployment
+- Tailwind v4 does not require `tailwind.config.js` or `npx tailwindcss init -p`. You can use Tailwind by importing it in your main CSS (already done in `src/index.css`).
+- This template includes minimal components and a `Hero` feature as an example.
+- ShadCN UI components are *not* pre-generated here; if you want I can add a few ShadCN components (button, card, nav) in a follow-up commit — ShadCN often requires specific setup choices and copyable component code.
+- ESLint and Prettier config files are minimal; extend them to match your team's rules.
 
-To build and run using Docker:
+## Deploy
 
-```bash
-docker build -t my-app .
-
-# Run the container
-docker run -p 3000:3000 my-app
-```
-
-The containerized application can be deployed to any platform that supports Docker, including:
-
-- AWS ECS
-- Google Cloud Run
-- Azure Container Apps
-- Digital Ocean App Platform
-- Fly.io
-- Railway
-
-### DIY Deployment
-
-If you're familiar with deploying Node applications, the built-in app server is production-ready.
-
-Make sure to deploy the output of `npm run build`
-
-```
-├── package.json
-├── package-lock.json (or pnpm-lock.yaml, or bun.lockb)
-├── build/
-│   ├── client/    # Static assets
-│   └── server/    # Server-side code
-```
-
-## Styling
-
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever CSS framework you prefer.
+This repo is Vercel-ready. Connect your GitHub repo to Vercel and it will deploy automatically. Configure your custom domain in Vercel dashboard when you're ready.
 
 ---
 
-Built with ❤️ using React Router.
+If you want, I can:
+- Add full ShadCN UI components now,
+- Add Projects, About, Contact sections with sample data,
+- Initialize a GitHub repository and push the code for you (I can provide step-by-step commands).
