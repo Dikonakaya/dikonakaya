@@ -38,11 +38,13 @@ type PortfolioImageWithMeta = PortfolioImage & {
 type RowData = {
   images: PortfolioImageWithMeta[];
   scale: number;
+  capped: boolean;
 };
 
 const MAX_WIDTH = 1920;
-const GAP = 16;
+const GAP = 8;
 const TARGET_ROW_HEIGHT = 300;
+const MAX_ROW_HEIGHT = 500;
 
 const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -52,11 +54,9 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
   const [lightboxVisible, setLightboxVisible] = useState(false);
   const [isPreloading, setIsPreloading] = useState(false);
 
-  // Merge sets + inherit metadata
   const mergedImages: PortfolioImage[] = sets.flatMap((set) =>
     set.images.map((img) => ({
       ...img,
-      // INHERIT METADATA IF NOT PRESENT
       title: img.title ?? set.setTitle,
       description: img.description ?? set.description,
       tags: img.tags ?? set.tags ?? [],
@@ -66,7 +66,6 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
     }))
   );
 
-  // Resize helper
   const resizeImageDataUrl = (imgEl: HTMLImageElement) => {
     if (!imgEl.width || imgEl.width <= MAX_WIDTH) return imgEl.src;
     const scale = MAX_WIDTH / imgEl.width;
@@ -78,7 +77,6 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
     return canvas.toDataURL("image/jpeg", 0.85);
   };
 
-  // Convert mergedImages → internal imageData
   useEffect(() => {
     let mounted = true;
     setIsPreloading(true);
@@ -119,10 +117,6 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
     };
   }, [sets]);
 
-  // --- Everything BELOW is unchanged layout code (same as your previous file) ---
-  // Justified rows, lightbox, metadata display, keyboard navigation, etc.
-  // (Not repeating comments to save space — functionally identical)
-
   const calculateRows = () => {
     if (!containerRef.current || imageData.length === 0) return;
     const containerWidth = containerRef.current.offsetWidth;
@@ -141,7 +135,8 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
       } else {
         const totalGap = GAP * (currentRow.length - 1);
         const scale = (containerWidth - totalGap) / currentRowWidth;
-        tempRows.push({ images: currentRow, scale });
+        const capped = TARGET_ROW_HEIGHT * scale > MAX_ROW_HEIGHT;
+        tempRows.push({ images: currentRow, scale: capped ? MAX_ROW_HEIGHT / TARGET_ROW_HEIGHT : scale, capped });
 
         currentRow = [img];
         currentRowWidth = scaledWidth;
@@ -150,7 +145,8 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
       if (index === imageData.length - 1 && currentRow.length) {
         const totalGap = GAP * (currentRow.length - 1);
         const scale = (containerWidth - totalGap) / currentRowWidth;
-        tempRows.push({ images: currentRow, scale });
+        const capped = TARGET_ROW_HEIGHT * scale > MAX_ROW_HEIGHT;
+        tempRows.push({ images: currentRow, scale: capped ? MAX_ROW_HEIGHT / TARGET_ROW_HEIGHT : scale, capped });
       }
     });
 
@@ -183,33 +179,9 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
     }
   }, [lightboxIndex]);
 
-  useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (lightboxIndex === null) return;
-      if (e.key === "Escape") setLightboxIndex(null);
-      else if (e.key === "ArrowRight")
-        setLightboxIndex((i) => (i === null ? null : Math.min(i + 1, imageData.length - 1)));
-      else if (e.key === "ArrowLeft")
-        setLightboxIndex((i) => (i === null ? null : Math.max(i - 1, 0)));
-    };
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-  }, [lightboxIndex, imageData.length]);
-
   const openLightboxAt = (index: number) => setLightboxIndex(index);
   const nextLightbox = () => setLightboxIndex((i) => (i === null ? null : (i + 1) % imageData.length));
   const prevLightbox = () => setLightboxIndex((i) => (i === null ? null : (i - 1 + imageData.length) % imageData.length));
-
-  useEffect(() => {
-    if (lightboxIndex === null) return;
-    const toPreload = [lightboxIndex, lightboxIndex - 1, lightboxIndex + 1].filter(
-      (i) => i >= 0 && i < imageData.length
-    );
-    toPreload.forEach((i) => {
-      const img = new Image();
-      img.src = imageData[i].resizedSrc || imageData[i].src;
-    });
-  }, [lightboxIndex, imageData]);
 
   return (
     <div className="w-full">
@@ -226,17 +198,16 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
         {rows.map((row, rowIndex) => {
           const totalGap = GAP * (row.images.length - 1);
           const scaledWidths = row.images.map((img) => img.aspectRatio * TARGET_ROW_HEIGHT * row.scale);
-          const totalWidth = scaledWidths.reduce((a, b) => a + b, 0) + totalGap;
-          const containerWidth = containerRef.current?.offsetWidth || 0;
-          const diff = Math.round(containerWidth - totalWidth);
-          if (diff !== 0 && scaledWidths.length > 0) {
-            for (let i = 0; i < Math.abs(diff); i++) {
-              scaledWidths[i % scaledWidths.length] += diff > 0 ? 1 : -1;
-            }
-          }
 
           return (
-            <div key={rowIndex} className="flex gap-4">
+            <div
+              key={rowIndex}
+              className={`flex ${row.capped ? "justify-center" : ""} gap-4 transition-all duration-300 ease-in-out`}
+              style={{
+                transform: `scale(${row.capped ? 0.98 : 1})`,
+                opacity: 1,
+              }}
+            >
               {row.images.map((img, idx) => {
                 const width = scaledWidths[idx];
                 const height = Math.round(TARGET_ROW_HEIGHT * row.scale);
@@ -248,7 +219,7 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
                   <button
                     key={idx}
                     onClick={() => openLightboxAt(flattenedIndex === -1 ? 0 : flattenedIndex)}
-                    className="relative overflow-visible p-0 border-0 focus:outline-none rounded-md"
+                    className="relative overflow-visible p-0 border-0 focus:outline-none rounded-md transition-transform duration-200 ease-in-out hover:scale-[1.02]"
                   >
                     <div className="relative group">
                       <div
@@ -258,7 +229,7 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
                         <img
                           src={img.resizedSrc}
                           alt={img.title || ""}
-                          className="w-full h-full object-cover block transition-transform duration-300 ease-in-out group-hover:scale-[1.1] will-change-transform"
+                          className="w-full h-full object-cover block transition-transform duration-300 ease-in-out group-hover:scale-[1.05] will-change-transform"
                           loading="lazy"
                         />
                       </div>
@@ -281,14 +252,21 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
 
       {(lightboxIndex !== null || lightboxVisible) && (
         <div
-          className={`fixed inset-0 z-50 flex items-center justify-center bg-black/80 transition-opacity duration-250 ${lightboxIndex !== null ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+          className={`fixed inset-0 z-50 flex items-center justify-center bg-black/80 transition-opacity duration-250 ${
+            lightboxIndex !== null ? "opacity-100" : "opacity-0 pointer-events-none"
+          }`}
           onClick={() => setLightboxIndex(null)}
         >
-          <div className="relative w-full h-full flex items-center justify-center p-4" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="relative w-full h-full flex items-center justify-center p-4"
+            onClick={(e) => e.stopPropagation()}
+          >
             <button
               onClick={prevLightbox}
               className="absolute left-4 top-1/2 -translate-y-1/2 z-40 bg-black/40 hover:bg-black/60 text-white rounded-full p-3"
-            >‹</button>
+            >
+              ‹
+            </button>
 
             <div className="w-full max-w-[1400px] bg-transparent flex flex-col items-center gap-4">
               <div className="w-full flex items-center justify-center">
@@ -312,10 +290,15 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
                     </div>
 
                     <div className="min-w-[180px] text-sm">
-                      <div className="mb-2"><strong>Details</strong></div>
+                      <div className="mb-2">
+                        <strong>Details</strong>
+                      </div>
                       <div className="text-slate-200">
                         <div className="mt-2">
-                          <strong>Year:</strong> {imageData[lightboxIndex].date ? new Date(imageData[lightboxIndex].date).getFullYear() : "—"}
+                          <strong>Year:</strong>{" "}
+                          {imageData[lightboxIndex].date
+                            ? new Date(imageData[lightboxIndex].date).getFullYear()
+                            : "—"}
                         </div>
                       </div>
                     </div>
@@ -324,13 +307,25 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
                   <div className="mt-4 flex items-center gap-2">
                     <div className="flex flex-wrap gap-2">
                       {(imageData[lightboxIndex].tags || []).map((t) => (
-                        <span key={t} className="text-xs bg-white/10 px-2 py-1 rounded text-slate-100">{t}</span>
+                        <span key={t} className="text-xs bg-white/10 px-2 py-1 rounded text-slate-100">
+                          {t}
+                        </span>
                       ))}
                     </div>
 
                     <div className="ml-auto flex gap-2">
-                      <button onClick={prevLightbox} className="px-3 py-2 bg-white/10 rounded hover:bg-white/20">Prev</button>
-                      <button onClick={nextLightbox} className="px-3 py-2 bg-white/10 rounded hover:bg-white/20">Next</button>
+                      <button
+                        onClick={prevLightbox}
+                        className="px-3 py-2 bg-white/10 rounded hover:bg-white/20"
+                      >
+                        Prev
+                      </button>
+                      <button
+                        onClick={nextLightbox}
+                        className="px-3 py-2 bg-white/10 rounded hover:bg-white/20"
+                      >
+                        Next
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -340,11 +335,15 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
             <button
               onClick={nextLightbox}
               className="absolute right-4 top-1/2 -translate-y-1/2 z-40 bg-black/40 hover:bg-black/60 text-white rounded-full p-3"
-            >›</button>
+            >
+              ›
+            </button>
             <button
               onClick={() => setLightboxIndex(null)}
               className="absolute right-6 top-6 z-50 bg-black/40 hover:bg-black/60 text-white rounded-full p-2"
-            >✕</button>
+            >
+              ✕
+            </button>
           </div>
         </div>
       )}

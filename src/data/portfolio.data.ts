@@ -118,13 +118,13 @@ export const portfolioData: PortfolioSet[] = [
     description: "A set showcasing multiple keyboards.",
     tags: ["keyboard", "collection", "mechanical keyboard"],
     images: [
+      { src: "https://i.imgur.com/cbpMLui.png" },
       { src: "https://i.imgur.com/Iyqy0hN.png" },
       { src: "https://i.imgur.com/Hhsqh9m.png" },
       { src: "https://i.imgur.com/N9aXQsf.png" },
       { src: "https://i.imgur.com/lk7EqPA.png" },
       { src: "https://i.imgur.com/yeKOol4.png" },
       { src: "https://i.imgur.com/A8eqoy9.png" },
-      { src: "https://i.imgur.com/cbpMLui.png" },
     ],
   },
 
@@ -150,8 +150,11 @@ export const portfolioData: PortfolioSet[] = [
     images: [
       { src: "https://i.imgur.com/dROfED0.png" },
       { src: "https://i.imgur.com/mfOZBcG.png" },
-      { src: "https://i.imgur.com/k83URwz.png" },
       { src: "https://i.imgur.com/ZCYI4Wa.png" },
+      { src: "https://i.imgur.com/k83URwz.png" },
+      { src: "https://i.imgur.com/EVmkTsu.png" },
+      { src: "https://i.imgur.com/hoiSaHl.png" },
+      { src: "https://i.imgur.com/cDvVjIl.png" },
     ],
   },
 
@@ -173,9 +176,6 @@ export const portfolioData: PortfolioSet[] = [
     tags: ["keyboard", "collection", "mechanical keyboard"],
     images: [
       { src: "https://i.imgur.com/GVuwWWs.png" },
-      { src: "https://i.imgur.com/EVmkTsu.png" },
-      { src: "https://i.imgur.com/hoiSaHl.png" },
-      { src: "https://i.imgur.com/cDvVjIl.png" },
     ],
   },
 ];
