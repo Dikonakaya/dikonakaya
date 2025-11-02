@@ -8,7 +8,8 @@ export default function Home() {
   return (
     <section className="bg-[#1E1E25]">
       <div className="grid w-full h-[60vh]" style={{ gridTemplateColumns: '30% 70%' }}>
-        {/* Left 35% */}
+
+        {/* Left */}
         <div className="flex items-center justify-center p-8 bg-gradient-to-b from-[#373944] to-[#1E1E25] shadow-md">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1.0 }}>
             <img src={logo} alt="…" className="h-[300px] w-auto" />
@@ -24,16 +25,17 @@ export default function Home() {
             </p>
             <div className="mt-8 flex gap-4">
               <a className="btn bg-slate-800 hover:bg-slate-700" href="#projects">View Projects</a>
-              <a className="btn border border-slate-700 hover:border-slate-600" href="#contact">Contact</a>
+              <a className="btn border border-slate-700 hover:border-slate-600" href="#contact">Contact Me</a>
             </div>
           </motion.div>
         </div>
 
-        {/* Right 65% - carousel */}
+        {/* Right */}
         <div className="h-full shadow-md">
           <Carousel />
         </div>
       </div>
+
       <div className="flex items-start justify-center p-8 h-full bg-gradient-to-b from-[#373944] to-[#1E1E25]">
         <div className="w-full grid grid-cols-1 gap-8">
           <div className="text-center">

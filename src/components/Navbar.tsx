@@ -116,6 +116,11 @@ const Header: React.FC = () => {
               <a href="#projects" className="flex items-center px-3 py-2.5 hover:bg-[#1E1E25] transition-colors">Projects</a>
             </li>
 
+            {/* Store */}
+            <li>
+              <a href="#store" className="flex items-center px-3 py-2.5 hover:bg-[#1E1E25] transition-colors">Store</a>
+            </li>
+
             {/* More */}
             <li
               className="relative"
@@ -143,10 +148,7 @@ const Header: React.FC = () => {
                   <a href="#socials" className="block px-4 py-2 transition-colors duration-200 ease-in-out hover:bg-[#1E1E25] focus:bg-[#1E1E25]">Socials</a>
                 </li>
                 <li>
-                  <a href="#asset-store" className="block px-4 py-2 transition-colors duration-200 ease-in-out hover:bg-[#1E1E25] focus:bg-[#1E1E25]">Asset Store</a>
-                </li>
-                <li>
-                  <a href="#contact" className="block px-4 py-2 transition-colors duration-200 ease-in-out hover:bg-[#1E1E25] focus:bg-[#1E1E25]">Contact Me</a>
+                  <a href="#contact" className="block px-4 py-2 transition-colors duration-200 ease-in-out hover:bg-[#1E1E25] focus:bg-[#1E1E25]">Contact</a>
                 </li>
               </ul>
             </li>
