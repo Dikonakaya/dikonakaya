@@ -7,7 +7,7 @@ import logo from '../../assets/logo.png'
 export default function Home() {
   return (
     <section className="bg-[#1E1E25]">
-      <div className="grid w-full h-[60vh]" style={{ gridTemplateColumns: '30% 70%' }}>
+      <div className="grid w-full h-[500px]" style={{ gridTemplateColumns: '30% 70%' }}>
 
         {/* Left */}
         <div className="flex items-center justify-center p-8 bg-gradient-to-b from-[#373944] to-[#1E1E25] shadow-md">
@@ -31,13 +31,13 @@ export default function Home() {
         </div>
 
         {/* Right */}
-        <div className="h-full shadow-md">
+        <div className="h-[600px] shadow-md">
           <Carousel />
         </div>
       </div>
 
-      <div className="flex items-start justify-center p-8 h-full bg-gradient-to-b from-[#373944] to-[#1E1E25]">
-        <div className="w-full grid grid-cols-1 gap-8">
+      <div className="flex items-start justify-center p-8 mt-20 h-full bg-gradient-to-b from-[#373944] to-[#1E1E25]">
+        <div className="w-full gap-8">
           <div className="text-center">
             {/* Pixel Art grid */}
             <PortfolioGrid

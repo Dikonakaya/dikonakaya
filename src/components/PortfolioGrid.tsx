@@ -13,16 +13,21 @@ type ImageData = {
   aspectRatio: number;
 };
 
+type RowData = {
+  images: ImageData[];
+  scale: number;
+};
+
 const PortfolioGrid: React.FC<Props> = ({ title, images, showBorder = true }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [imageData, setImageData] = useState<ImageData[]>([]);
-  const [rows, setRows] = useState<any[]>([]);
+  const [rows, setRows] = useState<RowData[]>([]);
   const [lightbox, setLightbox] = useState<string | null>(null);
 
-  const GAP = 16; // Tailwind gap-4
-  const TARGET_ROW_HEIGHT = 300; // Base row height
+  const GAP = 16; // gap between images in px
+  const TARGET_ROW_HEIGHT = 300;
 
-  // Load images and get real aspect ratios
+  // Load images and compute aspect ratios
   useEffect(() => {
     const promises = images.map(
       (src) =>
@@ -43,11 +48,11 @@ const PortfolioGrid: React.FC<Props> = ({ title, images, showBorder = true }) =>
     Promise.all(promises).then(setImageData);
   }, [images]);
 
-  // Calculate justified rows
-  useEffect(() => {
+  // Function to calculate rows
+  const calculateRows = () => {
     if (!containerRef.current || !imageData.length) return;
     const containerWidth = containerRef.current.offsetWidth;
-    const tempRows: any[] = [];
+    const tempRows: RowData[] = [];
 
     let currentRow: ImageData[] = [];
     let currentRowWidth = 0;
@@ -60,22 +65,40 @@ const PortfolioGrid: React.FC<Props> = ({ title, images, showBorder = true }) =>
         currentRow.push(img);
         currentRowWidth += scaledWidth + gap;
       } else {
-        // Scale current row to fit container
-        const scale = (containerWidth - GAP * (currentRow.length - 1)) / currentRowWidth;
+        const totalGap = GAP * (currentRow.length - 1);
+        const scale = (containerWidth - totalGap) / currentRowWidth;
         tempRows.push({ images: currentRow, scale });
+
         currentRow = [img];
         currentRowWidth = scaledWidth;
       }
 
-      // Last row
       if (index === imageData.length - 1 && currentRow.length) {
-        const scale = (containerWidth - GAP * (currentRow.length - 1)) / currentRowWidth; // stretch last row
+        const totalGap = GAP * (currentRow.length - 1);
+        const scale = (containerWidth - totalGap) / currentRowWidth;
         tempRows.push({ images: currentRow, scale });
       }
     });
 
     setRows(tempRows);
-  }, [imageData, containerRef.current?.offsetWidth]);
+  };
+
+  // Recalculate rows whenever images load
+  useEffect(() => {
+    calculateRows();
+  }, [imageData]);
+
+  // Use ResizeObserver to recalc rows whenever container size changes
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const observer = new ResizeObserver(() => {
+      calculateRows();
+    });
+
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, [imageData]);
 
   return (
     <div className="w-full">
@@ -83,30 +106,44 @@ const PortfolioGrid: React.FC<Props> = ({ title, images, showBorder = true }) =>
       {title && <div className="h-[2px] bg-white w-[480px] mx-auto mb-6" aria-hidden="true" />}
 
       <div ref={containerRef} className="w-full flex flex-col gap-4">
-        {rows.map((row, rowIndex) => (
-          <div key={rowIndex} className="flex gap-4">
-            {row.images.map((img: ImageData, idx: number) => {
-              const height = TARGET_ROW_HEIGHT * row.scale;
-              const width = height * img.aspectRatio;
-              return (
-                <button
-                  key={idx}
-                  onClick={() => setLightbox(img.src)}
-                  className="rounded-md overflow-hidden p-0 border-0 focus:outline-none"
-                  aria-label={`Open image ${idx + 1} of row ${rowIndex + 1}`}
-                >
-                  <img
-                    src={img.src}
-                    alt=""
-                    className={`block rounded-md object-contain ${showBorder ? 'border-[2px] border-white' : ''}`}
-                    style={{ width, height }}
-                    loading="lazy"
-                  />
-                </button>
-              );
-            })}
-          </div>
-        ))}
+        {rows.map((row, rowIndex) => {
+          const totalGap = GAP * (row.images.length - 1);
+          const scaledWidths = row.images.map((img) => img.aspectRatio * TARGET_ROW_HEIGHT * row.scale);
+
+          // Fix rounding error so total row width equals container width
+          const totalWidth = scaledWidths.reduce((acc, w) => acc + w, 0) + totalGap;
+          const diff = containerRef.current!.offsetWidth - totalWidth;
+          if (diff !== 0) {
+            for (let i = 0; i < Math.round(diff); i++) {
+              scaledWidths[i % scaledWidths.length] += 1;
+            }
+          }
+
+          return (
+            <div key={rowIndex} className="flex gap-4">
+              {row.images.map((img, idx) => {
+                const width = scaledWidths[idx];
+                const height = TARGET_ROW_HEIGHT * row.scale;
+
+                return (
+                  <button
+                    key={idx}
+                    onClick={() => setLightbox(img.src)}
+                    className="rounded-md overflow-hidden p-0 border-0 focus:outline-none"
+                    aria-label={`Open image ${idx + 1} of row ${rowIndex + 1}`}
+                  >
+                    <div
+                      className={`rounded-md ${showBorder ? 'border-[2px] border-white' : ''} overflow-hidden`}
+                      style={{ width, height }}
+                    >
+                      <img src={img.src} alt="" className="w-full h-full block object-cover" loading="lazy" />
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          );
+        })}
       </div>
 
       {lightbox && (
@@ -118,11 +155,7 @@ const PortfolioGrid: React.FC<Props> = ({ title, images, showBorder = true }) =>
             >
               ✕
             </button>
-            <img
-              src={lightbox}
-              alt="lightbox"
-              className="w-full h-[70vh] object-contain rounded-md"
-            />
+            <img src={lightbox} alt="lightbox" className="w-full h-[70vh] object-contain rounded-md" />
           </div>
         </div>
       )}
