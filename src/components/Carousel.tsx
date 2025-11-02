@@ -9,7 +9,7 @@ const Carousel: React.FC<Props> = ({
   images = [
     'https://i.imgur.com/NLuGcjE.jpeg',
     'https://i.imgur.com/0n08T6j.jpeg',
-    'https://i.imgur.com/9SUBbRR.jpeg'
+    'https://i.imgur.com/FLY4xbF.jpeg'
   ],
   interval = 4000,
 }) => {

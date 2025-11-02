@@ -70,9 +70,9 @@ const Header: React.FC = () => {
 
         {/* Left */}
         <div className="col-span-3 relative flex items-center px-4 h-full overflow-hidden">
-          <div className="absolute left-0 top-0 h-full w-[40%] bg-[#1E1E25] pointer-events-none" />
+          <div className="absolute left-0 top-0 h-full w-[255px] bg-[#1E1E25] pointer-events-none" />
           <svg
-            className="absolute left-[40%] top-0 h-full w-28 pointer-events-none text-[#1E1E25]"
+            className="absolute left-[255px] top-0 h-full w-28 pointer-events-none text-[#1E1E25]"
             viewBox="0 0 100 100"
             preserveAspectRatio="none"
             xmlns="http://www.w3.org/2000/svg"
