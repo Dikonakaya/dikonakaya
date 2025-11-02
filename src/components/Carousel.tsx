@@ -8,7 +8,7 @@ type Props = {
 const Carousel: React.FC<Props> = ({
   images = [
     'https://i.imgur.com/NLuGcjE.jpeg',
-    'https://i.imgur.com/Dj39gt9.jpeg',
+    'https://i.imgur.com/0n08T6j.jpeg',
     'https://i.imgur.com/9SUBbRR.jpeg'
   ],
   interval = 4000,

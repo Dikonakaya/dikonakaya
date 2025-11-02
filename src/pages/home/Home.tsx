@@ -59,6 +59,12 @@ export default function Home() {
               images={[
                 'https://i.imgur.com/NLuGcjE.jpeg',
 
+                'https://i.imgur.com/Hh3RF7n.jpeg',
+                'https://i.imgur.com/CehvaEy.jpeg',
+                'https://i.imgur.com/0n08T6j.jpeg',
+                'https://i.imgur.com/sfhfqnu.jpeg',
+                'https://i.imgur.com/V2Bt3bk.jpeg',
+
                 'https://i.imgur.com/y8fxrgJ.jpeg',
                 'https://i.imgur.com/71edzIZ.jpeg',
                 'https://i.imgur.com/pkwbtWW.jpeg',
@@ -71,7 +77,14 @@ export default function Home() {
                 'https://i.imgur.com/27S6hV4.jpeg',
                 'https://i.imgur.com/dxt23tx.jpeg',
                 'https://i.imgur.com/PqiFjAc.jpeg',
-                'https://i.imgur.com/9SUBbRR.jpeg'
+                'https://i.imgur.com/9SUBbRR.jpeg',
+                
+                'https://i.imgur.com/N36QEHo.jpeg',
+                'https://i.imgur.com/NBx5bFC.jpeg',
+                'https://i.imgur.com/C5f7rCq.jpeg',
+                'https://i.imgur.com/Wq8smet.jpeg',
+                'https://i.imgur.com/MscI6oi.jpeg',
+                'https://i.imgur.com/FLY4xbF.jpeg'
               ]}
               showBorder={true}
             />

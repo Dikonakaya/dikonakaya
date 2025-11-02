@@ -9,7 +9,6 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        Akrobat: ['"Akrobat"', 'ui-sans-serif', 'system-ui'],
         Manrope: ['"Manrope"', 'ui-sans-serif', 'system-ui'],
       }
     }
