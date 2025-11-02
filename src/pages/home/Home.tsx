@@ -60,7 +60,7 @@ export default function Home() {
             <PortfolioGrid
               title="PIXEL ART"
               sets={portfolioData.filter(s =>
-                ["Tofu60 V1"].includes(s.setTitle)
+                ["Minecraft Skins & Armor", "Pixel Art Characters", "Pixel Art Portraits", "Chest Portraits", "GUI", "Pixel Art Banners", "More GUI"].includes(s.setTitle)
               )}
               showBorder={false}
             />

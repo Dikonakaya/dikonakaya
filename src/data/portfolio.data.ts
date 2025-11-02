@@ -86,4 +86,96 @@ export const portfolioData: PortfolioSet[] = [
       { src: "https://i.imgur.com/FLY4xbF.jpeg" },
     ],
   },
+
+  {
+    setTitle: "Minecraft Skins & Armor",
+    year: 2024,
+    description: "A set showcasing multiple keyboards.",
+    tags: ["keyboard", "collection", "mechanical keyboard"],
+    images: [
+      { src: "https://i.imgur.com/9lo873B.gif" },
+      { src: "https://i.imgur.com/d9gzrxv.gif" },
+      { src: "https://i.imgur.com/TSFNHNj.gif" },
+      { src: "https://i.imgur.com/eO4n0yF.gif" },
+    ],
+  },
+
+  {
+    setTitle: "Pixel Art Characters",
+    year: 2024,
+    description: "A set showcasing multiple keyboards.",
+    tags: ["keyboard", "collection", "mechanical keyboard"],
+    images: [
+      { src: "https://i.imgur.com/7vfaCJf.png" },
+      { src: "https://i.imgur.com/WzPHETX.png" },
+      { src: "https://i.imgur.com/o1GzXd1.gif" },
+    ],
+  },
+
+  {
+    setTitle: "Pixel Art Portraits",
+    year: 2024,
+    description: "A set showcasing multiple keyboards.",
+    tags: ["keyboard", "collection", "mechanical keyboard"],
+    images: [
+      { src: "https://i.imgur.com/Iyqy0hN.png" },
+      { src: "https://i.imgur.com/Hhsqh9m.png" },
+      { src: "https://i.imgur.com/N9aXQsf.png" },
+      { src: "https://i.imgur.com/lk7EqPA.png" },
+      { src: "https://i.imgur.com/yeKOol4.png" },
+      { src: "https://i.imgur.com/A8eqoy9.png" },
+      { src: "https://i.imgur.com/cbpMLui.png" },
+    ],
+  },
+
+  {
+    setTitle: "Chest Portraits",
+    year: 2024,
+    description: "A set showcasing multiple keyboards.",
+    tags: ["keyboard", "collection", "mechanical keyboard"],
+    images: [
+      { src: "https://i.imgur.com/YNh6LlF.png" },
+      { src: "https://i.imgur.com/bWFLdto.png" },
+      { src: "https://i.imgur.com/juGWtv6.png" },
+      { src: "https://i.imgur.com/Y5WEJi0.png" },
+      { src: "https://i.imgur.com/T9UWPPk.png" },
+    ],
+  },
+
+  {
+    setTitle: "GUI",
+    year: 2024,
+    description: "A set showcasing multiple keyboards.",
+    tags: ["keyboard", "collection", "mechanical keyboard"],
+    images: [
+      { src: "https://i.imgur.com/dROfED0.png" },
+      { src: "https://i.imgur.com/mfOZBcG.png" },
+      { src: "https://i.imgur.com/k83URwz.png" },
+      { src: "https://i.imgur.com/ZCYI4Wa.png" },
+    ],
+  },
+
+  {
+    setTitle: "Pixel Art Banners",
+    year: 2024,
+    description: "A set showcasing multiple keyboards.",
+    tags: ["keyboard", "collection", "mechanical keyboard"],
+    images: [
+      { src: "https://i.imgur.com/0L2mzLV.png" },
+      { src: "https://i.imgur.com/z6OExwz.png" },
+    ],
+  },
+
+  {
+    setTitle: "More GUI",
+    year: 2024,
+    description: "A set showcasing multiple keyboards.",
+    tags: ["keyboard", "collection", "mechanical keyboard"],
+    images: [
+      { src: "https://i.imgur.com/GVuwWWs.png" },
+      { src: "https://i.imgur.com/EVmkTsu.png" },
+      { src: "https://i.imgur.com/hoiSaHl.png" },
+      { src: "https://i.imgur.com/cDvVjIl.png" },
+    ],
+  },
 ];
