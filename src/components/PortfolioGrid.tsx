@@ -1,6 +1,10 @@
-// src/components/PortfolioGrid.tsx
 import React, { useEffect, useRef, useState } from "react";
 
+// -------------------------------
+// Type Definitions
+// -------------------------------
+
+// Represents a single portfolio image
 export type PortfolioImage = {
   src: string;
   title?: string;
@@ -12,6 +16,7 @@ export type PortfolioImage = {
   lens?: string;
 };
 
+// Represents a set/collection of images
 export type PortfolioSet = {
   setTitle: string;
   year?: number;
@@ -22,38 +27,57 @@ export type PortfolioSet = {
   images: PortfolioImage[];
 };
 
+// Props passed into PortfolioGrid component
 type Props = {
-  title?: string;
-  sets: PortfolioSet[];
-  showBorder?: boolean;
+  title?: string;           // Optional title for the grid
+  sets: PortfolioSet[];     // Array of image sets to display
+  showBorder?: boolean;     // Whether to display a border around images
 };
 
+// Internal image type with extra metadata for layout calculations
 type PortfolioImageWithMeta = PortfolioImage & {
   width: number;
   height: number;
   aspectRatio: number;
-  resizedSrc: string;
+  resizedSrc: string;       // Can be a resized data URL for faster loading
 };
 
+// Row layout data
 type RowData = {
   images: PortfolioImageWithMeta[];
-  scale: number;
-  capped: boolean;
+  scale: number;            // Scale factor applied to images to fit row
+  capped: boolean;          // Whether row is capped at MAX_ROW_HEIGHT
 };
 
-const MAX_WIDTH = 1920;
-const GAP = 8;
-const TARGET_ROW_HEIGHT = 300;
-const MAX_ROW_HEIGHT = 500;
+// -------------------------------
+// Constants
+// -------------------------------
+const MAX_WIDTH = 1920;           // Maximum width for resized images
+const GAP = 8;                    // Gap between images in pixels
+const TARGET_ROW_HEIGHT = 300;    // Desired height of each row
+const MAX_ROW_HEIGHT = 500;       // Maximum allowed height for any row
 
+// -------------------------------
+// PortfolioGrid Component
+// -------------------------------
 const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
+  // Ref to the container div to measure its width
   const containerRef = useRef<HTMLDivElement | null>(null);
+
+  // State to store processed image data
   const [imageData, setImageData] = useState<PortfolioImageWithMeta[]>([]);
   const [rows, setRows] = useState<RowData[]>([]);
+
+  // Lightbox state
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [lightboxVisible, setLightboxVisible] = useState(false);
+
+  // Preloading state
   const [isPreloading, setIsPreloading] = useState(false);
 
+  // -------------------------------
+  // Merge image sets and inherit metadata
+  // -------------------------------
   const mergedImages: PortfolioImage[] = sets.flatMap((set) =>
     set.images.map((img) => ({
       ...img,
@@ -66,6 +90,9 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
     }))
   );
 
+  // -------------------------------
+  // Resize image using a canvas for large images
+  // -------------------------------
   const resizeImageDataUrl = (imgEl: HTMLImageElement) => {
     if (!imgEl.width || imgEl.width <= MAX_WIDTH) return imgEl.src;
     const scale = MAX_WIDTH / imgEl.width;
@@ -77,6 +104,9 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
     return canvas.toDataURL("image/jpeg", 0.85);
   };
 
+  // -------------------------------
+  // Preload images and calculate metadata
+  // -------------------------------
   useEffect(() => {
     let mounted = true;
     setIsPreloading(true);
@@ -87,12 +117,14 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
           const img = new Image();
           img.crossOrigin = "anonymous";
           img.src = it.src;
+
           img.onload = () => {
             const resizedSrc = resizeImageDataUrl(img);
             const width = img.width > MAX_WIDTH ? MAX_WIDTH : img.width;
             const height = Math.round((img.height * width) / img.width);
             resolve({ ...it, width, height, aspectRatio: width / height, resizedSrc });
           };
+
           img.onerror = () => {
             const fallbackWidth = Math.min(MAX_WIDTH, 1200);
             resolve({
@@ -117,6 +149,9 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
     };
   }, [sets]);
 
+  // -------------------------------
+  // Calculate rows based on container width
+  // -------------------------------
   const calculateRows = () => {
     if (!containerRef.current || imageData.length === 0) return;
     const containerWidth = containerRef.current.offsetWidth;
@@ -136,27 +171,43 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
         const totalGap = GAP * (currentRow.length - 1);
         const scale = (containerWidth - totalGap) / currentRowWidth;
         const capped = TARGET_ROW_HEIGHT * scale > MAX_ROW_HEIGHT;
-        tempRows.push({ images: currentRow, scale: capped ? MAX_ROW_HEIGHT / TARGET_ROW_HEIGHT : scale, capped });
+
+        tempRows.push({
+          images: currentRow,
+          scale: capped ? MAX_ROW_HEIGHT / TARGET_ROW_HEIGHT : scale,
+          capped,
+        });
 
         currentRow = [img];
         currentRowWidth = scaledWidth;
       }
 
+      // Push last row
       if (index === imageData.length - 1 && currentRow.length) {
         const totalGap = GAP * (currentRow.length - 1);
         const scale = (containerWidth - totalGap) / currentRowWidth;
         const capped = TARGET_ROW_HEIGHT * scale > MAX_ROW_HEIGHT;
-        tempRows.push({ images: currentRow, scale: capped ? MAX_ROW_HEIGHT / TARGET_ROW_HEIGHT : scale, capped });
+        tempRows.push({
+          images: currentRow,
+          scale: capped ? MAX_ROW_HEIGHT / TARGET_ROW_HEIGHT : scale,
+          capped,
+        });
       }
     });
 
     setRows(tempRows);
   };
 
+  // -------------------------------
+  // Recalculate rows whenever images are loaded
+  // -------------------------------
   useEffect(() => {
     calculateRows();
   }, [imageData]);
 
+  // -------------------------------
+  // Recalculate rows on container resize
+  // -------------------------------
   useEffect(() => {
     if (!containerRef.current) return;
     let raf = 0;
@@ -171,20 +222,39 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
     };
   }, [imageData]);
 
+  // -------------------------------
+  // Lightbox keyboard navigation (ESC, Arrow keys)
+  // -------------------------------
   useEffect(() => {
-    if (lightboxIndex !== null) setLightboxVisible(true);
-    else {
-      const t = setTimeout(() => setLightboxVisible(false), 250);
-      return () => clearTimeout(t);
-    }
-  }, [lightboxIndex]);
+    const handleKey = (e: KeyboardEvent) => {
+      if (lightboxIndex === null) return;
+      if (e.key === "Escape") setLightboxIndex(null); // ESC closes lightbox
+      else if (e.key === "ArrowRight")
+        setLightboxIndex((i) =>
+          i === null ? null : Math.min(i + 1, imageData.length - 1)
+        );
+      else if (e.key === "ArrowLeft")
+        setLightboxIndex((i) =>
+          i === null ? null : Math.max(i - 1, 0)
+        );
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [lightboxIndex, imageData.length]);
 
+  // -------------------------------
+  // Lightbox navigation helpers
+  // -------------------------------
   const openLightboxAt = (index: number) => setLightboxIndex(index);
   const nextLightbox = () => setLightboxIndex((i) => (i === null ? null : (i + 1) % imageData.length));
   const prevLightbox = () => setLightboxIndex((i) => (i === null ? null : (i - 1 + imageData.length) % imageData.length));
 
+  // -------------------------------
+  // Render
+  // -------------------------------
   return (
     <div className="w-full">
+      {/* Optional title */}
       {title && (
         <>
           <h3 className="text-3xl font-semibold text-white mb-4">{title}</h3>
@@ -192,21 +262,18 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
         </>
       )}
 
+      {/* Portfolio rows */}
       <div ref={containerRef} className="w-full flex flex-col gap-4">
         {isPreloading && <div className="text-center text-sm text-slate-300 mb-2">Preparing images…</div>}
 
         {rows.map((row, rowIndex) => {
-          const totalGap = GAP * (row.images.length - 1);
           const scaledWidths = row.images.map((img) => img.aspectRatio * TARGET_ROW_HEIGHT * row.scale);
 
           return (
             <div
               key={rowIndex}
               className={`flex ${row.capped ? "justify-center" : ""} gap-4 transition-all duration-300 ease-in-out`}
-              style={{
-                transform: `scale(${row.capped ? 0.98 : 1})`,
-                opacity: 1,
-              }}
+              style={{ transform: `scale(${row.capped ? 0.98 : 1})`, opacity: 1 }}
             >
               {row.images.map((img, idx) => {
                 const width = scaledWidths[idx];
@@ -222,6 +289,7 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
                     className="relative overflow-visible p-0 border-0 focus:outline-none rounded-md transition-transform duration-200 ease-in-out hover:scale-[1.02]"
                   >
                     <div className="relative group">
+                      {/* Image container */}
                       <div
                         className={`relative rounded-md overflow-hidden ${showBorder ? "border-[2px] border-white" : ""}`}
                         style={{ width, height }}
@@ -234,6 +302,7 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
                         />
                       </div>
 
+                      {/* Overlay with title/description */}
                       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out pointer-events-none">
                         <div className="absolute rounded-md inset-0 bg-gradient-to-b from-black/50 to-transparent"></div>
                         <div className="relative flex flex-col justify-start p-4 text-left text-white">
@@ -250,33 +319,31 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
         })}
       </div>
 
+      {/* Lightbox */}
       {(lightboxIndex !== null || lightboxVisible) && (
         <div
-          className={`fixed inset-0 z-50 flex items-center justify-center bg-black/80 transition-opacity duration-250 ${
-            lightboxIndex !== null ? "opacity-100" : "opacity-0 pointer-events-none"
-          }`}
+          className={`fixed inset-0 z-50 flex items-center justify-center transition-opacity duration-250 ${lightboxIndex !== null ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+          style={{ backgroundColor: "#667B7F" }} // Custom background color
           onClick={() => setLightboxIndex(null)}
         >
-          <div
-            className="relative w-full h-full flex items-center justify-center p-4"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              onClick={prevLightbox}
-              className="absolute left-4 top-1/2 -translate-y-1/2 z-40 bg-black/40 hover:bg-black/60 text-white rounded-full p-3"
-            >
-              ‹
-            </button>
+          <div className="relative w-full h-full flex items-center justify-center p-4" onClick={(e) => e.stopPropagation()}>
+            {/* Navigation buttons */}
+            <button onClick={prevLightbox} className="absolute left-4 top-1/2 -translate-y-1/2 z-40 bg-black/40 hover:bg-black/60 text-white rounded-full p-3">‹</button>
+            <button onClick={nextLightbox} className="absolute right-4 top-1/2 -translate-y-1/2 z-40 bg-black/40 hover:bg-black/60 text-white rounded-full p-3">›</button>
+            <button onClick={() => setLightboxIndex(null)} className="absolute right-6 top-6 z-50 bg-black/40 hover:bg-black/60 text-white rounded-full p-2">✕</button>
 
+            {/* Image display */}
             <div className="w-full max-w-[1400px] bg-transparent flex flex-col items-center gap-4">
               <div className="w-full flex items-center justify-center">
                 <img
                   src={imageData[lightboxIndex ?? 0]?.resizedSrc || ""}
                   alt={imageData[lightboxIndex ?? 0]?.title || ""}
                   className="max-h-[82vh] w-auto object-contain rounded-md"
+                  loading="lazy"
                 />
               </div>
 
+              {/* Metadata & tags */}
               {lightboxIndex !== null && (
                 <div className="w-full bg-black/40 p-4 rounded-md text-white max-w-[1400px]">
                   <div className="flex items-start gap-4">
@@ -288,18 +355,10 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
                         <strong>Lens:</strong> {imageData[lightboxIndex].lens || "—"}
                       </div>
                     </div>
-
                     <div className="min-w-[180px] text-sm">
-                      <div className="mb-2">
-                        <strong>Details</strong>
-                      </div>
+                      <div className="mb-2"><strong>Details</strong></div>
                       <div className="text-slate-200">
-                        <div className="mt-2">
-                          <strong>Year:</strong>{" "}
-                          {imageData[lightboxIndex].date
-                            ? new Date(imageData[lightboxIndex].date).getFullYear()
-                            : "—"}
-                        </div>
+                        <div className="mt-2"><strong>Year:</strong> {imageData[lightboxIndex].date ? new Date(imageData[lightboxIndex].date).getFullYear() : "—"}</div>
                       </div>
                     </div>
                   </div>
@@ -307,43 +366,18 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
                   <div className="mt-4 flex items-center gap-2">
                     <div className="flex flex-wrap gap-2">
                       {(imageData[lightboxIndex].tags || []).map((t) => (
-                        <span key={t} className="text-xs bg-white/10 px-2 py-1 rounded text-slate-100">
-                          {t}
-                        </span>
+                        <span key={t} className="text-xs bg-white/10 px-2 py-1 rounded text-slate-100">{t}</span>
                       ))}
                     </div>
 
                     <div className="ml-auto flex gap-2">
-                      <button
-                        onClick={prevLightbox}
-                        className="px-3 py-2 bg-white/10 rounded hover:bg-white/20"
-                      >
-                        Prev
-                      </button>
-                      <button
-                        onClick={nextLightbox}
-                        className="px-3 py-2 bg-white/10 rounded hover:bg-white/20"
-                      >
-                        Next
-                      </button>
+                      <button onClick={prevLightbox} className="px-3 py-2 bg-white/10 rounded hover:bg-white/20">Prev</button>
+                      <button onClick={nextLightbox} className="px-3 py-2 bg-white/10 rounded hover:bg-white/20">Next</button>
                     </div>
                   </div>
                 </div>
               )}
             </div>
-
-            <button
-              onClick={nextLightbox}
-              className="absolute right-4 top-1/2 -translate-y-1/2 z-40 bg-black/40 hover:bg-black/60 text-white rounded-full p-3"
-            >
-              ›
-            </button>
-            <button
-              onClick={() => setLightboxIndex(null)}
-              className="absolute right-6 top-6 z-50 bg-black/40 hover:bg-black/60 text-white rounded-full p-2"
-            >
-              ✕
-            </button>
           </div>
         </div>
       )}
