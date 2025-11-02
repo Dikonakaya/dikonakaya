@@ -58,10 +58,20 @@ export default function Home() {
               title="PHOTOGRAPHY"
               images={[
                 'https://i.imgur.com/NLuGcjE.jpeg',
-                'https://i.imgur.com/PqiFjAc.jpeg',
-                'https://i.imgur.com/9SUBbRR.jpeg',
+
+                'https://i.imgur.com/y8fxrgJ.jpeg',
+                'https://i.imgur.com/71edzIZ.jpeg',
+                'https://i.imgur.com/pkwbtWW.jpeg',
+                'https://i.imgur.com/dh4F5Dk.jpeg',
+                'https://i.imgur.com/pdYh59a.jpeg',
+
+                'https://i.imgur.com/mRbxWae.jpeg',
                 'https://i.imgur.com/Dj39gt9.jpeg',
-                'https://i.imgur.com/27S6hV4.jpeg'
+                'https://i.imgur.com/Lsx3xpq.jpeg',
+                'https://i.imgur.com/27S6hV4.jpeg',
+                'https://i.imgur.com/dxt23tx.jpeg',
+                'https://i.imgur.com/PqiFjAc.jpeg',
+                'https://i.imgur.com/9SUBbRR.jpeg'
               ]}
               showBorder={true}
             />
