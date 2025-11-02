@@ -20,28 +20,47 @@ type RowData = {
   scale: number;
 };
 
+const MAX_WIDTH = 1920;
+
 const PortfolioGrid: React.FC<Props> = ({ title, images, showBorder = true }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [imageData, setImageData] = useState<ImageData[]>([]);
   const [rows, setRows] = useState<RowData[]>([]);
   const [lightbox, setLightbox] = useState<string | null>(null);
 
-  const GAP = 16; // px gap between images
+  const GAP = 16; 
   const TARGET_ROW_HEIGHT = 300;
 
-  // Load images and compute aspect ratios, add placeholder titles/descriptions
+  // Resize image using canvas
+  const resizeImage = (img: HTMLImageElement): string => {
+    if (img.width <= MAX_WIDTH) return img.src;
+
+    const scale = MAX_WIDTH / img.width;
+    const canvas = document.createElement('canvas');
+    canvas.width = MAX_WIDTH;
+    canvas.height = img.height * scale;
+    const ctx = canvas.getContext('2d');
+    if (ctx) ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    return canvas.toDataURL('image/jpeg', 0.8); // export as JPEG with 80% quality
+  };
+
+  // Load images, resize if needed, and compute aspect ratios
   useEffect(() => {
     const promises = images.map(
       (src, index) =>
         new Promise<ImageData>((resolve) => {
           const img = new Image();
+          img.crossOrigin = 'anonymous'; // to avoid tainted canvas issues
           img.src = src;
           img.onload = () => {
+            const resizedSrc = resizeImage(img);
+            const width = img.width > MAX_WIDTH ? MAX_WIDTH : img.width;
+            const height = img.height * (width / img.width);
             resolve({
-              src,
-              width: img.width,
-              height: img.height,
-              aspectRatio: img.width / img.height,
+              src: resizedSrc,
+              width,
+              height,
+              aspectRatio: width / height,
               title: `Placeholder Title ${index + 1}`,
               description: `Placeholder description for image ${index + 1}`,
             });
@@ -91,7 +110,6 @@ const PortfolioGrid: React.FC<Props> = ({ title, images, showBorder = true }) =>
     calculateRows();
   }, [imageData]);
 
-  // Recalculate on resize
   useEffect(() => {
     if (!containerRef.current) return;
     const observer = new ResizeObserver(() => calculateRows());
@@ -117,7 +135,6 @@ const PortfolioGrid: React.FC<Props> = ({ title, images, showBorder = true }) =>
         {rows.map((row, rowIndex) => {
           const totalGap = GAP * (row.images.length - 1);
           const scaledWidths = row.images.map((img) => img.aspectRatio * TARGET_ROW_HEIGHT * row.scale);
-
           const totalWidth = scaledWidths.reduce((acc, w) => acc + w, 0) + totalGap;
           const diff = containerRef.current!.offsetWidth - totalWidth;
           if (diff !== 0) {
@@ -139,14 +156,11 @@ const PortfolioGrid: React.FC<Props> = ({ title, images, showBorder = true }) =>
                     className="relative overflow-hidden p-0 border-0 focus:outline-none rounded-md"
                     aria-label={`Open image ${idx + 1} of row ${rowIndex + 1}`}
                   >
-                    {/* Container grows on hover */}
                     <div className="relative group">
-                      {/* Border container (does not scale) */}
                       <div
                         className={`relative rounded-md overflow-hidden ${showBorder ? 'border-[2px] border-white' : ''}`}
                         style={{ width, height }}
                       >
-                        {/* Image scales independently */}
                         <img
                           src={img.src}
                           alt=""
@@ -154,12 +168,8 @@ const PortfolioGrid: React.FC<Props> = ({ title, images, showBorder = true }) =>
                         />
                       </div>
 
-                      {/* Overlay / text appears only on hover */}
                       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out pointer-events-none">
-                        {/* Gradient */}
                         <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-transparent"></div>
-
-                        {/* Text */}
                         <div className="relative flex flex-col justify-start p-4 text-left text-white">
                           <h4 className="text-lg font-semibold">{img.title}</h4>
                           <p className="text-sm mt-1">{img.description}</p>
@@ -177,12 +187,12 @@ const PortfolioGrid: React.FC<Props> = ({ title, images, showBorder = true }) =>
       {/* Lightbox */}
       {lightbox && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 transition-opacity duration-300"
           role="dialog"
           aria-modal="true"
           onClick={() => setLightbox(null)}
         >
-          <div className="relative max-w-4xl w-full mx-4">
+          <div className="relative w-full mx-4" onClick={(e) => e.stopPropagation()}>
             <button
               onClick={() => setLightbox(null)}
               className="absolute right-2 top-2 text-white bg-black/50 rounded-full p-2 z-10"
@@ -193,7 +203,6 @@ const PortfolioGrid: React.FC<Props> = ({ title, images, showBorder = true }) =>
               src={lightbox}
               alt="lightbox"
               className="w-full h-[70vh] object-contain rounded-md"
-              onClick={(e) => e.stopPropagation()}
             />
           </div>
         </div>
