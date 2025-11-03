@@ -36,7 +36,7 @@ export default function Home() {
 
               <button
                 type="button"
-                onClick={() => (window.location.hash = '#contact')}
+                onClick={() => (window.location.href = '/contact')}
                 className="inline-flex items-center px-3 py-2 rounded-md bg-black text-white text-sm md:text-base font-medium hover:bg-[#FFFFFF] hover:text-[#373944] transition-colors flex-none whitespace-nowrap"
                 aria-label="Contact Me"
               >

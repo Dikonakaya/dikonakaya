@@ -89,7 +89,8 @@ const Header: React.FC = () => {
           {/* Right: Status */}
           <div className="mt-1.5 flex items-center justify-end px-4">
             <a
-              href="#"
+              href="/contact"
+              aria-label="Commissions - Contact"
               className="inline-flex items-center px-3 py-1 rounded-md bg-green-600 text-white text-sm font-medium hover:bg-[#FFFFFF] hover:text-[#373944] transition-colors"
             >
               Commissions Open
@@ -181,7 +182,7 @@ const Header: React.FC = () => {
                     <a href="#socials" className="block px-4 py-2 transition-colors duration-200 ease-in-out hover:bg-[#1E1E25] focus:bg-[#1E1E25]">Socials</a>
                   </li>
                   <li>
-                    <a href="#contact" className="block px-4 py-2 transition-colors duration-200 ease-in-out hover:bg-[#1E1E25] focus:bg-[#1E1E25]">Contact</a>
+                    <a href="/contact" className="block px-4 py-2 transition-colors duration-200 ease-in-out hover:bg-[#1E1E25] focus:bg-[#1E1E25]">Contact</a>
                   </li>
                 </ul>
               </li>
@@ -252,7 +253,7 @@ const Header: React.FC = () => {
               Socials
             </a>
             <a
-              href="/#contact"
+              href="/contact"
               className={`px-3 py-2 rounded text-white ${(location.hash === "#contact" || location.pathname === "/contact") ? "bg-[#1E1E25]" : "hover:bg-white/5"}`}
             >
               Contact

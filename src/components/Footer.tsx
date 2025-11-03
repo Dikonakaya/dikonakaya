@@ -48,7 +48,7 @@ export default function Footer() {
               <div className="text-white">
                 <p>Dikonakaya is a freelance pixel artist</p>
                 <p>and photographer based in the Philippines &lt;3</p><br />
-                <a href="#" className="text-white hover:text-slate-400 transition-colors">Get in touch!</a>
+                <a href="/contact" className="text-white hover:text-slate-400 transition-colors">Get in touch!</a>
               </div>
             </div>
 
