@@ -51,7 +51,7 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="flex items-start justify-center p-8 mt-20 h-full bg-gradient-to-b from-[#373944] to-[#1E1E25]">
+      <div className="flex items-start justify-center p-8 mt-10 h-full bg-gradient-to-b from-[#373944] to-[#1E1E25]">
         <div className="w-full gap-8">
           <div>
             <PortfolioGrid

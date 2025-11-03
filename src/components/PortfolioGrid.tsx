@@ -301,7 +301,7 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
 
       {/* Portfolio rows */}
       <div ref={containerRef} className="w-full flex flex-col gap-4">
-        {isPreloading && <div className="text-center text-sm text-slate-300 mb-2">Preparing images…</div>}
+        {isPreloading && <div className="text-center text-sm text-slate-300 mb-2">Loading images…</div>}
 
         {rows.map((row, rowIndex) => {
           const scaledWidths = row.images.map((img) => img.aspectRatio * TARGET_ROW_HEIGHT * row.scale);
