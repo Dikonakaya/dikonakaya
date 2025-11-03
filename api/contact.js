@@ -1,6 +1,4 @@
-// Vercel Serverless Function: api/contact.js
-// This will be deployed automatically with the main site when using Vercel.
-
+// Vercel Serverless Function
 // Simple validation and forwarding to a Discord Incoming Webhook.
 
 module.exports = async (req, res) => {
@@ -30,15 +28,38 @@ module.exports = async (req, res) => {
         const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
         if (!webhookUrl) return res.status(500).json({ error: 'Webhook not configured' });
 
+        // If RECAPTCHA_SECRET_KEY is set, verify the recaptcha token before proceeding.
+        const recaptchaSecret = process.env.RECAPTCHA_SECRET_KEY;
+        if (recaptchaSecret) {
+            const token = req.body?.recaptchaToken;
+            if (!token) return res.status(400).json({ error: 'recaptcha token missing' });
+
+            const params = new URLSearchParams();
+            params.append('secret', recaptchaSecret);
+            params.append('response', token);
+
+            const verifyRes = await fetch('https://www.google.com/recaptcha/api/siteverify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: params.toString(),
+            });
+            const verifyJson = await verifyRes.json().catch(() => ({}));
+            // For reCAPTCHA v3, you may want to check score >= 0.5; here we require success:true.
+            if (!verifyJson.success || (typeof verifyJson.score === 'number' && verifyJson.score < 0.3)) {
+                console.error('recaptcha failed', verifyJson);
+                return res.status(400).json({ error: 'recaptcha verification failed' });
+            }
+        }
+
         const embed = {
-            title: s,
-            description: m,
-            color: 0x00ff99,
             fields: [
                 { name: 'Name', value: n, inline: true },
                 { name: 'Email', value: e, inline: true },
                 { name: 'Discord', value: clean(discord) || '—', inline: true },
             ],
+            title: s,
+            description: m,
+            color: 0x00ff99,
             timestamp: new Date().toISOString(),
         };
 

@@ -1,5 +1,6 @@
 // src/pages/Contact.tsx
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
+import ReCAPTCHA from 'react-google-recaptcha';
 
 export default function Contact() {
     const [name, setName] = useState("");
@@ -9,15 +10,33 @@ export default function Contact() {
     const [message, setMessage] = useState("");
     const [status, setStatus] = useState<null | "sending" | "sent" | "error">(null);
 
+    const recaptchaRef = useRef<ReCAPTCHA | null>(null);
+    const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+    const siteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY as string | undefined;
+
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
         setStatus("sending");
 
         try {
+            const siteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY as string | undefined;
+            // If a siteKey is configured, require a token from the v2 checkbox widget
+            if (siteKey && !recaptchaToken) {
+                // attempt to execute grecaptcha if rendered via ref
+                if (recaptchaRef.current && typeof (recaptchaRef.current.execute) === 'function') {
+                    const t = await (recaptchaRef.current as any).executeAsync();
+                    setRecaptchaToken(t);
+                } else {
+                    setStatus('error');
+                    console.error('recaptcha token missing');
+                    return;
+                }
+            }
+
             const resp = await fetch('/api/contact', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, email, discord, subject, message }),
+                body: JSON.stringify({ name, email, discord, subject, message, recaptchaToken }),
             });
 
             if (!resp.ok) {
@@ -29,6 +48,11 @@ export default function Contact() {
 
             setStatus('sent');
             setName(''); setEmail(''); setDiscord(''); setSubject(''); setMessage('');
+            // reset recaptcha widget
+            if (recaptchaRef.current && typeof (recaptchaRef.current.reset) === 'function') {
+                (recaptchaRef.current as any).reset();
+                setRecaptchaToken(null);
+            }
         } catch (err) {
             console.error(err);
             setStatus('error');
@@ -101,6 +125,16 @@ export default function Contact() {
                                 placeholder="Tell me what you're looking for..."
                             />
                         </div>
+
+                        {siteKey && (
+                            <div className="md:col-span-2 flex justify-center">
+                                <ReCAPTCHA
+                                    sitekey={siteKey}
+                                    ref={recaptchaRef}
+                                    onChange={(t: string | null) => setRecaptchaToken(t)}
+                                />
+                            </div>
+                        )}
 
                         <div className="md:col-span-2 flex items-center justify-between mt-2">
                             <div className="text-sm text-slate-400">
