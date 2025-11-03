@@ -13,8 +13,7 @@ export type PortfolioImage = {
   tags?: string[];
   location?: string;
   date?: string;
-  camera?: string;
-  lens?: string;
+  other?: string;
 };
 
 // Represents a set/collection of images
@@ -23,8 +22,7 @@ export type PortfolioSet = {
   year?: number;
   description?: string;
   tags?: string[];
-  camera?: string;
-  lens?: string;
+  other?: string;
   images: PortfolioImage[];
 };
 
@@ -86,8 +84,7 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
       title: img.title ?? set.setTitle,
       description: img.description ?? set.description,
       tags: img.tags ?? set.tags ?? [],
-      camera: img.camera ?? set.camera,
-      lens: img.lens ?? set.lens,
+      other: img.other ?? set.other,
       date: img.date ?? (set.year ? `${set.year}-01-01` : undefined),
     }))
   );
@@ -334,8 +331,12 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
                         <img
                           src={img.resizedSrc}
                           alt={img.title || ""}
-                          className="w-full h-full object-cover block transition-transform duration-[1000ms] ease-in-out group-hover:scale-[1.05] will-change-transform"
+                          className="w-full h-full object-cover block transition-transform duration-[1000ms] ease-in-out group-hover:scale-[1.05] will-change-transform select-none"
                           loading="lazy"
+                          draggable={false}
+                          onDragStart={(e: React.DragEvent<HTMLImageElement>) => e.preventDefault()}
+                          onContextMenu={(e: React.MouseEvent<HTMLImageElement>) => e.preventDefault()}
+                          style={{ WebkitUserDrag: 'none' } as any}
                         />
                       </div>
 

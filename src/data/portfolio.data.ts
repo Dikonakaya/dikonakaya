@@ -2,17 +2,17 @@ export type PortfolioImage = {
   src: string;
   title?: string;
   description?: string;
+  other?: string;
   tags?: string[];
   location?: string;
   date?: string;
-  camera?: string;
-  lens?: string;
 };
 
 export type PortfolioSet = {
   setTitle: string;
   year?: number;
   description?: string;
+  other?: string;
   tags?: string[];
   images: PortfolioImage[];
 };
@@ -22,6 +22,7 @@ export const portfolioData: PortfolioSet[] = [
     setTitle: "Mini Cooper",
     year: 2025,
     description: "A shot of a Mini Cooper on the streets of Sampaloc, Manila",
+    other: "Camera: Sony ZV E10 • Lens: 7Artisans 27mm f2.8",
     tags: ["Street Photography", "Car Photography"],
     images: [
       { src: "https://i.imgur.com/NLuGcjE.jpeg" }
@@ -32,6 +33,7 @@ export const portfolioData: PortfolioSet[] = [
     setTitle: "Tofu60 V1",
     year: 2025,
     description: "A collection of shots showcasing the Tofu60 V1 keyboard",
+    other: "Camera: Sony ZV E10 • Lens: Meike 33mm f1.4",
     tags: ["Custom keyboard", "Product Photography"],
     images: [
       { src: "https://i.imgur.com/Hh3RF7n.jpeg" },
@@ -46,6 +48,7 @@ export const portfolioData: PortfolioSet[] = [
     setTitle: "RK87",
     year: 2025,
     description: "A collection of shots showcasing a Ninomae Inanis themed keyboard",
+    other: "Camera: Sony ZV E10 • Lens: Viltrox 27mm f1.2 Pro",
     tags: ["Custom keyboard", "Product Photography"],
     images: [
       { src: "https://i.imgur.com/y8fxrgJ.jpeg" },
@@ -60,6 +63,7 @@ export const portfolioData: PortfolioSet[] = [
     setTitle: "Jris65",
     year: 2025,
     description: "A collection of shots showcasing the Jris65 keyboard with WS Aka Hairo Keycaps",
+    other: "Camera: Sony ZV E10 • Lens: Viltrox 56mm f1.7 Air",
     tags: ["Custom keyboard", "Product Photography"],
     images: [
       { src: "https://i.imgur.com/mRbxWae.jpeg" },
@@ -76,6 +80,7 @@ export const portfolioData: PortfolioSet[] = [
     setTitle: "2025 Keyboard Collection",
     year: 2025,
     description: "A collection of shots my entire keyboard collection as of early 2025",
+    other: "Camera: Sony ZV E10 • Lens: Meike 33mm f1.4",
     tags: ["Custom keyboard", "Product Photography"],
     images: [
       { src: "https://i.imgur.com/N36QEHo.jpeg" },
@@ -103,7 +108,7 @@ export const portfolioData: PortfolioSet[] = [
   {
     setTitle: "Pixel Art Characters",
     year: 2024,
-    description: "A showcase of some pixel art characters I've created.",
+    description: "A showcase of some pixel art characters I've created",
     tags: ["Pixel Art"],
     images: [
       { src: "https://i.imgur.com/7vfaCJf.png" },

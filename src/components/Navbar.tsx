@@ -54,7 +54,6 @@ const Header: React.FC = () => {
       {/* Mobile header (visible under lg) */}
       <div className="flex items-center h-10 bg-[#1E1E25] px-4 justify-center lg:hidden">
         <div className="absolute left-4">
-          {/* left spacer to keep title centered */}
         </div>
 
         <div className="text-center text-lg font-bold text-white">DIKONAKAYA</div>
@@ -147,12 +146,12 @@ const Header: React.FC = () => {
 
               {/* Projects */}
               <li>
-                <a href="#projects" className="flex items-center px-3 py-2.5 hover:bg-[#1E1E25] transition-colors">Projects</a>
+                <a href="#projects" className="flex items-center px-3 py-2.5 hover:bg-[#1E1E25] transition-colors relative z-10">Projects</a>
               </li>
 
               {/* Store */}
               <li>
-                <a href="#store" className="flex items-center px-3 py-2.5 hover:bg-[#1E1E25] transition-colors">Store</a>
+                <a href="#store" className="flex items-center px-3 py-2.5 hover:bg-[#1E1E25] transition-colors relative z-10">Store</a>
               </li>
 
               {/* More */}
@@ -195,15 +194,14 @@ const Header: React.FC = () => {
         </div>
       </div>
 
-      {/* Mobile sidebar drawer */}
+      {/* Mobile */}
       <div className={`fixed inset-0 z-50 pointer-events-none ${sidebarOpen ? 'pointer-events-auto' : ''}`} aria-hidden={!sidebarOpen}>
-        {/* overlay */}
         <div
           className={`fixed inset-0 bg-black/40 transition-opacity ${sidebarOpen ? 'opacity-100' : 'opacity-0'}`}
           onClick={() => setSidebarOpen(false)}
         />
 
-        {/* drawer */}
+        {/* Drawer */}
         <aside className={`fixed right-0 top-0 h-full w-72 bg-[#373944] p-4 transform transition-transform ${sidebarOpen ? 'translate-x-0' : 'translate-x-full'}`} role="dialog" aria-modal="true">
           <div className="flex items-center justify-between mb-4">
             <div className="text-lg font-bold text-white">Menu</div>
