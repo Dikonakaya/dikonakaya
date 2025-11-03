@@ -4,8 +4,17 @@
 @tailwind utilities;
 
 /* Custom base styles */
-html, body, #root {
+html,
+body,
+#root {
   height: 100%;
+}
+
+/* Prevent horizontal scroll and match site background */
+html,
+body {
+  overflow-x: hidden;
+  background-color: #1E1E25;
 }
 
 @font-face {

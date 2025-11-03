@@ -38,24 +38,24 @@ const Header: React.FC = () => {
   }, []);
 
   return (
-    <header className="w-full sticky top-0 z-50 relative shadow-md">
+    <header className="w-full absolute sticky top-0 z-50 shadow-md">
 
       {/* Upper Div */}
-      <div className="grid grid-cols-12 items-center h-10 bg-[#1E1E25]">
+      <div className="items-center h-10 bg-[#1E1E25]">
 
         {/* Left: Logo */}
-        <div className="col-span-3 flex items-center px-4">
+        <div className="flex items-center px-4">
           <a href="#" className="absolute left-6 top-0 h-full flex items-center gap-3 text-3xl font-bold text-white z-50">
             DIKONAKAYA
           </a>
         </div>
 
         {/* Center */}
-        <nav className="col-span-6 flex justify-center px-24">
+        <nav className="flex justify-center px-24">
         </nav>
 
         {/* Right: Status */}
-        <div className="col-span-3 flex items-center justify-end px-4">
+        <div className="mt-1.5 flex items-center justify-end px-4">
           <a
             href="#"
             className="inline-flex items-center px-3 py-1 rounded-md bg-green-600 text-white text-sm font-medium hover:bg-[#FFFFFF] hover:text-[#373944] transition-colors"
@@ -66,13 +66,13 @@ const Header: React.FC = () => {
       </div>
 
       {/* Lower Div */}
-      <div className="grid grid-cols-12 items-center h-10 bg-[#373944]">
+      <div className="items-center h-10 bg-[#373944]">
 
         {/* Left */}
-        <div className="col-span-3 relative flex items-center px-4 h-full overflow-hidden">
-          <div className="absolute left-0 top-0 h-full w-[255px] bg-[#1E1E25] pointer-events-none" />
+        <div className="relative items-center px-4 h-10 overflow-hidden">
+          <div className="absolute left-0 top-0 h-10 w-[255px] bg-[#1E1E25] pointer-events-none" />
           <svg
-            className="absolute left-[255px] top-0 h-full w-28 pointer-events-none text-[#1E1E25]"
+            className="absolute left-[255px] top-0 h-10 w-28 pointer-events-none text-[#1E1E25]"
             viewBox="0 0 100 100"
             preserveAspectRatio="none"
             xmlns="http://www.w3.org/2000/svg"
@@ -82,7 +82,7 @@ const Header: React.FC = () => {
         </div>
 
         {/* Center */}
-        <nav className="col-span-6 flex justify-center px-24">
+        <nav className="-mt-10 flex md:justify-end lg:justify-center px-24">
           <ul className="flex items-center text-sm">
 
             {/* Portfolio (dropdown) */}

@@ -254,12 +254,12 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
   // Render
   // -------------------------------
   return (
-    <div className="w-full">
+    <div className="w-full overflow-x-hidden">
       {/* Optional title */}
       {title && (
         <>
           <h3 className="text-center text-3xl font-semibold text-white mt-16 mb-4">{title}</h3>
-          <div className="h-[2px] bg-white w-[600px] mx-auto mb-8" aria-hidden="true" />
+          <div className="h-[2px] bg-white w-full max-w-[600px] mx-auto mb-8" aria-hidden="true" />
         </>
       )}
 
@@ -328,7 +328,7 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
             onClick={() => setLightboxIndex(null)} // click outside closes lightbox
           >
             <motion.div
-              className="relative flex flex-col items-center p-8 bg-[#667B7F] shadow-md rounded-md max-w-[1600px] w-full mx-4"
+              className="relative flex flex-col items-center p-8 bg-[#373944] shadow-md rounded-md max-w-[1600px] w-full mx-4"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
@@ -345,7 +345,7 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
               </button>
 
               {/* Image container with fixed aspect ratio */}
-              <div className="relative w-[900px] h-[600px] max-w-full max-h-[80vh] flex items-center justify-center bg-[#667B7F]">
+              <div className="relative w-[900px] h-[600px] max-w-full max-h-[80vh] flex items-center justify-center">
                 {/* Previous button inside the gray box */}
                 <button
                   onClick={prevLightbox}

@@ -5,11 +5,10 @@ import Footer from './components/Footer'
 
 export default function App() {
   return (
-    <div className="min-h-screen bg-[#373944] text-[#FFFFFF]">
+    <div className="bg-[#373944] text-[#FFFFFF]">
       <Navbar />
       <main>
         <Home />
-        {/* other sections (About, Projects, Contact) will go here */}
       </main>
       <Footer />
     </div>

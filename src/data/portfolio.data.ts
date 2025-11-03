@@ -107,7 +107,7 @@ export const portfolioData: PortfolioSet[] = [
     tags: ["Pixel Art"],
     images: [
       { src: "https://i.imgur.com/7vfaCJf.png" },
-      { src: "https://i.imgur.com/WzPHETX.png" },
+      { src: "https://i.imgur.com/RRwhQYM.png" },
       { src: "https://i.imgur.com/o1GzXd1.gif" },
     ],
   },

@@ -27,8 +27,8 @@ export default function Home() {
   };
 
   return (
-    <section className="bg-[#1E1E25]">
-      <div className="grid w-full h-[500px]" style={{ gridTemplateColumns: "30% 70%" }}>
+    <section className="bg-[#1E1E25] overflow-x-hidden">
+      <div className="grid w-full grid-cols-1 lg:grid-cols-[30%_70%] min-h-[500px]">
         {/* Left */}
         <div className="flex items-center justify-center p-8 bg-gradient-to-b from-[#373944] to-[#1E1E25] shadow-md">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1.0 }}>
@@ -49,7 +49,7 @@ export default function Home() {
         </div>
 
         {/* Right */}
-        <div className="h-[600px] shadow-md">
+        <div className="h-[400px] lg:h-[600px] shadow-md w-full overflow-hidden">
           <Carousel />
         </div>
       </div>
