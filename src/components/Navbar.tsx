@@ -213,48 +213,56 @@ const Header: React.FC = () => {
             <Link
               to="/"
               className={`px-3 py-2 rounded text-white ${location.pathname === "/" ? "bg-[#1E1E25]" : ""}`}
+              onClick={() => setSidebarOpen(false)}
             >
               Portfolio
             </Link>
             <Link
               to="/#pixelart"
               className={`px-3 py-2 rounded text-white ${location.hash === "#pixelart" ? "bg-[#1E1E25]" : ""}`}
+              onClick={() => setSidebarOpen(false)} v
             >
               Pixel Art
             </Link>
             <Link
               to="/#photography"
               className={`px-3 py-2 rounded text-white ${location.hash === "#photography" ? "bg-[#1E1E25]" : ""}`}
+              onClick={() => setSidebarOpen(false)}
             >
               Photography
             </Link>
             <Link
               to="/#projects"
               className={`px-3 py-2 rounded text-white ${(location.hash === "#projects" || location.pathname === "/projects") ? "bg-[#1E1E25]" : ""}`}
+              onClick={() => setSidebarOpen(false)}
             >
               Projects
             </Link>
             <Link
               to="/#store"
               className={`px-3 py-2 rounded text-white ${(location.hash === "#store" || location.pathname === "/store") ? "bg-[#1E1E25]" : ""}`}
+              onClick={() => setSidebarOpen(false)}
             >
               Store
             </Link>
             <Link
               to="/#about"
               className={`px-3 py-2 rounded text-white ${(location.hash === "#about" || location.pathname === "/about") ? "bg-[#1E1E25]" : ""}`}
+              onClick={() => setSidebarOpen(false)}
             >
               About Me
             </Link>
             <Link
               to="/#socials"
               className={`px-3 py-2 rounded text-white ${(location.hash === "#socials" || location.pathname === "/socials") ? "bg-[#1E1E25]" : ""}`}
+              onClick={() => setSidebarOpen(false)}
             >
               Socials
             </Link>
             <Link
               to="/contact"
               className={`px-3 py-2 rounded text-white ${(location.hash === "#contact" || location.pathname === "/contact") ? "bg-[#1E1E25]" : ""}`}
+              onClick={() => setSidebarOpen(false)}
             >
               Contact
             </Link>
