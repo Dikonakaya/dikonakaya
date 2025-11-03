@@ -38,7 +38,7 @@ const Header: React.FC = () => {
   }, []);
 
   return (
-    <header className="w-full absolute sticky top-0 z-50 shadow-md">
+    <header className="w-full sticky top-0 z-50 shadow-md">
 
       {/* Upper Div */}
       <div className="items-center h-10 bg-[#1E1E25]">

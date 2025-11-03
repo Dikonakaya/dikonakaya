@@ -254,7 +254,7 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
   // Render
   // -------------------------------
   return (
-    <div className="w-full overflow-x-hidden">
+    <div className="w-full">
       {/* Optional title */}
       {title && (
         <>

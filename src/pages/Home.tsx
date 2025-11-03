@@ -7,30 +7,12 @@ import logo from "../assets/logo.png";
 import { portfolioData } from "../data/portfolio.data";
 
 export default function Home() {
-  // Pixel art sample converted to object-format (you can replace titles/desc later)
-  const pixelArtSet = {
-    setTitle: "PIXEL ART",
-    year: 2025,
-    description: "A selection of pixel artworks.",
-    tags: ["pixel", "art"],
-    images: [
-      {
-        src: "https://lh3.googleusercontent.com/sitesv/AAzXCkdQXOmVwjF8e4cTdduagHGY43s6SKqdeK2dT5UpO_2hp0yllgtvLwuAl1Kzp3Hp0hw6mn0llfsfuFqk7uintalI6Uk912gFpzNxACqmFMvB4jndeWBM7S1PLzHJC2WxY6MATSiu1E9C4VEVdfn1fUoDVMulwtAYfZcQT_MYNdFg9OEULkQDl7fFDXSs7bF1k52OYsC87chuZeXJc8T0uOl1h4IimCudIssWapk=w1280",
-      },
-      {
-        src: "https://lh3.googleusercontent.com/sitesv/AAzXCkftXOsGBm6UfeVVpz56bw1KFgB08YzDclJqrzuESv1FGLY5DAO3JkFUfO_DRbRGVbL-YEoyAqgrCiLVO1sgvRTsMiTPWu2sYact4VYcCq-LFkrUyQN15pmmB6cHs-JoPCoe1RgDSI5E1hyz00KVl8HrLjhj1rcj0jIhHnKMukA0om9Y695nxCDf0-Yp-EbyGq3PcmF43s6mBUVLaY4rovgnoUmn_XdAyfIQd4Y=w1280",
-      },
-      {
-        src: "https://lh3.googleusercontent.com/sitesv/AAzXCkfJakXJq5g3XGrExLGVoRxpb1swE5ejSmqIX5LBgjH3F-KzFGFzuI-9kOZBD7ofwLPWIVV0567SV3QQbpiKV4knXbnmLENoCfmAMh6zXf6Z0MfJcBK_dZzs-SNn6rlMEdlF8msrPJvgeI4Ev3UFMD0YXBPQdt-PBpQS2nemBgLjbDL3uzN1av3i=w1280",
-      },
-    ],
-  };
 
   return (
     <section className="bg-[#1E1E25] overflow-x-hidden">
-      <div className="grid w-full grid-cols-1 lg:grid-cols-[30%_70%] min-h-[500px]">
+      <div className="-mb-20 grid w-full grid-cols-1 lg:grid-cols-[30%_70%] items-stretch">
         {/* Left */}
-        <div className="flex items-center justify-center p-8 bg-gradient-to-b from-[#373944] to-[#1E1E25] shadow-md">
+        <div className="p-8 flex items-center justify-center bg-gradient-to-b from-[#373944] to-[#1E1E25] shadow-md lg:h-full">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1.0 }}>
             <img src={logo} alt="…" className="h-[300px] w-auto" />
             <h1 className="text-4xl md:text-6xl font-bold leading-tight text-white">DIKONAKAYA</h1>
@@ -49,7 +31,7 @@ export default function Home() {
         </div>
 
         {/* Right */}
-        <div className="h-[400px] lg:h-[600px] shadow-md w-full overflow-hidden">
+        <div className="h-[400px] lg:h-full shadow-md w-full overflow-hidden">
           <Carousel />
         </div>
       </div>
