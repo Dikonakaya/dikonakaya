@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 
 const Header: React.FC = () => {
   const [openMenu, setOpenMenu] = useState<"portfolio" | "more" | null>(null);
@@ -7,6 +8,7 @@ const Header: React.FC = () => {
   // small timeout to prevent menus from closing immediately when moving
   // cursor from the button into the submenu (prevents flicker)
   const closeTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const location = useLocation();
 
   function handleMenuEnter(menu: "portfolio" | "more") {
     if (closeTimeout.current) {
@@ -113,7 +115,7 @@ const Header: React.FC = () => {
           </div>
 
           {/* Center */}
-          <nav className="-mt-10 flex md:justify-end lg:justify-center px-24">
+          <nav className="-mt-10 flex lg:justify-center px-24">
             <ul className="flex items-center text-sm">
 
               {/* Portfolio (dropdown) */}
@@ -122,22 +124,23 @@ const Header: React.FC = () => {
                 onMouseEnter={() => handleMenuEnter("portfolio")}
                 onMouseLeave={() => handleMenuLeave()}
               >
-                <button
+                <a
+                  href="/"
                   aria-expanded={openMenu === "portfolio"}
-                  className="flex items-center gap-2 px-3 py-2.5 hover:bg-[#1E1E25] transition-colors"
+                  className={`flex items-center gap-2 px-3 py-2.5 transition-colors hover:bg-[#1E1E25]`}
                 >
-                  <span className="text-white">Art Portfolio</span>
-                </button>
+                  <span className={`${location.pathname === "/" ? "text-slate-400" : "text-white"}`}>Art Portfolio</span>
+                </a>
 
                 <ul
                   aria-hidden={openMenu !== "portfolio"}
                   className={`absolute left-0 mt-2 w-40 bg-[rgba(0,0,0,0.5)] border border-[rgba(0,0,0,0.2)] rounded-md shadow-md text-white py-1 z-50 transition-opacity duration-200 ease-out transform ${openMenu === "portfolio" ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 translate-y-0 pointer-events-none"}`}
                 >
                   <li>
-                    <a href="#pixelart" className="block px-4 py-2 transition-colors duration-200 ease-in-out hover:bg-[#1E1E25] focus:bg-[#1E1E25]">Pixel Art</a>
+                    <a href="/#pixelart" className="block px-4 py-2 transition-colors duration-200 ease-in-out hover:bg-[#1E1E25] focus:bg-[#1E1E25]">Pixel Art</a>
                   </li>
                   <li>
-                    <a href="#photography" className="block px-4 py-2 transition-colors duration-200 ease-in-out hover:bg-[#1E1E25] focus:bg-[#1E1E25]">Photography</a>
+                    <a href="/#photography" className="block px-4 py-2 transition-colors duration-200 ease-in-out hover:bg-[#1E1E25] focus:bg-[#1E1E25]">Photography</a>
                   </li>
                 </ul>
               </li>
@@ -208,13 +211,54 @@ const Header: React.FC = () => {
           </div>
 
           <nav className="flex flex-col gap-2">
-            <a href="#pixelart" className="px-3 py-2 rounded hover:bg-white/5 text-white">Pixel Art</a>
-            <a href="#photography" className="px-3 py-2 rounded hover:bg-white/5 text-white">Photography</a>
-            <a href="#projects" className="px-3 py-2 rounded hover:bg-white/5 text-white">Projects</a>
-            <a href="#store" className="px-3 py-2 rounded hover:bg-white/5 text-white">Store</a>
-            <a href="#about" className="px-3 py-2 rounded hover:bg-white/5 text-white">About Me</a>
-            <a href="#socials" className="px-3 py-2 rounded hover:bg-white/5 text-white">Socials</a>
-            <a href="#contact" className="px-3 py-2 rounded hover:bg-white/5 text-white">Contact</a>
+            <a
+              href="/"
+              className={`px-3 py-2 rounded text-white ${location.hash === "" ? "bg-[#1E1E25]" : "hover:bg-white/5"}`}
+            >
+              Portfolio
+            </a>
+            <a
+              href="/#pixelart"
+              className={`px-3 py-2 rounded text-white ${location.hash === "#pixelart" ? "bg-[#1E1E25]" : "hover:bg-white/5"}`}
+            >
+              Pixel Art
+            </a>
+            <a
+              href="/#photography"
+              className={`px-3 py-2 rounded text-white ${location.hash === "#photography" ? "bg-[#1E1E25]" : "hover:bg-white/5"}`}
+            >
+              Photography
+            </a>
+            <a
+              href="/#projects"
+              className={`px-3 py-2 rounded text-white ${(location.hash === "#projects" || location.pathname === "/projects") ? "bg-[#1E1E25]" : "hover:bg-white/5"}`}
+            >
+              Projects
+            </a>
+            <a
+              href="/#store"
+              className={`px-3 py-2 rounded text-white ${(location.hash === "#store" || location.pathname === "/store") ? "bg-[#1E1E25]" : "hover:bg-white/5"}`}
+            >
+              Store
+            </a>
+            <a
+              href="/#about"
+              className={`px-3 py-2 rounded text-white ${(location.hash === "#about" || location.pathname === "/about") ? "bg-[#1E1E25]" : "hover:bg-white/5"}`}
+            >
+              About Me
+            </a>
+            <a
+              href="/#socials"
+              className={`px-3 py-2 rounded text-white ${(location.hash === "#socials" || location.pathname === "/socials") ? "bg-[#1E1E25]" : "hover:bg-white/5"}`}
+            >
+              Socials
+            </a>
+            <a
+              href="/#contact"
+              className={`px-3 py-2 rounded text-white ${(location.hash === "#contact" || location.pathname === "/contact") ? "bg-[#1E1E25]" : "hover:bg-white/5"}`}
+            >
+              Contact
+            </a>
           </nav>
         </aside>
       </div>

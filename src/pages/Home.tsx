@@ -16,7 +16,7 @@ export default function Home() {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1.0 }}>
             <img src={logo} alt="…" className="h-[120px] md:h-[160px] lg:h-[180px] xl:h-[300px] w-auto mx-auto" />
             <h1 className="text-2xl md:text-4xl lg:text-4xl xl:text-6xl font-bold leading-snug md:leading-tight text-white text-center">DIKONAKAYA</h1>
-            <p className="mt-2 md:mt-4 max-w-md md:max-w-2xl text-slate-300 text-sm md:text-base text-center leading-snug md:leading-tight">
+            <p className="mt-2 md:mt-4 max-w-md md:max-w-2xl text-slate-400 text-sm md:text-base text-center leading-snug md:leading-tight">
               Pixel Artist
               <br />
               Photographer
@@ -27,7 +27,7 @@ export default function Home() {
               <button
                 type="button"
                 onClick={() => (window.location.hash = '#projects')}
-                className="btn bg-slate-800 hover:bg-slate-700 text-sm md:text-base px-3 py-2 flex-none"
+                className="inline-flex items-center px-3 py-2 rounded-md bg-black text-white text-sm md:text-base font-medium hover:bg-[#FFFFFF] hover:text-[#373944] transition-colors flex-none whitespace-nowrap"
                 aria-label="View Projects"
               >
                 View Projects
@@ -36,7 +36,7 @@ export default function Home() {
               <button
                 type="button"
                 onClick={() => (window.location.hash = '#contact')}
-                className="btn border border-slate-700 hover:border-slate-600 text-sm md:text-base px-3 py-2 flex-none"
+                className="inline-flex items-center px-3 py-2 rounded-md bg-black text-white text-sm md:text-base font-medium hover:bg-[#FFFFFF] hover:text-[#373944] transition-colors flex-none whitespace-nowrap"
                 aria-label="Contact Me"
               >
                 Contact Me
@@ -53,7 +53,7 @@ export default function Home() {
 
       <div className="flex items-start justify-center p-8 mt-10 h-full bg-gradient-to-b from-[#373944] to-[#1E1E25]">
         <div className="w-full gap-8">
-          <div>
+          <div id="pixelart" className="scroll-mt-[6rem]">
             <PortfolioGrid
               title="PIXEL ART"
               sets={portfolioData.filter(s =>
@@ -63,7 +63,7 @@ export default function Home() {
             />
           </div>
 
-          <div>
+          <div id="photography" className="scroll-mt-[6rem]">
             <PortfolioGrid
               title="PHOTOGRAPHY"
               sets={portfolioData.filter(s =>

@@ -309,7 +309,7 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
           return (
             <div
               key={rowIndex}
-              className={`flex ${row.capped ? "justify-center" : ""} gap-4 transition-all duration-300 ease-in-out`}
+              className={`flex ${row.capped ? "justify-center" : ""} gap-4 transition-all duration-[2000ms] ease-in-out`}
               style={{ transform: `scale(${row.capped ? 0.98 : 1})`, opacity: 1 }}
             >
               {row.images.map((img, idx) => {
@@ -323,7 +323,7 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
                   <button
                     key={idx}
                     onClick={() => openLightboxAt(flattenedIndex === -1 ? 0 : flattenedIndex)}
-                    className="relative overflow-visible p-0 border-0 focus:outline-none rounded-md transition-transform duration-200 ease-in-out hover:scale-[1.02]"
+                    className="relative overflow-visible p-0 border-0 focus:outline-none rounded-md transition-transform duration-[300ms] ease-in-out hover:scale-[1.02]"
                   >
                     <div className="relative group">
                       {/* Image container */}
@@ -334,13 +334,13 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
                         <img
                           src={img.resizedSrc}
                           alt={img.title || ""}
-                          className="w-full h-full object-cover block transition-transform duration-300 ease-in-out group-hover:scale-[1.05] will-change-transform"
+                          className="w-full h-full object-cover block transition-transform duration-[1000ms] ease-in-out group-hover:scale-[1.05] will-change-transform"
                           loading="lazy"
                         />
                       </div>
 
                       {/* Overlay with title/description */}
-                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out pointer-events-none">
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-[300ms] ease-in-out pointer-events-none">
                         <div className="absolute rounded-md inset-0 bg-gradient-to-b from-black/50 to-transparent"></div>
                         <div className="relative flex flex-col justify-start p-4 text-left text-white">
                           <h4 className="text-lg font-semibold">{img.title}</h4>
