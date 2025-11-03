@@ -42,7 +42,18 @@ module.exports = async (req, res) => {
             timestamp: new Date().toISOString(),
         };
 
-        const payload = { username: 'Website Contact', embeds: [embed] };
+        // Optionally mention a specific Discord user on new messages.
+        // Set NOTIFY_DISCORD_ID in Vercel to your numeric Discord ID (snowflake) to enable mentions.
+        const notifyId = process.env.NOTIFY_DISCORD_ID;
+        const content = notifyId ? `<@${notifyId}> New contact from ${n}: ${s}` : undefined;
+
+        const payload = {
+            username: 'Dikonakaya.com Message',
+            ...(content ? { content } : {}),
+            embeds: [embed],
+            // Restrict allowed mentions to only the configured user to avoid accidental mass-pings
+            allowed_mentions: notifyId ? { parse: [], users: [notifyId] } : { parse: [] },
+        };
 
         // Use global fetch (available on Vercel / Node 18+)
         const r = await fetch(webhookUrl, {
