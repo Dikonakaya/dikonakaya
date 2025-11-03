@@ -143,7 +143,7 @@ export const portfolioData: PortfolioSet[] = [
   },
 
   {
-    setTitle: "GUI",
+    setTitle: "Minecraft GUI",
     year: 2024,
     description: "Pixel art of various GUI designed for custom Minecraft servers resource packs",
     tags: ["Minecraft", "Pixel Art"],

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import Lightbox from "../modals/Lightbox";
 
 // -------------------------------
 // Type Definitions
@@ -356,74 +356,14 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
         })}
       </div>
 
-      {/* Lightbox */}
-      <AnimatePresence>
-        {lightboxIndex !== null && (
-          <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/30"
-            onClick={() => setLightboxIndex(null)} // click outside closes lightbox
-          >
-            <motion.div
-              className="relative flex flex-col items-center p-8 bg-[#373944] shadow-md rounded-md max-w-[1600px] w-full mx-4"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
-              transition={{ duration: 0.3 }}
-              onClick={(e: React.MouseEvent<HTMLDivElement, MouseEvent>) => e.stopPropagation()}
-              {...(null as any)}
-            >
-              {/* Close button in top-right of gray box */}
-              <button
-                onClick={() => setLightboxIndex(null)}
-                className="absolute top-4 right-4 text-white bg-black/40 hover:bg-black/60 rounded-full p-2 z-50"
-              >
-                ✕
-              </button>
-
-              {/* Image container with fixed aspect ratio */}
-              <div className="relative w-[900px] h-[600px] max-w-full max-h-[80vh] flex items-center justify-center">
-                {/* Previous button inside the gray box */}
-                <button
-                  onClick={prevLightbox}
-                  className="absolute left-2 top-1/2 -translate-y-1/2 text-white bg-black/40 hover:bg-black/60 rounded-full p-3 z-50"
-                >
-                  ‹
-                </button>
-
-                {/* Image scaled to fit inside 900x600 container */}
-                <img
-                  src={imageData[lightboxIndex]?.resizedSrc || ""}
-                  alt={imageData[lightboxIndex]?.title || ""}
-                  className="max-w-full max-h-full object-contain rounded-md"
-                />
-
-                {/* Next button inside the gray box */}
-                <button
-                  onClick={nextLightbox}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-white bg-black/40 hover:bg-black/60 rounded-full p-3 z-50"
-                >
-                  ›
-                </button>
-              </div>
-
-              {/* Metadata & tags below the image */}
-              <div className="w-full text-white mt-4">
-                <h2 className="text-xl font-semibold">{imageData[lightboxIndex]?.title}</h2>
-                <p className="text-sm mt-1">{imageData[lightboxIndex]?.description}</p>
-                <div className="mt-2 text-sm">
-                  <strong>Camera:</strong> {imageData[lightboxIndex]?.camera || "—"} &nbsp; • &nbsp;
-                  <strong>Lens:</strong> {imageData[lightboxIndex]?.lens || "—"}
-                </div>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {(imageData[lightboxIndex]?.tags || []).map((t) => (
-                    <span key={t} className="text-xs bg-white/10 px-2 py-1 rounded">{t}</span>
-                  ))}
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+      {/* Lightbox (extracted to a separate component) */}
+      <Lightbox
+        images={imageData}
+        index={lightboxIndex}
+        onClose={() => setLightboxIndex(null)}
+        onNext={nextLightbox}
+        onPrev={prevLightbox}
+      />
     </div>
   );
 };
