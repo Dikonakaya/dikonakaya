@@ -27,31 +27,103 @@ export default function Lightbox({ images, index, onClose, onNext, onPrev }: Pro
     const bottomRef = useRef<HTMLDivElement | null>(null)
     const [showDescription, setShowDescription] = useState(true)
     const [showTitle, setShowTitle] = useState(true)
+    // Don't reveal the bottom area until we've measured what should be shown
+    const [bottomVisible, setBottomVisible] = useState(false)
 
-    const raf = () => new Promise((res) => requestAnimationFrame(res))
+    // touch/swipe state
+    const touchStartX = useRef<number | null>(null)
+    const touchCurrentX = useRef<number | null>(null)
+    const SWIPE_THRESHOLD = 50 // pixels
+
+    // no raf: we use useLayoutEffect to synchronously measure before paint to avoid flicker
 
     useLayoutEffect(() => {
         if (!bottomRef.current) return
         let mounted = true
-        const adjust = async () => {
+        const adjust = () => {
             if (!mounted || !bottomRef.current) return
-            setShowDescription(true)
-            setShowTitle(true)
-            await raf()
-
-            if (!mounted || !bottomRef.current) return
-            const el = bottomRef.current
+            // ensure we start hidden to avoid any paint with full details
+            setBottomVisible(false)
+            const el = bottomRef.current!
             const TOL = 8 // small tolerance in pixels to avoid over-sensitive hiding
-            if (el.scrollHeight <= el.clientHeight + TOL) return
 
+            // helper: clone the bottom element, optionally remove title/description nodes,
+            // and measure scrollHeight synchronously offscreen.
+            const measure = (showDesc: boolean, showTitleLocal: boolean) => {
+                // Build a fresh offscreen element using the current `img` data so
+                // measurements don't depend on the existing DOM (which may be
+                // in a transient state due to AnimatePresence).
+                const wrapper = document.createElement('div')
+                wrapper.style.position = 'absolute'
+                wrapper.style.left = '-9999px'
+                wrapper.style.top = '0'
+                wrapper.style.visibility = 'hidden'
+                wrapper.style.width = `${el.clientWidth}px`
+                wrapper.className = el.className
+
+                if (showTitleLocal && img?.title) {
+                    const h = document.createElement('h2')
+                    h.className = 'text-xl font-semibold m-0'
+                    h.textContent = img.title
+                    wrapper.appendChild(h)
+                }
+
+                if (showDesc && img?.description) {
+                    const p = document.createElement('p')
+                    p.className = 'text-sm m-0'
+                    p.textContent = img.description
+                    wrapper.appendChild(p)
+                }
+
+                if (img?.other) {
+                    const other = document.createElement('p')
+                    other.className = 'text-sm m-0'
+                    other.textContent = img.other
+                    wrapper.appendChild(other)
+                }
+
+                if (img?.tags && img.tags.length) {
+                    const tagWrap = document.createElement('div')
+                    tagWrap.className = 'flex flex-wrap gap-2 justify-center'
+                    img.tags.forEach((t) => {
+                        const s = document.createElement('span')
+                        s.className = 'text-xs bg-white/10 px-2 py-1 rounded'
+                        s.textContent = t
+                        tagWrap.appendChild(s)
+                    })
+                    wrapper.appendChild(tagWrap)
+                }
+
+                document.body.appendChild(wrapper)
+                const h = wrapper.scrollHeight
+                document.body.removeChild(wrapper)
+                return h
+            }
+
+            const clientH = el.clientHeight
+            // if everything fits with both visible
+            if (measure(true, true) <= clientH + TOL) {
+                setShowDescription(true)
+                setShowTitle(true)
+                setBottomVisible(true)
+                return
+            }
+
+            // if fits without description
+            if (measure(false, true) <= clientH + TOL) {
+                setShowDescription(false)
+                setShowTitle(true)
+                setBottomVisible(true)
+                return
+            }
+
+            // otherwise hide both
             setShowDescription(false)
-            await raf()
-            if (!mounted || !bottomRef.current) return
-            if (el.scrollHeight <= el.clientHeight + TOL) return
-
             setShowTitle(false)
+            setBottomVisible(true)
         }
 
+        // run adjust synchronously in the layout phase to avoid any intermediate paint
         adjust()
         const onResize = () => adjust()
         window.addEventListener('resize', onResize)
@@ -97,7 +169,35 @@ export default function Lightbox({ images, index, onClose, onNext, onPrev }: Pro
                             ✕
                         </button>
 
-                        <div className="relative xl:w-[900px] xl:h-[600px] xl:min-h-[600px] xl:max-h-[600px] lg:w-[700px] lg:h-[440px] lg:min-h-[440px] lg:max-h-[440px] md:w-[640px] md:h-[420px] md:min-h-[420px] md:max-h-[420px] sm:w-[480px] sm:h-[320px] sm:min-h-[320px] sm:max-h-[320px] w-[320px] h-[200px] min-h-[200px] max-h-[200px] max-w-full flex items-center justify-center px-6 py-6">
+                        <div
+                            className="relative xl:w-[900px] xl:h-[600px] xl:min-h-[600px] xl:max-h-[600px] lg:w-[700px] lg:h-[440px] lg:min-h-[440px] lg:max-h-[440px] md:w-[640px] md:h-[420px] md:min-h-[420px] md:max-h-[420px] sm:w-[480px] sm:h-[320px] sm:min-h-[320px] sm:max-h-[320px] w-[320px] h-[200px] min-h-[200px] max-h-[200px] max-w-full flex items-center justify-center px-6 py-6"
+                            onTouchStart={(e) => {
+                                const t = e.touches[0]
+                                touchStartX.current = t.clientX
+                                touchCurrentX.current = t.clientX
+                            }}
+                            onTouchMove={(e) => {
+                                const t = e.touches[0]
+                                touchCurrentX.current = t.clientX
+                            }}
+                            onTouchEnd={() => {
+                                if (touchStartX.current == null || touchCurrentX.current == null) {
+                                    touchStartX.current = null
+                                    touchCurrentX.current = null
+                                    return
+                                }
+                                const dx = touchCurrentX.current - touchStartX.current
+                                if (dx > SWIPE_THRESHOLD) {
+                                    // swipe right -> previous
+                                    onPrev()
+                                } else if (dx < -SWIPE_THRESHOLD) {
+                                    // swipe left -> next
+                                    onNext()
+                                }
+                                touchStartX.current = null
+                                touchCurrentX.current = null
+                            }}
+                        >
                             <button
                                 onClick={onPrev}
                                 onMouseUp={(e) => (e.currentTarget as HTMLButtonElement).blur()}
@@ -107,15 +207,20 @@ export default function Lightbox({ images, index, onClose, onNext, onPrev }: Pro
                                 <span className="text-white bg-black/40 group-hover:bg-black/60 group-focus-visible:bg-black/60 rounded-full w-6 h-10 flex items-center justify-center transform transition-transform duration-200 ease-out group-hover:-translate-y-1 group-hover:scale-105 group-focus-visible:-translate-y-1 group-focus-visible:scale-105">‹</span>
                             </button>
 
-                            <MImg
-                                src={img?.resizedSrc || ''}
-                                alt={img?.title || ''}
-                                className="w-full h-full object-contain rounded-md"
-                                initial={{ opacity: 0.98, scale: 0.99, y: 4 }}
-                                animate={{ opacity: 1, scale: 1, y: 0 }}
-                                exit={{ opacity: 0, scale: 0.98, y: 8 }}
-                                transition={{ duration: 0.22 }}
-                            />
+                            <AnimatePresence mode="wait">
+                                {img && (
+                                    <MImg
+                                        key={img.resizedSrc || index || 'img'}
+                                        src={img?.resizedSrc || ''}
+                                        alt={img?.title || ''}
+                                        className="w-full h-full object-contain rounded-md"
+                                        initial={{ opacity: 0, scale: 0.99 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 0.98 }}
+                                        transition={{ opacity: { duration: 0.05 }, scale: { duration: 0.05 } }}
+                                    />
+                                )}
+                            </AnimatePresence>
 
                             <button
                                 onClick={onNext}
@@ -127,7 +232,7 @@ export default function Lightbox({ images, index, onClose, onNext, onPrev }: Pro
                             </button>
                         </div>
 
-                        <div ref={bottomRef} className="w-full mt-4 p-6 bg-[#1E1E25] rounded-b-md text-white text-center overflow-hidden xl:h-[160px] xl:min-h-[160px] xl:max-h-[160px] lg:h-[140px] lg:min-h-[140px] lg:max-h-[140px] md:h-[140px] md:min-h-[140px] md:max-h-[140px] sm:h-[120px] sm:min-h-[120px] sm:max-h-[120px] h-[120px] min-h-[120px] max-h-[120px] flex flex-col items-center justify-center space-y-2">
+                        <div ref={bottomRef} className={`w-full mt-4 p-6 bg-[#1E1E25] rounded-b-md text-white text-center overflow-hidden xl:h-[160px] xl:min-h-[160px] xl:max-h-[160px] lg:h-[140px] lg:min-h-[140px] lg:max-h-[140px] md:h-[140px] md:min-h-[140px] md:max-h-[140px] sm:h-[120px] sm:min-h-[120px] sm:max-h-[120px] h-[120px] min-h-[120px] max-h-[120px] flex flex-col items-center justify-center space-y-2 transition-opacity duration-150 ${bottomVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
                             {showTitle && <h2 className="text-xl font-semibold m-0">{img?.title}</h2>}
                             {showDescription && <p className="text-sm m-0">{img?.description}</p>}
                             <div className="text-sm">

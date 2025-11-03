@@ -52,21 +52,21 @@ module.exports = async (req, res) => {
         }
 
         const embed = {
+            title: s,
+            description: m,
+            color: 0x00ff99,
             fields: [
                 { name: 'Name', value: n, inline: true },
                 { name: 'Email', value: e, inline: true },
                 { name: 'Discord', value: clean(discord) || '—', inline: true },
             ],
-            title: s,
-            description: m,
-            color: 0x00ff99,
             timestamp: new Date().toISOString(),
         };
 
         // Optionally mention a specific Discord user on new messages.
         // Set NOTIFY_DISCORD_ID in Vercel to your numeric Discord ID (snowflake) to enable mentions.
         const notifyId = process.env.NOTIFY_DISCORD_ID;
-        const content = notifyId ? `<@${notifyId}> New contact from ${n}: ${s}` : undefined;
+        const content = notifyId ? `<@${notifyId}>` : undefined;
 
         const payload = {
             username: 'Dikonakaya.com Message',

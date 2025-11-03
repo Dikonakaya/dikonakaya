@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 
 const Header: React.FC = () => {
   const [openMenu, setOpenMenu] = useState<"portfolio" | "more" | null>(null);
@@ -56,7 +56,7 @@ const Header: React.FC = () => {
         <div className="absolute left-4">
         </div>
 
-        <div className="text-center text-lg font-bold text-white">DIKONAKAYA</div>
+        <Link to="/" aria-label="Home" className="text-center text-lg font-bold text-white">DIKONAKAYA</Link>
 
         <div className="absolute right-4">
           <button
@@ -77,9 +77,9 @@ const Header: React.FC = () => {
 
           {/* Left: Logo */}
           <div className="flex items-center px-4">
-            <a href="#" className="absolute left-6 top-0 h-full flex items-center gap-3 text-3xl font-bold text-white z-50">
+            <Link to="/" aria-label="Home" className="absolute left-6 top-0 h-full flex items-center gap-3 text-3xl font-bold text-white z-50">
               DIKONAKAYA
-            </a>
+            </Link>
           </div>
 
           {/* Center */}
@@ -88,13 +88,13 @@ const Header: React.FC = () => {
 
           {/* Right: Status */}
           <div className="mt-1.5 flex items-center justify-end px-4">
-            <a
-              href="/contact"
+            <Link
+              to="/contact"
               aria-label="Commissions - Contact"
               className="inline-flex items-center px-3 py-1 rounded-md bg-green-600 text-white text-sm font-medium hover:bg-[#FFFFFF] hover:text-[#373944] transition-colors"
             >
               Commissions Open
-            </a>
+            </Link>
           </div>
         </div>
 
@@ -124,35 +124,35 @@ const Header: React.FC = () => {
                 onMouseEnter={() => handleMenuEnter("portfolio")}
                 onMouseLeave={() => handleMenuLeave()}
               >
-                <a
-                  href="/"
+                <Link
+                  to="/"
                   aria-expanded={openMenu === "portfolio"}
                   className={`flex items-center gap-2 px-3 py-2.5 transition-colors hover:bg-[#1E1E25]`}
                 >
                   <span className={`${location.pathname === "/" ? "text-slate-400" : "text-white"}`}>Art Portfolio</span>
-                </a>
+                </Link>
 
                 <ul
                   aria-hidden={openMenu !== "portfolio"}
                   className={`absolute left-0 mt-2 w-40 bg-[rgba(0,0,0,0.5)] border border-[rgba(0,0,0,0.2)] rounded-md shadow-md text-white py-1 z-50 transition-opacity duration-200 ease-out transform ${openMenu === "portfolio" ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 translate-y-0 pointer-events-none"}`}
                 >
                   <li>
-                    <a href="/#pixelart" className="block px-4 py-2 transition-colors duration-200 ease-in-out hover:bg-[#1E1E25] focus:bg-[#1E1E25]">Pixel Art</a>
+                    <Link to="/#pixelart" className="block px-4 py-2 transition-colors duration-200 ease-in-out hover:bg-[#1E1E25] focus:bg-[#1E1E25]">Pixel Art</Link>
                   </li>
                   <li>
-                    <a href="/#photography" className="block px-4 py-2 transition-colors duration-200 ease-in-out hover:bg-[#1E1E25] focus:bg-[#1E1E25]">Photography</a>
+                    <Link to="/#photography" className="block px-4 py-2 transition-colors duration-200 ease-in-out hover:bg-[#1E1E25] focus:bg-[#1E1E25]">Photography</Link>
                   </li>
                 </ul>
               </li>
 
               {/* Projects */}
               <li>
-                <a href="#projects" className="flex items-center px-3 py-2.5 hover:bg-[#1E1E25] transition-colors relative z-10">Projects</a>
+                <Link to="#projects" className="flex items-center px-3 py-2.5 hover:bg-[#1E1E25] transition-colors relative z-10">Projects</Link>
               </li>
 
               {/* Store */}
               <li>
-                <a href="#store" className="flex items-center px-3 py-2.5 hover:bg-[#1E1E25] transition-colors relative z-10">Store</a>
+                <Link to="#store" className="flex items-center px-3 py-2.5 hover:bg-[#1E1E25] transition-colors relative z-10">Store</Link>
               </li>
 
               {/* More */}
@@ -176,13 +176,13 @@ const Header: React.FC = () => {
                   className={`absolute left-0 mt-2 w-48 bg-[rgba(0,0,0,0.5)] border border-[rgba(0,0,0,0.2)] rounded-md shadow-md text-white py-1 z-50 transition-opacity duration-200 ease-out transform ${openMenu === "more" ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 translate-y-0 pointer-events-none"}`}
                 >
                   <li>
-                    <a href="#about" className="block px-4 py-2 transition-colors duration-200 ease-in-out hover:bg-[#1E1E25] focus:bg-[#1E1E25]">About Me</a>
+                    <Link to="#about" className="block px-4 py-2 transition-colors duration-200 ease-in-out hover:bg-[#1E1E25] focus:bg-[#1E1E25]">About Me</Link>
                   </li>
                   <li>
-                    <a href="#socials" className="block px-4 py-2 transition-colors duration-200 ease-in-out hover:bg-[#1E1E25] focus:bg-[#1E1E25]">Socials</a>
+                    <Link to="#socials" className="block px-4 py-2 transition-colors duration-200 ease-in-out hover:bg-[#1E1E25] focus:bg-[#1E1E25]">Socials</Link>
                   </li>
                   <li>
-                    <a href="/contact" className="block px-4 py-2 transition-colors duration-200 ease-in-out hover:bg-[#1E1E25] focus:bg-[#1E1E25]">Contact</a>
+                    <Link to="/contact" className="block px-4 py-2 transition-colors duration-200 ease-in-out hover:bg-[#1E1E25] focus:bg-[#1E1E25]">Contact</Link>
                   </li>
                 </ul>
               </li>
@@ -210,54 +210,54 @@ const Header: React.FC = () => {
           </div>
 
           <nav className="flex flex-col gap-2">
-            <a
-              href="/"
-              className={`px-3 py-2 rounded text-white ${location.hash === "" ? "bg-[#1E1E25]" : "hover:bg-white/5"}`}
+            <Link
+              to="/"
+              className={`px-3 py-2 rounded text-white ${location.pathname === "/" ? "bg-[#1E1E25]" : ""}`}
             >
               Portfolio
-            </a>
-            <a
-              href="/#pixelart"
-              className={`px-3 py-2 rounded text-white ${location.hash === "#pixelart" ? "bg-[#1E1E25]" : "hover:bg-white/5"}`}
+            </Link>
+            <Link
+              to="/#pixelart"
+              className={`px-3 py-2 rounded text-white ${location.hash === "#pixelart" ? "bg-[#1E1E25]" : ""}`}
             >
               Pixel Art
-            </a>
-            <a
-              href="/#photography"
-              className={`px-3 py-2 rounded text-white ${location.hash === "#photography" ? "bg-[#1E1E25]" : "hover:bg-white/5"}`}
+            </Link>
+            <Link
+              to="/#photography"
+              className={`px-3 py-2 rounded text-white ${location.hash === "#photography" ? "bg-[#1E1E25]" : ""}`}
             >
               Photography
-            </a>
-            <a
-              href="/#projects"
-              className={`px-3 py-2 rounded text-white ${(location.hash === "#projects" || location.pathname === "/projects") ? "bg-[#1E1E25]" : "hover:bg-white/5"}`}
+            </Link>
+            <Link
+              to="/#projects"
+              className={`px-3 py-2 rounded text-white ${(location.hash === "#projects" || location.pathname === "/projects") ? "bg-[#1E1E25]" : ""}`}
             >
               Projects
-            </a>
-            <a
-              href="/#store"
-              className={`px-3 py-2 rounded text-white ${(location.hash === "#store" || location.pathname === "/store") ? "bg-[#1E1E25]" : "hover:bg-white/5"}`}
+            </Link>
+            <Link
+              to="/#store"
+              className={`px-3 py-2 rounded text-white ${(location.hash === "#store" || location.pathname === "/store") ? "bg-[#1E1E25]" : ""}`}
             >
               Store
-            </a>
-            <a
-              href="/#about"
-              className={`px-3 py-2 rounded text-white ${(location.hash === "#about" || location.pathname === "/about") ? "bg-[#1E1E25]" : "hover:bg-white/5"}`}
+            </Link>
+            <Link
+              to="/#about"
+              className={`px-3 py-2 rounded text-white ${(location.hash === "#about" || location.pathname === "/about") ? "bg-[#1E1E25]" : ""}`}
             >
               About Me
-            </a>
-            <a
-              href="/#socials"
-              className={`px-3 py-2 rounded text-white ${(location.hash === "#socials" || location.pathname === "/socials") ? "bg-[#1E1E25]" : "hover:bg-white/5"}`}
+            </Link>
+            <Link
+              to="/#socials"
+              className={`px-3 py-2 rounded text-white ${(location.hash === "#socials" || location.pathname === "/socials") ? "bg-[#1E1E25]" : ""}`}
             >
               Socials
-            </a>
-            <a
-              href="/contact"
-              className={`px-3 py-2 rounded text-white ${(location.hash === "#contact" || location.pathname === "/contact") ? "bg-[#1E1E25]" : "hover:bg-white/5"}`}
+            </Link>
+            <Link
+              to="/contact"
+              className={`px-3 py-2 rounded text-white ${(location.hash === "#contact" || location.pathname === "/contact") ? "bg-[#1E1E25]" : ""}`}
             >
               Contact
-            </a>
+            </Link>
           </nav>
         </aside>
       </div>
