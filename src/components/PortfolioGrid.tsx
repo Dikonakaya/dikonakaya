@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 // -------------------------------
 // Type Definitions
@@ -320,67 +321,73 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
       </div>
 
       {/* Lightbox */}
-      {(lightboxIndex !== null || lightboxVisible) && (
-        <div
-          className={`fixed inset-0 z-50 flex items-center justify-center transition-opacity duration-250 ${lightboxIndex !== null ? "opacity-100" : "opacity-0 pointer-events-none"}`}
-          style={{ backgroundColor: "#667B7F" }} // Custom background color
-          onClick={() => setLightboxIndex(null)}
-        >
-          <div className="relative w-full h-full flex items-center justify-center p-4" onClick={(e) => e.stopPropagation()}>
-            {/* Navigation buttons */}
-            <button onClick={prevLightbox} className="absolute left-4 top-1/2 -translate-y-1/2 z-40 bg-black/40 hover:bg-black/60 text-white rounded-full p-3">‹</button>
-            <button onClick={nextLightbox} className="absolute right-4 top-1/2 -translate-y-1/2 z-40 bg-black/40 hover:bg-black/60 text-white rounded-full p-3">›</button>
-            <button onClick={() => setLightboxIndex(null)} className="absolute right-6 top-6 z-50 bg-black/40 hover:bg-black/60 text-white rounded-full p-2">✕</button>
+      <AnimatePresence>
+        {lightboxIndex !== null && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/30"
+            onClick={() => setLightboxIndex(null)} // click outside closes lightbox
+          >
+            <motion.div
+              className="relative flex flex-col items-center p-8 bg-[#667B7F] shadow-md rounded-md max-w-[1600px] w-full mx-4"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              transition={{ duration: 0.3 }}
+              onClick={(e: React.MouseEvent<HTMLDivElement, MouseEvent>) => e.stopPropagation()}
+              {...(null as any)}
+            >
+              {/* Close button in top-right of gray box */}
+              <button
+                onClick={() => setLightboxIndex(null)}
+                className="absolute top-4 right-4 text-white bg-black/40 hover:bg-black/60 rounded-full p-2 z-50"
+              >
+                ✕
+              </button>
 
-            {/* Image display */}
-            <div className="w-full max-w-[1400px] bg-transparent flex flex-col items-center gap-4">
-              <div className="w-full flex items-center justify-center">
+              {/* Image container with fixed aspect ratio */}
+              <div className="relative w-[900px] h-[600px] max-w-full max-h-[80vh] flex items-center justify-center bg-[#667B7F]">
+                {/* Previous button inside the gray box */}
+                <button
+                  onClick={prevLightbox}
+                  className="absolute left-2 top-1/2 -translate-y-1/2 text-white bg-black/40 hover:bg-black/60 rounded-full p-3 z-50"
+                >
+                  ‹
+                </button>
+
+                {/* Image scaled to fit inside 900x600 container */}
                 <img
-                  src={imageData[lightboxIndex ?? 0]?.resizedSrc || ""}
-                  alt={imageData[lightboxIndex ?? 0]?.title || ""}
-                  className="max-h-[82vh] w-auto object-contain rounded-md"
-                  loading="lazy"
+                  src={imageData[lightboxIndex]?.resizedSrc || ""}
+                  alt={imageData[lightboxIndex]?.title || ""}
+                  className="max-w-full max-h-full object-contain rounded-md"
                 />
+
+                {/* Next button inside the gray box */}
+                <button
+                  onClick={nextLightbox}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-white bg-black/40 hover:bg-black/60 rounded-full p-3 z-50"
+                >
+                  ›
+                </button>
               </div>
 
-              {/* Metadata & tags */}
-              {lightboxIndex !== null && (
-                <div className="w-full bg-black/40 p-4 rounded-md text-white max-w-[1400px]">
-                  <div className="flex items-start gap-4">
-                    <div className="flex-1">
-                      <h2 className="text-xl font-semibold">{imageData[lightboxIndex].title}</h2>
-                      <p className="text-sm text-slate-200 mt-1">{imageData[lightboxIndex].description}</p>
-                      <div className="mt-3 text-sm">
-                        <strong>Camera:</strong> {imageData[lightboxIndex].camera || "—"} &nbsp; • &nbsp;
-                        <strong>Lens:</strong> {imageData[lightboxIndex].lens || "—"}
-                      </div>
-                    </div>
-                    <div className="min-w-[180px] text-sm">
-                      <div className="mb-2"><strong>Details</strong></div>
-                      <div className="text-slate-200">
-                        <div className="mt-2"><strong>Year:</strong> {imageData[lightboxIndex].date ? new Date(imageData[lightboxIndex].date).getFullYear() : "—"}</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="mt-4 flex items-center gap-2">
-                    <div className="flex flex-wrap gap-2">
-                      {(imageData[lightboxIndex].tags || []).map((t) => (
-                        <span key={t} className="text-xs bg-white/10 px-2 py-1 rounded text-slate-100">{t}</span>
-                      ))}
-                    </div>
-
-                    <div className="ml-auto flex gap-2">
-                      <button onClick={prevLightbox} className="px-3 py-2 bg-white/10 rounded hover:bg-white/20">Prev</button>
-                      <button onClick={nextLightbox} className="px-3 py-2 bg-white/10 rounded hover:bg-white/20">Next</button>
-                    </div>
-                  </div>
+              {/* Metadata & tags below the image */}
+              <div className="w-full text-white mt-4">
+                <h2 className="text-xl font-semibold">{imageData[lightboxIndex]?.title}</h2>
+                <p className="text-sm mt-1">{imageData[lightboxIndex]?.description}</p>
+                <div className="mt-2 text-sm">
+                  <strong>Camera:</strong> {imageData[lightboxIndex]?.camera || "—"} &nbsp; • &nbsp;
+                  <strong>Lens:</strong> {imageData[lightboxIndex]?.lens || "—"}
                 </div>
-              )}
-            </div>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {(imageData[lightboxIndex]?.tags || []).map((t) => (
+                    <span key={t} className="text-xs bg-white/10 px-2 py-1 rounded">{t}</span>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
     </div>
   );
 };
