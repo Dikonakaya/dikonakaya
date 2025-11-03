@@ -331,12 +331,8 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
                         <img
                           src={img.resizedSrc}
                           alt={img.title || ""}
-                          className="w-full h-full object-cover block transition-transform duration-[1000ms] ease-in-out group-hover:scale-[1.05] will-change-transform select-none"
+                          className="w-full h-full object-cover block transition-transform duration-[1000ms] ease-in-out group-hover:scale-[1.05] will-change-transform"
                           loading="lazy"
-                          draggable={false}
-                          onDragStart={(e: React.DragEvent<HTMLImageElement>) => e.preventDefault()}
-                          onContextMenu={(e: React.MouseEvent<HTMLImageElement>) => e.preventDefault()}
-                          style={{ WebkitUserDrag: 'none' } as any}
                         />
                       </div>
 

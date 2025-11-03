@@ -9,19 +9,30 @@ export default function Contact() {
     const [message, setMessage] = useState("");
     const [status, setStatus] = useState<null | "sending" | "sent" | "error">(null);
 
-    function handleSubmit(e: React.FormEvent) {
+    async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
         setStatus("sending");
 
-        // Demo behavior: simulate a send and reset form. Replace with real API call if needed.
-        setTimeout(() => {
-            setStatus("sent");
-            setName("");
-            setEmail("");
-            setDiscord("");
-            setSubject("");
-            setMessage("");
-        }, 700);
+        try {
+            const resp = await fetch('/api/contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, discord, subject, message }),
+            });
+
+            if (!resp.ok) {
+                const body = await resp.json().catch(() => ({}));
+                console.error('Contact send failed', body);
+                setStatus('error');
+                return;
+            }
+
+            setStatus('sent');
+            setName(''); setEmail(''); setDiscord(''); setSubject(''); setMessage('');
+        } catch (err) {
+            console.error(err);
+            setStatus('error');
+        }
     }
 
     return (
