@@ -31,7 +31,7 @@ export default function Home() {
         </div>
 
         {/* Right */}
-        <div className="h-[400px] lg:h-full shadow-md w-full overflow-hidden">
+        <div className="h-[600px] lg:h-full shadow-md w-full overflow-hidden">
           <Carousel />
         </div>
       </div>

@@ -41,6 +41,7 @@ type PortfolioImageWithMeta = PortfolioImage & {
   height: number;
   aspectRatio: number;
   resizedSrc: string;       // Can be a resized data URL for faster loading
+  originalIndex?: number;   // original position in the merged images array
 };
 
 // Row layout data
@@ -66,7 +67,7 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   // State to store processed image data
-  const [imageData, setImageData] = useState<PortfolioImageWithMeta[]>([]);
+  const [imageData, setImageData] = useState<Array<PortfolioImageWithMeta | null>>([]);
   const [rows, setRows] = useState<RowData[]>([]);
 
   // Lightbox state
@@ -109,40 +110,61 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
   // Preload images and calculate metadata
   // -------------------------------
   useEffect(() => {
+    // Incremental loading while preserving original order: prefill an array of
+    // null slots equal to mergedImages.length and insert each loaded image at
+    // its original index. The UI will re-render and recalc rows as slots fill.
     let mounted = true;
     setIsPreloading(true);
+    setImageData(new Array(mergedImages.length).fill(null)); // reset slots
 
-    const promises = mergedImages.map(
-      (it) =>
-        new Promise<PortfolioImageWithMeta>((resolve) => {
-          const img = new Image();
-          img.crossOrigin = "anonymous";
-          img.src = it.src;
+    let loadedCount = 0;
 
-          img.onload = () => {
-            const resizedSrc = resizeImageDataUrl(img);
-            const width = img.width > MAX_WIDTH ? MAX_WIDTH : img.width;
-            const height = Math.round((img.height * width) / img.width);
-            resolve({ ...it, width, height, aspectRatio: width / height, resizedSrc });
-          };
+    mergedImages.forEach((it, idx) => {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.src = it.src;
 
-          img.onerror = () => {
-            const fallbackWidth = Math.min(MAX_WIDTH, 1200);
-            resolve({
-              ...it,
-              width: fallbackWidth,
-              height: Math.round(fallbackWidth * 0.66),
-              aspectRatio: fallbackWidth / Math.round(fallbackWidth * 0.66),
-              resizedSrc: it.src,
-            });
-          };
-        })
-    );
+      const handleLoaded = () => {
+        if (!mounted) return;
+        const resizedSrc = resizeImageDataUrl(img);
+        const width = img.width > MAX_WIDTH ? MAX_WIDTH : img.width;
+        const height = Math.round((img.height * width) / img.width);
+        const item: PortfolioImageWithMeta = { ...it, width, height, aspectRatio: width / height, resizedSrc, originalIndex: idx };
 
-    Promise.all(promises).then((arr) => {
-      if (!mounted) return;
-      setImageData(arr);
-      setIsPreloading(false);
+        setImageData((prev) => {
+          const copy = prev.slice();
+          copy[idx] = item;
+          return copy;
+        });
+
+        loadedCount++;
+        if (loadedCount === mergedImages.length) setIsPreloading(false);
+      };
+
+      const handleError = () => {
+        if (!mounted) return;
+        const fallbackWidth = Math.min(MAX_WIDTH, 1200);
+        const item: PortfolioImageWithMeta = {
+          ...it,
+          width: fallbackWidth,
+          height: Math.round(fallbackWidth * 0.66),
+          aspectRatio: fallbackWidth / Math.round(fallbackWidth * 0.66),
+          resizedSrc: it.src,
+          originalIndex: idx,
+        };
+
+        setImageData((prev) => {
+          const copy = prev.slice();
+          copy[idx] = item;
+          return copy;
+        });
+
+        loadedCount++;
+        if (loadedCount === mergedImages.length) setIsPreloading(false);
+      };
+
+      img.onload = handleLoaded;
+      img.onerror = handleError;
     });
 
     return () => {
@@ -154,14 +176,20 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
   // Calculate rows based on container width
   // -------------------------------
   const calculateRows = () => {
-    if (!containerRef.current || imageData.length === 0) return;
+    if (!containerRef.current) return;
+    const loadedImages = imageData.filter((x): x is PortfolioImageWithMeta => x !== null);
+    if (loadedImages.length === 0) {
+      setRows([]);
+      return;
+    }
+
     const containerWidth = containerRef.current.offsetWidth;
     const tempRows: RowData[] = [];
 
     let currentRow: PortfolioImageWithMeta[] = [];
     let currentRowWidth = 0;
 
-    imageData.forEach((img, index) => {
+    loadedImages.forEach((img, index) => {
       const scaledWidth = img.aspectRatio * TARGET_ROW_HEIGHT;
       const gap = currentRow.length > 0 ? GAP : 0;
 
@@ -184,7 +212,7 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
       }
 
       // Push last row
-      if (index === imageData.length - 1 && currentRow.length) {
+      if (index === loadedImages.length - 1 && currentRow.length) {
         const totalGap = GAP * (currentRow.length - 1);
         const scale = (containerWidth - totalGap) / currentRowWidth;
         const capped = TARGET_ROW_HEIGHT * scale > MAX_ROW_HEIGHT;
@@ -223,6 +251,18 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
     };
   }, [imageData]);
 
+  // Helper to find next/previous loaded image index (skips null slots)
+  const findNextLoaded = (start: number, dir: 1 | -1) => {
+    const n = imageData.length;
+    if (n === 0) return start;
+    let i = start;
+    do {
+      i = (i + dir + n) % n;
+      if (imageData[i] !== null) return i;
+    } while (i !== start);
+    return start;
+  };
+
   // -------------------------------
   // Lightbox keyboard navigation (ESC, Arrow keys)
   // -------------------------------
@@ -231,13 +271,9 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
       if (lightboxIndex === null) return;
       if (e.key === "Escape") setLightboxIndex(null); // ESC closes lightbox
       else if (e.key === "ArrowRight")
-        setLightboxIndex((i) =>
-          i === null ? null : Math.min(i + 1, imageData.length - 1)
-        );
+        setLightboxIndex((i) => (i === null ? null : findNextLoaded(i, 1)));
       else if (e.key === "ArrowLeft")
-        setLightboxIndex((i) =>
-          i === null ? null : Math.max(i - 1, 0)
-        );
+        setLightboxIndex((i) => (i === null ? null : findNextLoaded(i, -1)));
     };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
@@ -247,8 +283,8 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
   // Lightbox navigation helpers
   // -------------------------------
   const openLightboxAt = (index: number) => setLightboxIndex(index);
-  const nextLightbox = () => setLightboxIndex((i) => (i === null ? null : (i + 1) % imageData.length));
-  const prevLightbox = () => setLightboxIndex((i) => (i === null ? null : (i - 1 + imageData.length) % imageData.length));
+  const nextLightbox = () => setLightboxIndex((i) => (i === null ? null : findNextLoaded(i, 1)));
+  const prevLightbox = () => setLightboxIndex((i) => (i === null ? null : findNextLoaded(i, -1)));
 
   // -------------------------------
   // Render
@@ -279,8 +315,8 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
               {row.images.map((img, idx) => {
                 const width = scaledWidths[idx];
                 const height = Math.round(TARGET_ROW_HEIGHT * row.scale);
-                const flattenedIndex = imageData.findIndex(
-                  (x) => x.resizedSrc === img.resizedSrc && x.title === img.title
+                const flattenedIndex = img.originalIndex ?? imageData.findIndex(
+                  (x) => x !== null && x.resizedSrc === img.resizedSrc && x.title === img.title
                 );
 
                 return (
