@@ -27,7 +27,7 @@ export default function Home() {
             <div className="mt-4 md:mt-6 flex justify-center gap-3 flex-nowrap">
               <button
                 type="button"
-                onClick={() => (window.location.hash = '#projects')}
+                onClick={() => (window.location.href = '/projects')}
                 className="inline-flex items-center px-3 py-2 rounded-md bg-black text-white text-sm md:text-base font-medium hover:bg-[#FFFFFF] hover:text-[#373944] transition-colors flex-none whitespace-nowrap"
                 aria-label="View Projects"
               >

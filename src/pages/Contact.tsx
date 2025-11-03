@@ -10,6 +10,7 @@ export default function Contact() {
     const [subject, setSubject] = useState("");
     const [message, setMessage] = useState("");
     const [status, setStatus] = useState<null | "sending" | "sent" | "error">(null);
+    const [submittedName, setSubmittedName] = useState<string | null>(null);
 
     const recaptchaRef = useRef<ReCAPTCHA | null>(null);
     const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
@@ -47,6 +48,8 @@ export default function Contact() {
                 return;
             }
 
+            // remember the sender's name to show in the thank-you text, then clear fields
+            setSubmittedName(name || null);
             setStatus('sent');
             setName(''); setEmail(''); setDiscord(''); setSubject(''); setMessage('');
             // reset recaptcha widget
@@ -68,7 +71,7 @@ export default function Contact() {
             // show message for 3 seconds then redirect to home
             redirectTimer.current = window.setTimeout(() => {
                 navigate('/');
-            }, 5000) as unknown as number;
+            }, 8000) as unknown as number;
         }
         return () => {
             if (redirectTimer.current) {
@@ -84,7 +87,13 @@ export default function Contact() {
                 <h3 className="text-center text-3xl font-semibold text-white mt-6 mb-4">{status === 'sent' ? 'MESSAGE SENT' : 'CONTACT ME'}</h3>
                 <div className="h-[2px] bg-white w-full max-w-[600px] mx-auto mb-6" aria-hidden="true" />
                 <div className="w-full max-w-3xl bg-[#0f1113]/30 backdrop-blur-sm] rounded-md p-8">
-                    <p className="text-sm text-slate-300 text-center mt-2">Have a question or want to commission work? Drop a message and I will get back to you.</p>
+                    <p className="text-sm text-slate-300 text-center mt-2">
+                        {status === 'sent'
+                            ? (submittedName
+                                ? `Thanks for messaging ${submittedName}! I'll get back to you as soon as possible! Please await a reply via email or Discord DMs ヾ(•ω•\`)o`
+                                : 'Thank you for messaging! I will get back to you as soon as possible! Please await a reply via email or Discord DMs ヾ(•ω•\`)o')
+                            : 'Have a question or want to commission work? Drop a message and I will get back to you.'}
+                    </p>
 
                     {status !== 'sent' && (
                         <form onSubmit={handleSubmit} className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">

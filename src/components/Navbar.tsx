@@ -147,7 +147,12 @@ const Header: React.FC = () => {
 
               {/* Projects */}
               <li>
-                <Link to="#projects" className="flex items-center px-3 py-2.5 hover:bg-[#1E1E25] transition-colors relative z-10">Projects</Link>
+                <Link
+                  to="/projects"
+                  className={`flex items-center px-3 py-2.5 transition-colors relative z-10 ${location.pathname === "/projects" ? "text-slate-400" : "text-white"} hover:bg-[#1E1E25]`}
+                >
+                  Projects
+                </Link>
               </li>
 
               {/* Store */}
@@ -220,7 +225,7 @@ const Header: React.FC = () => {
             <Link
               to="/#pixelart"
               className={`px-3 py-2 rounded text-white ${location.hash === "#pixelart" ? "bg-[#1E1E25]" : ""}`}
-              onClick={() => setSidebarOpen(false)} v
+              onClick={() => setSidebarOpen(false)}
             >
               Pixel Art
             </Link>
@@ -232,8 +237,8 @@ const Header: React.FC = () => {
               Photography
             </Link>
             <Link
-              to="/#projects"
-              className={`px-3 py-2 rounded text-white ${(location.hash === "#projects" || location.pathname === "/projects") ? "bg-[#1E1E25]" : ""}`}
+              to="/projects"
+              className={`px-3 py-2 rounded text-white ${location.pathname === "/projects" ? "bg-[#1E1E25]" : ""}`}
               onClick={() => setSidebarOpen(false)}
             >
               Projects

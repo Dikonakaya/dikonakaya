@@ -7,12 +7,12 @@ import { FaYoutube, FaTwitter, FaInstagram, FaTwitch, FaFacebook, FaDiscord } fr
 
 export default function Footer() {
   const social: { name: string; href: string; Icon: IconType; color: string }[] = [
-    { name: 'YouTube', href: '#', Icon: FaYoutube, color: '#FF0000' },
+    { name: 'YouTube', href: 'https://www.youtube.com/@dikonakaya', Icon: FaYoutube, color: '#FF0000' },
     { name: 'Twitter', href: '#', Icon: FaTwitter, color: '#1DA1F2' },
-    { name: 'Instagram', href: '#', Icon: FaInstagram, color: '#FF7A08' },
-    { name: 'Twitch', href: '#', Icon: FaTwitch, color: '#9146FF' },
+    { name: 'Instagram', href: 'https://www.instagram.com/dikonakaya.png/', Icon: FaInstagram, color: '#FF7A08' },
+    { name: 'Twitch', href: 'https://www.twitch.tv/dikonakaya', Icon: FaTwitch, color: '#9146FF' },
     { name: 'Facebook', href: '#', Icon: FaFacebook, color: '#1877F2' },
-    { name: 'Discord', href: '#', Icon: FaDiscord, color: '#5865F2' },
+    { name: 'Discord', href: 'https://discord.com/invite/GBrAhGK6kE', Icon: FaDiscord, color: '#5865F2' },
   ]
 
   const [hovered, setHovered] = useState<string | null>(null)
