@@ -12,26 +12,41 @@ export default function Home() {
     <section className="bg-[#1E1E25] overflow-x-hidden">
       <div className="-mb-20 grid w-full grid-cols-1 lg:grid-cols-[30%_70%] items-stretch">
         {/* Left */}
-        <div className="p-8 flex items-center justify-center bg-gradient-to-b from-[#373944] to-[#1E1E25] shadow-md lg:h-full">
+        <div className="h-[400px] xl:h-[600px] p-4 md:p-6 lg:p-8 flex items-center justify-center bg-gradient-to-b from-[#373944] to-[#1E1E25] shadow-md">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1.0 }}>
-            <img src={logo} alt="…" className="h-[300px] w-auto" />
-            <h1 className="text-4xl md:text-6xl font-bold leading-tight text-white">DIKONAKAYA</h1>
-            <p className="mt-6 max-w-2xl text-slate-300">
+            <img src={logo} alt="…" className="h-[120px] md:h-[160px] lg:h-[180px] xl:h-[300px] w-auto mx-auto" />
+            <h1 className="text-2xl md:text-4xl lg:text-4xl xl:text-6xl font-bold leading-snug md:leading-tight text-white text-center">DIKONAKAYA</h1>
+            <p className="mt-2 md:mt-4 max-w-md md:max-w-2xl text-slate-300 text-sm md:text-base text-center leading-snug md:leading-tight">
               Pixel Artist
               <br />
               Photographer
               <br />
               Software Developer
             </p>
-            <div className="mt-8 flex gap-4">
-              <a className="btn bg-slate-800 hover:bg-slate-700" href="#projects">View Projects</a>
-              <a className="btn border border-slate-700 hover:border-slate-600" href="#contact">Contact Me</a>
+            <div className="mt-4 md:mt-6 flex justify-center gap-3 flex-nowrap">
+              <button
+                type="button"
+                onClick={() => (window.location.hash = '#projects')}
+                className="btn bg-slate-800 hover:bg-slate-700 text-sm md:text-base px-3 py-2 flex-none"
+                aria-label="View Projects"
+              >
+                View Projects
+              </button>
+
+              <button
+                type="button"
+                onClick={() => (window.location.hash = '#contact')}
+                className="btn border border-slate-700 hover:border-slate-600 text-sm md:text-base px-3 py-2 flex-none"
+                aria-label="Contact Me"
+              >
+                Contact Me
+              </button>
             </div>
           </motion.div>
         </div>
 
-        {/* Right */}
-        <div className="h-[600px] lg:h-full shadow-md w-full overflow-hidden">
+        {/* Right (carousel only visible on lg+) */}
+        <div className="hidden lg:block lg:h-[400px] xl:h-[600px] shadow-md w-full overflow-hidden">
           <Carousel />
         </div>
       </div>
