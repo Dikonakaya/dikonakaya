@@ -21,8 +21,8 @@ export const portfolioData: PortfolioSet[] = [
   {
     setTitle: "Mini Cooper",
     year: 2025,
-    description: "A set of clean shots of the Mini Cooper.",
-    tags: ["car", "mini cooper", "automotive", "photoshoot"],
+    description: "A shot of a Mini Cooper on the streets of Sampaloc, Manila",
+    tags: ["Street Photography", "Car Photography"],
     images: [
       { src: "https://i.imgur.com/NLuGcjE.jpeg" }
     ],
@@ -31,8 +31,8 @@ export const portfolioData: PortfolioSet[] = [
   {
     setTitle: "Tofu60 V1",
     year: 2025,
-    description: "A set of simple shots of the Tofu60 V1 keyboard.",
-    tags: ["keyboard", "tofu60", "mechanical keyboard", "custom keyboard"],
+    description: "A collection of shots showcasing the Tofu60 V1 keyboard",
+    tags: ["Custom keyboard", "Product Photography"],
     images: [
       { src: "https://i.imgur.com/Hh3RF7n.jpeg" },
       { src: "https://i.imgur.com/CehvaEy.jpeg" },
@@ -45,8 +45,8 @@ export const portfolioData: PortfolioSet[] = [
   {
     setTitle: "RK87",
     year: 2025,
-    description: "A set of photos showcasing the RK87 keyboard.",
-    tags: ["keyboard", "rk87", "mechanical keyboard"],
+    description: "A collection of shots showcasing a Ninomae Inanis themed keyboard",
+    tags: ["Custom keyboard", "Product Photography"],
     images: [
       { src: "https://i.imgur.com/y8fxrgJ.jpeg" },
       { src: "https://i.imgur.com/71edzIZ.jpeg" },
@@ -59,8 +59,8 @@ export const portfolioData: PortfolioSet[] = [
   {
     setTitle: "Jris65",
     year: 2025,
-    description: "A collection of clean shots of the Jris65 keyboard.",
-    tags: ["keyboard", "jris65", "mechanical keyboard", "custom keyboard"],
+    description: "A collection of shots showcasing the Jris65 keyboard with WS Aka Hairo Keycaps",
+    tags: ["Custom keyboard", "Product Photography"],
     images: [
       { src: "https://i.imgur.com/mRbxWae.jpeg" },
       { src: "https://i.imgur.com/Dj39gt9.jpeg" },
@@ -73,10 +73,10 @@ export const portfolioData: PortfolioSet[] = [
   },
 
   {
-    setTitle: "Keyboard Collection",
+    setTitle: "2025 Keyboard Collection",
     year: 2025,
-    description: "A set showcasing multiple keyboards.",
-    tags: ["keyboard", "collection", "mechanical keyboard"],
+    description: "A collection of shots my entire keyboard collection as of early 2025",
+    tags: ["Custom keyboard", "Product Photography"],
     images: [
       { src: "https://i.imgur.com/N36QEHo.jpeg" },
       { src: "https://i.imgur.com/NBx5bFC.jpeg" },
@@ -88,10 +88,10 @@ export const portfolioData: PortfolioSet[] = [
   },
 
   {
-    setTitle: "Minecraft Skins & Armor",
+    setTitle: "Minecraft Armor",
     year: 2024,
-    description: "A set showcasing multiple keyboards.",
-    tags: ["keyboard", "collection", "mechanical keyboard"],
+    description: "3D render of some Minecraft pixel art armor sets that I've made",
+    tags: ["Minecraft", "Pixel Art"],
     images: [
       { src: "https://i.imgur.com/9lo873B.gif" },
       { src: "https://i.imgur.com/d9gzrxv.gif" },
@@ -103,8 +103,8 @@ export const portfolioData: PortfolioSet[] = [
   {
     setTitle: "Pixel Art Characters",
     year: 2024,
-    description: "A set showcasing multiple keyboards.",
-    tags: ["keyboard", "collection", "mechanical keyboard"],
+    description: "A showcase of some pixel art characters I've created.",
+    tags: ["Pixel Art"],
     images: [
       { src: "https://i.imgur.com/7vfaCJf.png" },
       { src: "https://i.imgur.com/WzPHETX.png" },
@@ -115,8 +115,8 @@ export const portfolioData: PortfolioSet[] = [
   {
     setTitle: "Pixel Art Portraits",
     year: 2024,
-    description: "A set showcasing multiple keyboards.",
-    tags: ["keyboard", "collection", "mechanical keyboard"],
+    description: "Portraits of different themed subjects",
+    tags: ["Minecraft", "Pixel Art"],
     images: [
       { src: "https://i.imgur.com/cbpMLui.png" },
       { src: "https://i.imgur.com/Iyqy0hN.png" },
@@ -131,8 +131,8 @@ export const portfolioData: PortfolioSet[] = [
   {
     setTitle: "Chest Portraits",
     year: 2024,
-    description: "A set showcasing multiple keyboards.",
-    tags: ["keyboard", "collection", "mechanical keyboard"],
+    description: "Pixel art portraits of various Minecraft chests",
+    tags: ["Minecraft", "Pixel Art"],
     images: [
       { src: "https://i.imgur.com/YNh6LlF.png" },
       { src: "https://i.imgur.com/bWFLdto.png" },
@@ -145,37 +145,28 @@ export const portfolioData: PortfolioSet[] = [
   {
     setTitle: "GUI",
     year: 2024,
-    description: "A set showcasing multiple keyboards.",
-    tags: ["keyboard", "collection", "mechanical keyboard"],
+    description: "Pixel art of various GUI designed for custom Minecraft servers resource packs",
+    tags: ["Minecraft", "Pixel Art"],
     images: [
       { src: "https://i.imgur.com/dROfED0.png" },
       { src: "https://i.imgur.com/mfOZBcG.png" },
       { src: "https://i.imgur.com/ZCYI4Wa.png" },
-      { src: "https://i.imgur.com/k83URwz.png" },
       { src: "https://i.imgur.com/EVmkTsu.png" },
       { src: "https://i.imgur.com/hoiSaHl.png" },
       { src: "https://i.imgur.com/cDvVjIl.png" },
+      { src: "https://i.imgur.com/k83URwz.png" },
+      { src: "https://i.imgur.com/GVuwWWs.png" },
     ],
   },
 
   {
     setTitle: "Pixel Art Banners",
     year: 2024,
-    description: "A set showcasing multiple keyboards.",
-    tags: ["keyboard", "collection", "mechanical keyboard"],
+    description: "Pixel art banners, some designed for Minecraft server advertising",
+    tags: ["Minecraft", "Pixel Art"],
     images: [
-      { src: "https://i.imgur.com/0L2mzLV.png" },
       { src: "https://i.imgur.com/z6OExwz.png" },
-    ],
-  },
-
-  {
-    setTitle: "More GUI",
-    year: 2024,
-    description: "A set showcasing multiple keyboards.",
-    tags: ["keyboard", "collection", "mechanical keyboard"],
-    images: [
-      { src: "https://i.imgur.com/GVuwWWs.png" },
+      { src: "https://i.imgur.com/0L2mzLV.png" },
     ],
   },
 ];

@@ -257,8 +257,8 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
       {/* Optional title */}
       {title && (
         <>
-          <h3 className="text-3xl font-semibold text-white mb-4">{title}</h3>
-          <div className="h-[2px] bg-white w-[480px] mx-auto mb-6" aria-hidden="true" />
+          <h3 className="text-center text-3xl font-semibold text-white mt-16 mb-4">{title}</h3>
+          <div className="h-[2px] bg-white w-[600px] mx-auto mb-8" aria-hidden="true" />
         </>
       )}
 

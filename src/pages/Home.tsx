@@ -1,10 +1,10 @@
 // src/pages/Home.tsx
 import React from "react";
 import { motion } from "framer-motion";
-import Carousel from "../../components/Carousel";
-import PortfolioGrid from "../../components/PortfolioGrid";
-import logo from "../../assets/logo.png";
-import { portfolioData } from "../../data/portfolio.data";
+import Carousel from "../components/Carousel";
+import PortfolioGrid from "../components/PortfolioGrid";
+import logo from "../assets/logo.png";
+import { portfolioData } from "../data/portfolio.data";
 
 export default function Home() {
   // Pixel art sample converted to object-format (you can replace titles/desc later)
@@ -56,21 +56,21 @@ export default function Home() {
 
       <div className="flex items-start justify-center p-8 mt-20 h-full bg-gradient-to-b from-[#373944] to-[#1E1E25]">
         <div className="w-full gap-8">
-          <div className="text-center mt-10">
+          <div>
             <PortfolioGrid
               title="PIXEL ART"
               sets={portfolioData.filter(s =>
-                ["Minecraft Skins & Armor", "Pixel Art Characters", "Pixel Art Portraits", "Chest Portraits", "GUI", "Pixel Art Banners", "More GUI"].includes(s.setTitle)
+                ["Minecraft Armor", "Pixel Art Characters", "Pixel Art Portraits", "Chest Portraits", "GUI", "Pixel Art Banners", "More GUI"].includes(s.setTitle)
               )}
               showBorder={false}
             />
           </div>
 
-          <div className="text-center mt-10">
+          <div>
             <PortfolioGrid
               title="PHOTOGRAPHY"
               sets={portfolioData.filter(s =>
-                ["Mini Cooper", "Tofu60 V1", "RK87", "Jris65", "Keyboard Collection"].includes(s.setTitle)
+                ["Mini Cooper", "Tofu60 V1", "RK87", "Jris65", "2025 Keyboard Collection"].includes(s.setTitle)
               )}
               showBorder={true}
             />
