@@ -1,9 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { projectsData } from "../data/projects.data";
 
-// -------------------------------
-// Type Definitions (copied)
-// -------------------------------
 export type PortfolioImage = {
     src: string;
     title?: string;
@@ -24,9 +21,7 @@ export type PortfolioSet = {
 
 type Props = {
     title?: string;
-    // `sets` is optional now — if not provided or empty, we fall back to `projectData`
     sets?: PortfolioSet[];
-    showBorder?: boolean;
 };
 
 type PortfolioImageWithMeta = PortfolioImage & {
@@ -47,40 +42,40 @@ const MAX_WIDTH = 1920;
 const GAP = 8;
 const TARGET_ROW_HEIGHT = 300;
 const MAX_ROW_HEIGHT = 500;
+const TRANSITION_MS = 220;
 
-const ProjectGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
+const ProjectGrid: React.FC<Props> = ({ title, sets }) => {
     const containerRef = useRef<HTMLDivElement | null>(null);
 
     const [imageData, setImageData] = useState<Array<PortfolioImageWithMeta | null>>([]);
     const [rows, setRows] = useState<RowData[]>([]);
     const [isPreloading, setIsPreloading] = useState(false);
 
-    // If `sets` was provided and non-empty, keep prior behavior.
-    // Otherwise, derive images from `projectData` (imported from src/data/projects.data.ts).
     const sourceSets = sets && sets.length > 0 ? sets : undefined;
 
     const mergedImages: PortfolioImage[] = sourceSets
-        ? sourceSets.flatMap((set) =>
-            set.images.map((img) => ({
-                ...img,
-                title: img.title ?? set.setTitle,
-                description: img.description ?? set.description,
+        ? sourceSets.map((set) => {
+            const img = (set.images && set.images[0]) || { src: "" };
+            return {
+                src: img.src || "",
+                title: set.setTitle,
+                description: set.description ?? set.setTitle,
                 tags: img.tags ?? set.tags ?? [],
                 other: img.other ?? set.other,
                 date: img.date ?? (set.year ? `${set.year}-01-01` : undefined),
-            }))
-        )
-        : // fallback: use projectsData
-        projectsData.flatMap((proj) =>
-            (proj.images || []).map((img) => ({
-                src: img.src,
-                title: img.title ?? proj.name,
-                description: img.description ?? proj.description,
+            };
+        })
+        : projectsData.map((proj) => {
+            const src = proj.thumbnail || (proj.images && proj.images[0]?.src) || "";
+            return {
+                src,
+                title: proj.name,
+                description: proj.subtitle ?? proj.description ?? "",
                 tags: proj.tags ?? [],
                 other: undefined,
                 date: proj.year ? `${proj.year}-01-01` : undefined,
-            }))
-        );
+            };
+        });
 
     const resizeImageDataUrl = (imgEl: HTMLImageElement) => {
         if (!imgEl.width || imgEl.width <= MAX_WIDTH) return imgEl.src;
@@ -154,12 +149,9 @@ const ProjectGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
     }, [sets]);
 
     const calculateRows = () => {
-        if (!containerRef.current) return;
+        if (!containerRef.current) return [] as RowData[];
         const loadedImages = imageData.filter((x): x is PortfolioImageWithMeta => x !== null);
-        if (loadedImages.length === 0) {
-            setRows([]);
-            return;
-        }
+        if (loadedImages.length === 0) return [] as RowData[];
 
         const containerWidth = containerRef.current.offsetWidth;
         const tempRows: RowData[] = [];
@@ -201,19 +193,22 @@ const ProjectGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
             }
         });
 
-        setRows(tempRows);
+        return tempRows;
     };
 
     useEffect(() => {
-        calculateRows();
-    }, [imageData]);
+        const apply = () => {
+            const newRows = calculateRows();
+            setRows(newRows);
+        };
 
-    useEffect(() => {
+        apply();
         if (!containerRef.current) return;
+
         let raf = 0;
         const ro = new ResizeObserver(() => {
             cancelAnimationFrame(raf);
-            raf = requestAnimationFrame(() => calculateRows());
+            raf = requestAnimationFrame(() => apply());
         });
         ro.observe(containerRef.current);
         return () => {
@@ -231,32 +226,37 @@ const ProjectGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
                 </>
             )}
 
-            <div ref={containerRef} className="w-full flex flex-col gap-4">
+            <div ref={containerRef} className="w-full flex flex-col gap-4 relative">
                 {isPreloading && <div className="text-center text-sm text-slate-300 mb-2">Loading projects…</div>}
 
                 {rows.map((row, rowIndex) => {
-                    const scaledWidths = row.images.map((img) => img.aspectRatio * TARGET_ROW_HEIGHT * row.scale);
+                    const rowImages = row.images;
+                    const scaledWidths = rowImages.map((img) => img.aspectRatio * TARGET_ROW_HEIGHT * row.scale);
 
                     return (
                         <div
                             key={rowIndex}
-                            className={`flex ${row.capped ? "justify-center" : ""} gap-4 transition-all duration-[2000ms] ease-in-out`}
-                            style={{ transform: `scale(${row.capped ? 0.98 : 1})`, opacity: 1 }}
+                            className={`pg-row flex flex-wrap ${row.capped ? "justify-center" : ""} gap-4`}
+                            style={{
+                                transform: `scale(${row.capped ? 0.98 : 1})`,
+                                transition: `transform ${TRANSITION_MS}ms ease, margin ${TRANSITION_MS}ms ease, opacity ${TRANSITION_MS}ms ease`,
+                            }}
                         >
-                            {row.images.map((img, idx) => {
+                            {rowImages.map((img, idx) => {
                                 const width = scaledWidths[idx];
                                 const height = Math.round(TARGET_ROW_HEIGHT * row.scale);
 
                                 return (
                                     <div
-                                        key={idx}
-                                        className="relative overflow-visible p-0 border-0 rounded-md transition-transform duration-[300ms] ease-in-out hover:scale-[1.02]"
+                                        key={img.originalIndex}
+                                        className="relative group overflow-visible p-0 border-0 rounded-md transition-transform duration-[300ms] ease-in-out hover:scale-[1.02]"
+                                        style={{ transition: `transform ${TRANSITION_MS}ms ease` }}
                                     >
-                                        <div className="relative group">
-                                            <div
-                                                className={`relative rounded-md overflow-hidden ${showBorder ? "border-[2px] border-white" : ""}`}
-                                                style={{ width, height }}
-                                            >
+                                        <div
+                                            className="relative rounded-t-md bg-black"
+                                            style={{ width, height }}
+                                        >
+                                            <div className="relative rounded-md overflow-hidden h-full w-full">
                                                 <img
                                                     src={img.resizedSrc}
                                                     alt={img.title || ""}
@@ -264,14 +264,14 @@ const ProjectGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
                                                     loading="lazy"
                                                 />
                                             </div>
+                                        </div>
 
-                                            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-[300ms] ease-in-out pointer-events-none">
-                                                <div className="absolute rounded-md inset-0 bg-gradient-to-b from-black/50 to-transparent"></div>
-                                                <div className="relative flex flex-col justify-start p-4 text-left text-white">
-                                                    <h4 className="text-lg font-semibold">{img.title}</h4>
-                                                    <p className="text-sm mt-1">{img.description}</p>
-                                                </div>
-                                            </div>
+                                        <div
+                                            className={`text-left text-white bg-black rounded-b-md px-2 py-2`}
+                                            style={{ width }}
+                                        >
+                                            <h4 className="text-sm font-semibold">{img.title}</h4>
+                                            <p className="text-xs text-slate-300 truncate">{img.description}</p>
                                         </div>
                                     </div>
                                 );
@@ -279,6 +279,8 @@ const ProjectGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
                         </div>
                     );
                 })}
+
+                {/* end rows */}
             </div>
         </div>
     );

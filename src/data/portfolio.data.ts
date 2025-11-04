@@ -4,7 +4,6 @@ export type PortfolioImage = {
   description?: string;
   other?: string;
   tags?: string[];
-  location?: string;
   date?: string;
 };
 
