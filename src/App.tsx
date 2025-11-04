@@ -8,10 +8,8 @@ import Footer from './components/Footer'
 
 export default function App() {
   return (
-    // make layout a column with min height so footer stays pinned to bottom
-    <div className="min-h-screen flex flex-col bg-[#373944] text-[#FFFFFF]">
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-[#373944] to-[#1E1E25] text-[#FFFFFF]">
       <Navbar />
-      {/* main grows to fill available space between header and footer */}
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<Home />} />

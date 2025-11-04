@@ -10,3 +10,4 @@ This repository contains a responsive personal portfolio website built with mode
 - Interactive and reusable UI components with subtle animation and focus feedback.
 - Contact form that forwards submissions to a Discord webhook (serverless API).
 - Hosted on Vercel, DNS via Namecheap, image hosting via Imgur.
+- https://www.dikonakaya.com/

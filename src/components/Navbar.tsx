@@ -184,7 +184,7 @@ const Navbar: React.FC = () => {
                         }
                         setOpenMenu(null);
                       }}
-                      className="block px-4 py-2 transition-colors duration-200 ease-in-out hover:bg-[#1E1E25] focus:bg-[#1E1E25]"
+                      className="block px-4 py-2 transition-colors duration-200 ease-in-out hover:bg-black focus:bg-black"
                     >
                       Pixel Art
                     </Link>
@@ -199,7 +199,7 @@ const Navbar: React.FC = () => {
                         }
                         setOpenMenu(null);
                       }}
-                      className="block px-4 py-2 transition-colors duration-200 ease-in-out hover:bg-[#1E1E25] focus:bg-[#1E1E25]"
+                      className="block px-4 py-2 transition-colors duration-200 ease-in-out hover:bg-black focus:bg-black"
                     >
                       Photography
                     </Link>
@@ -244,7 +244,7 @@ const Navbar: React.FC = () => {
                     }`}
                 >
                   <li>
-                    <Link to="#about" className="block px-4 py-2 transition-colors duration-200 ease-in-out hover:bg-[#1E1E25] focus:bg-[#1E1E25]"
+                    <Link to="#about" className="block px-4 py-2 transition-colors duration-200 ease-in-out hover:bg-black focus:bg-black"
                       onClick={(e) => {
                         scrollToTop();
                       }}>
@@ -252,12 +252,12 @@ const Navbar: React.FC = () => {
                     </Link>
                   </li>
                   <li>
-                    <Link to="#socials" className="block px-4 py-2 transition-colors duration-200 ease-in-out hover:bg-[#1E1E25] focus:bg-[#1E1E25]">
+                    <Link to="#socials" className="block px-4 py-2 transition-colors duration-200 ease-in-out hover:bg-black focus:bg-black">
                       Socials
                     </Link>
                   </li>
                   <li>
-                    <Link to="/contact" className="block px-4 py-2 transition-colors duration-200 ease-in-out hover:bg-[#1E1E25] focus:bg-[#1E1E25]"
+                    <Link to="/contact" className="block px-4 py-2 transition-colors duration-200 ease-in-out hover:bg-black focus:bg-black"
                       onClick={(e) => {
                         scrollToTop();
                       }}

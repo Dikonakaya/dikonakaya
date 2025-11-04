@@ -1,4 +1,6 @@
 import React, { useState } from 'react'
+import { Link } from 'react-router-dom'
+import { scrollToTop } from '../utils/scrollToTop'
 import logo from '../assets/logo.png'
 import { IconType } from 'react-icons'
 import { FaYoutube, FaTwitter, FaInstagram, FaTwitch, FaFacebook, FaDiscord } from 'react-icons/fa'
@@ -18,7 +20,7 @@ export default function Footer() {
   const [hovered, setHovered] = useState<string | null>(null)
 
   return (
-    <footer className="w-full pt-16">
+    <footer className="bg-[#373944] w-full pt-16">
       <div className="relative">
         <svg
           className="absolute -top-20 left-0 w-full h-20 md:h-28 pointer-events-none"
@@ -48,7 +50,9 @@ export default function Footer() {
               <div className="text-white">
                 <p>Dikonakaya is a freelance pixel artist</p>
                 <p>and photographer based in the Philippines &lt;3</p><br />
-                <a href="/contact" className="text-white hover:text-slate-400 transition-colors">Get in touch!</a>
+                <Link to="/contact" className="text-white hover:text-slate-400 transition-colors" onClick={() => { scrollToTop() }}>
+                  Get in touch!
+                </Link>
               </div>
             </div>
 
