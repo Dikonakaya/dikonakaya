@@ -1,10 +1,12 @@
 // src/pages/Home.tsx
 import React from "react";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import Carousel from "../components/Carousel";
 import PortfolioGrid from "../components/PortfolioGrid";
 import logo from "../assets/logo.png";
 import { portfolioData } from "../data/portfolio.data";
+import { scrollToTop } from "../utils/scrollToTop";
 
 export default function Home() {
 
@@ -25,23 +27,27 @@ export default function Home() {
               Software Developer
             </p>
             <div className="mt-4 md:mt-6 flex justify-center gap-3 flex-nowrap">
-              <button
-                type="button"
-                onClick={() => (window.location.href = '/projects')}
+              <Link
+                to="/projects"
                 className="inline-flex items-center px-3 py-2 rounded-md bg-black text-white text-sm md:text-base font-medium hover:bg-[#FFFFFF] hover:text-[#373944] transition-colors flex-none whitespace-nowrap"
                 aria-label="View Projects"
+                onClick={() => {
+                  scrollToTop();
+                }}
               >
                 View Projects
-              </button>
+              </Link>
 
-              <button
-                type="button"
-                onClick={() => (window.location.href = '/contact')}
+              <Link
+                to="/contact"
                 className="inline-flex items-center px-3 py-2 rounded-md bg-black text-white text-sm md:text-base font-medium hover:bg-[#FFFFFF] hover:text-[#373944] transition-colors flex-none whitespace-nowrap"
                 aria-label="Contact Me"
+                onClick={() => {
+                  scrollToTop();
+                }}
               >
                 Contact Me
-              </button>
+              </Link>
             </div>
           </motion.div>
         </div>
