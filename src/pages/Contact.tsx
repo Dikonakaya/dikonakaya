@@ -1,5 +1,6 @@
 // src/pages/Contact.tsx
 import React, { useState, useRef, useEffect } from "react";
+import lineReveal from '../utils/lineReveal'
 import { useNavigate } from 'react-router-dom';
 import ReCAPTCHA from 'react-google-recaptcha';
 
@@ -66,6 +67,9 @@ export default function Contact() {
     const navigate = useNavigate();
     const redirectTimer = useRef<number | null>(null);
 
+    // title divider reveal (play on mount)
+    const { ref: dividerRefBottom, revealed: dividerInViewBottom } = lineReveal('contact-bottom')
+
     useEffect(() => {
         if (status === 'sent') {
             // show message for 3 seconds then redirect to home
@@ -85,7 +89,12 @@ export default function Contact() {
         <section className="bg-[#1E1E25] min-h-[35vw] flex flex-col">
             <div className="flex-1 flex flex-col items-center justify-center p-8 bg-gradient-to-b from-[#373944] to-[#1E1E25]">
                 <h3 className="text-center text-3xl font-semibold text-white mt-6 mb-4">{status === 'sent' ? 'MESSAGE SENT' : 'CONTACT ME'}</h3>
-                <div className="h-[2px] bg-white w-full max-w-[600px] mx-auto mb-6" aria-hidden="true" />
+                <div
+                    ref={dividerRefBottom}
+                    aria-hidden="true"
+                    className={`h-[2px] bg-white w-full max-w-[900px] mx-auto mb-6 origin-center transform ${dividerInViewBottom ? 'scale-x-100 opacity-100' : 'scale-x-0 opacity-0'}`}
+                    style={{ transition: 'transform 2000ms ease-out, opacity 2000ms ease-out' }}
+                />
                 <div className="w-full max-w-3xl bg-[#0f1113]/30 backdrop-blur-sm] rounded-md p-8">
                     <p className="text-sm text-slate-300 text-center mt-2">
                         {status === 'sent'
@@ -174,7 +183,7 @@ export default function Contact() {
                                     <button
                                         type="submit"
                                         disabled={status === "sending"}
-                                        className="inline-flex items-center justify-center px-4 py-2 min-w-[160px] rounded-md bg-green-600 text-white text-base font-medium hover:bg-white hover:text-[#373944] transition-colors disabled:opacity-60"
+                                        className="inline-flex items-center justify-center px-4 py-2 min-w-[160px] rounded-md bg-green-600 text-white text-base font-medium hover:bg-white hover:text-[#373944] transition-colors duration-300 ease-out transform origin-center transition-transform duration-200 ease-out hover:-translate-y-1 hover:scale-105 disabled:opacity-60"
                                     >
                                         Send Message
                                     </button>

@@ -5,6 +5,7 @@ import logo from '../assets/logo.png'
 import { IconType } from 'react-icons'
 import { FaYoutube, FaTwitter, FaInstagram, FaTwitch, FaFacebook, FaDiscord, FaGithub, FaLinkedin, FaCrown, FaGlobe, FaBroadcastTower, FaPatreon } from 'react-icons/fa'
 import { SiKofi } from 'react-icons/si'
+import lineReveal from '../utils/lineReveal'
 
 export default function Footer() {
   const location = useLocation()
@@ -31,6 +32,12 @@ export default function Footer() {
 
   const [hovered, setHovered] = useState<string | null>(null)
 
+  // separate divider hooks so each divider animates independently
+  // pass a session key so once a divider is revealed it stays revealed for the session
+  const { ref: dividerRefAboutTop, revealed: dividerInViewAboutTop } = lineReveal('footer-about-top')
+  const { ref: dividerRefAboutBottom, revealed: dividerInViewAboutBottom } = lineReveal('footer-about-bottom')
+  const { ref: dividerRefMain, revealed: dividerInViewMain } = lineReveal('footer-main')
+
   if (isAbout) {
     return (
       <footer id="socials" className="bg-[#373944] w-full pt-16">
@@ -56,7 +63,12 @@ export default function Footer() {
                 <img src={logo} alt="dikonakaya logo" className="h-24 w-auto" />
                 <h3 className="text-left text-4xl font-semibold text-white -ml-4 mt-8">SOCIALS</h3>
               </div>
-              <div className="h-[2px] bg-white w-full max-w-[900px] mt-2 mb-6" aria-hidden="true" />
+              <div
+                ref={dividerRefAboutTop}
+                aria-hidden="true"
+                className={`h-[2px] bg-white w-full max-w-[900px] mx-auto origin-center transform ${dividerInViewAboutTop ? 'scale-x-100 opacity-100' : 'scale-x-0 opacity-0'}`}
+                style={{ transition: 'transform 2000ms ease-out, opacity 2000ms ease-out' }}
+              />
             </div>
             <div className="max-w-6xl mx-auto flex items-center justify-center mt-4">
               <div className="grid grid-cols-3 md:grid-cols-6 grid-rows-2 gap-x-12 gap-y-8 text-center place-items-center">
@@ -85,7 +97,12 @@ export default function Footer() {
               </div>
             </div>
 
-            <div className="h-[2px] bg-white w-full max-w-[900px] mx-auto my-4" aria-hidden="true" />
+            <div
+              ref={dividerRefAboutBottom}
+              aria-hidden="true"
+              className={`my-4 h-[2px] bg-white w-full max-w-[900px] mx-auto origin-center transform ${dividerInViewAboutBottom ? 'scale-x-100 opacity-100' : 'scale-x-0 opacity-0'}`}
+              style={{ transition: 'transform 2000ms ease-out, opacity 2000ms ease-out' }}
+            />
             <div className="text-center">© {new Date().getFullYear()}</div>
           </div>
         </div>
@@ -159,7 +176,12 @@ export default function Footer() {
             </div>
           </div>
 
-          <div className="h-[2px] bg-white w-full max-w-[1200px] mx-auto my-4" aria-hidden="true" />
+          <div
+            ref={dividerRefMain}
+            aria-hidden="true"
+            className={`my-4 h-[2px] bg-white w-full max-w-[1200px] mx-auto origin-center transform ${dividerInViewMain ? 'scale-x-100 opacity-100' : 'scale-x-0 opacity-0'}`}
+            style={{ transition: 'transform 2000ms ease-out, opacity 2000ms ease-out' }}
+          />
           <div className="text-center">© {new Date().getFullYear()}</div>
         </div>
       </div>

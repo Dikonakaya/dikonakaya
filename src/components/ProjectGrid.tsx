@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { projectsData } from "../data/projects.data";
 import { scrollToId } from "../utils/scrollToId";
+import lineReveal from "../utils/lineReveal";
 
 export type PortfolioImage = {
     src: string;
@@ -47,6 +48,8 @@ const TRANSITION_MS = 220;
 
 const ProjectGrid: React.FC<Props> = ({ title, sets }) => {
     const containerRef = useRef<HTMLDivElement | null>(null);
+
+    const { ref: dividerRef, revealed: dividerInView } = lineReveal('projects-title')
 
     const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
@@ -271,7 +274,12 @@ const ProjectGrid: React.FC<Props> = ({ title, sets }) => {
             {title && (
                 <>
                     <h3 className="text-center text-3xl font-semibold text-white mt-16 mb-4">{title}</h3>
-                    <div className="h-[2px] bg-white w-full max-w-[600px] mx-auto mb-8" aria-hidden="true" />
+                    <div
+                        ref={dividerRef}
+                        aria-hidden="true"
+                        className={`h-[2px] bg-white w-full max-w-[600px] mx-auto mb-8 origin-center transform ${dividerInView ? 'scale-x-100 opacity-100' : 'scale-x-0 opacity-0'}`}
+                        style={{ transition: 'transform 2000ms ease-out, opacity 2000ms ease-out' }}
+                    />
                 </>
             )}
 

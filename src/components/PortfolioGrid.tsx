@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import Lightbox from "../modals/Lightbox";
+import lineReveal from "../utils/lineReveal";
 
 // -------------------------------
 // Type Definitions
@@ -11,7 +12,6 @@ export type PortfolioImage = {
   title?: string;
   description?: string;
   tags?: string[];
-  location?: string;
   date?: string;
   other?: string;
 };
@@ -63,6 +63,9 @@ const MAX_ROW_HEIGHT = 500;       // Maximum allowed height for any row
 const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
   // Ref to the container div to measure its width
   const containerRef = useRef<HTMLDivElement | null>(null);
+
+  // divider animation: use reusable hook (provide max width in px)
+  const { ref: dividerRef, revealed: dividerInView } = lineReveal();
 
   // State to store processed image data
   const [imageData, setImageData] = useState<Array<PortfolioImageWithMeta | null>>([]);
@@ -231,6 +234,8 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
     calculateRows();
   }, [imageData]);
 
+  // (divider reveal handled by lineReveal)
+
   // -------------------------------
   // Recalculate rows on container resize
   // -------------------------------
@@ -288,11 +293,15 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
   // -------------------------------
   return (
     <div className="w-full">
-      {/* Optional title */}
       {title && (
         <>
           <h3 className="text-center text-3xl font-semibold text-white mt-16 mb-4">{title}</h3>
-          <div className="h-[2px] bg-white w-full max-w-[600px] mx-auto mb-8" aria-hidden="true" />
+          <div
+            ref={dividerRef}
+            aria-hidden="true"
+            className={`h-[2px] bg-white w-full max-w-[600px] mx-auto mb-8 origin-center transform ${dividerInView ? 'scale-x-100 opacity-100' : 'scale-x-0 opacity-0'}`}
+            style={{ transition: 'transform 2000ms ease-out, opacity 2000ms ease-out' }}
+          />
         </>
       )}
 

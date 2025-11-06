@@ -1,5 +1,6 @@
 import logo from '../assets/logo.png'
 import { Link } from 'react-router-dom'
+import lineReveal from '../utils/lineReveal'
 
 type Skill = {
     title: string
@@ -33,6 +34,9 @@ const workExperience: Job[] = [
 ]
 
 export default function AboutMe() {
+    // separate reveal hooks for top and bottom dividers so each one stays revealed once seen
+    const { ref: dividerRefTop, revealed: dividerInViewTop } = lineReveal('about-top')
+    const { ref: dividerRefBottom, revealed: dividerInViewBottom } = lineReveal('about-bottom')
     return (
         <section className="bg-gradient-to-b from-[#373944] to-[#1E1E25] min-h-screen flex flex-col py-12">
             <div className="flex flex-col items-center gap-4">
@@ -40,12 +44,17 @@ export default function AboutMe() {
                     <img src={logo} alt="dikonakaya logo" className="h-24 w-auto" />
                     <h3 className="text-left text-4xl font-semibold text-white -ml-4 mt-8">ABOUT ME</h3>
                 </div>
-                <div className="h-[2px] bg-white w-full max-w-[900px] mt-2 mb-6" aria-hidden="true" />
+                <div
+                    ref={dividerRefTop}
+                    aria-hidden="true"
+                    className={`h-[2px] bg-white w-full max-w-[900px] mx-auto mb-6 origin-center transform ${dividerInViewTop ? 'scale-x-100 opacity-100' : 'scale-x-0 opacity-0'}`}
+                    style={{ transition: 'transform 2000ms ease-out, opacity 2000ms ease-out' }}
+                />
             </div>
             <div className="flex-1 flex flex-col items-center px-6">
                 <div className="w-full max-w-4xl rounded-md p-8">
 
-                    <p className="-mt-6 text-sm text-slate-300 text-center">
+                    <p className="-mt-6 text-md text-white text-center">
                         Hello everyone o// I'm Dikonakaya and I'm a pixel artist, photographer, software developer, and content creator. I like watching anime, playing video games, making art, and learning new things. Below is a summary of some hard skills and professional experience I've garnered over the years. If you're interested in working with me or just want to say hi, feel free to reach out via the contact page! I hope you're having a wonderful week and take care :D
                     </p>
 
@@ -100,13 +109,18 @@ export default function AboutMe() {
                     </div>
                     <div className="md:col-span-2 flex justify-center mt-6">
                         <Link to="/contact" onClick={() => { try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch { } }}>
-                            <button className="inline-flex items-center justify-center px-4 py-2 min-w-[160px] rounded-md bg-green-600 text-white text-base font-medium hover:bg-white hover:text-[#373944] transition-colors">
+                            <button className="inline-flex items-center justify-center px-4 py-2 min-w-[160px] rounded-md bg-green-600 text-white text-base font-medium hover:bg-white hover:text-[#373944] transition-colors transform origin-center transition-transform duration-200 ease-out hover:-translate-y-1 hover:scale-105">
                                 Contact Me
                             </button>
                         </Link>
                     </div>
                 </div>
-                <div className="h-[2px] bg-white w-full max-w-[900px] mt-2 mb-6" aria-hidden="true" />
+                <div
+                    ref={dividerRefBottom}
+                    aria-hidden="true"
+                    className={`h-[2px] bg-white w-full max-w-[900px] mx-auto mb-6 origin-center transform ${dividerInViewBottom ? 'scale-x-100 opacity-100' : 'scale-x-0 opacity-0'}`}
+                    style={{ transition: 'transform 2000ms ease-out, opacity 2000ms ease-out' }}
+                />
             </div>
         </section>
     )

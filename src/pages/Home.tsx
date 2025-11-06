@@ -29,7 +29,7 @@ export default function Home() {
             <div className="mt-4 md:mt-6 flex justify-center gap-3 flex-nowrap">
               <Link
                 to="/projects"
-                className="inline-flex items-center px-3 py-2 rounded-md bg-black text-white text-sm md:text-base font-medium hover:bg-[#FFFFFF] hover:text-[#373944] transition-colors flex-none whitespace-nowrap"
+                className="inline-flex items-center px-3 py-2 rounded-md bg-black text-white text-sm md:text-base font-medium hover:bg-[#FFFFFF] hover:text-[#373944] transition-colors duration-300 ease-out transform origin-center transition-transform duration-200 ease-out hover:-translate-y-1 hover:scale-105 flex-none whitespace-nowrap"
                 aria-label="View Projects"
                 onClick={() => {
                   scrollToTop();
@@ -40,7 +40,7 @@ export default function Home() {
 
               <Link
                 to="/contact"
-                className="inline-flex items-center px-3 py-2 rounded-md bg-black text-white text-sm md:text-base font-medium hover:bg-[#FFFFFF] hover:text-[#373944] transition-colors flex-none whitespace-nowrap"
+                className="inline-flex items-center px-3 py-2 rounded-md bg-black text-white text-sm md:text-base font-medium hover:bg-[#FFFFFF] hover:text-[#373944] transition-colors duration-300 ease-out transform origin-center transition-transform duration-200 ease-out hover:-translate-y-1 hover:scale-105 flex-none whitespace-nowrap"
                 aria-label="Contact Me"
                 onClick={() => {
                   scrollToTop();
