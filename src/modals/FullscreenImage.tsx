@@ -73,6 +73,12 @@ export default function FullscreenImage({ src, alt, onClose, onNext, onPrev }: P
         }
     }, [onClose, onNext, onPrev])
     const [fitWidth, setFitWidth] = useState(false)
+    const touchStartX = React.useRef<number | null>(null)
+    const touchStartY = React.useRef<number | null>(null)
+    const touchCurrentX = React.useRef<number | null>(null)
+    const touchCurrentY = React.useRef<number | null>(null)
+    const swiping = React.useRef(false)
+    const SWIPE_THRESHOLD = 50
 
     const onOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
         const t = e.target as HTMLElement
@@ -87,12 +93,49 @@ export default function FullscreenImage({ src, alt, onClose, onNext, onPrev }: P
             onClick={onOverlayClick}
             aria-hidden={false}
             role="dialog"
+            onTouchStart={(e) => {
+                const t = e.touches[0]
+                touchStartX.current = t.clientX
+                touchStartY.current = t.clientY
+                touchCurrentX.current = t.clientX
+                touchCurrentY.current = t.clientY
+                swiping.current = false
+            }}
+            onTouchMove={(e) => {
+                const t = e.touches[0]
+                touchCurrentX.current = t.clientX
+                touchCurrentY.current = t.clientY
+                const dx = (touchCurrentX.current || 0) - (touchStartX.current || 0)
+                const dy = (touchCurrentY.current || 0) - (touchStartY.current || 0)
+                // if horizontal movement dominates and exceeds small threshold, mark as swiping
+                if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 10) {
+                    swiping.current = true
+                    // prevent vertical page scroll while swiping horizontally
+                    e.preventDefault()
+                }
+            }}
+            onTouchEnd={(e) => {
+                if (!swiping.current) return
+                const dx = (touchCurrentX.current || 0) - (touchStartX.current || 0)
+                if (dx > SWIPE_THRESHOLD) {
+                    onPrev()
+                } else if (dx < -SWIPE_THRESHOLD) {
+                    onNext()
+                }
+                touchStartX.current = null
+                touchStartY.current = null
+                touchCurrentX.current = null
+                touchCurrentY.current = null
+                swiping.current = false
+            }}
         >
             <div className="min-h-screen flex items-center justify-center px-4">
                 <img
                     src={src}
                     alt={alt || ''}
                     onClick={(e) => {
+                        // if we were swiping, don't treat as a tap
+                        if (swiping.current) return
                         e.stopPropagation()
                         setFitWidth((v) => !v)
                     }}

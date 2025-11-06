@@ -136,6 +136,35 @@ export default function Lightbox({ images, index, onClose, onNext, onPrev }: Pro
         }
     }, [index])
 
+    React.useEffect(() => {
+        const pushedRef = { current: false }
+        const onPop = (e: PopStateEvent) => {
+            if (fullscreenOpen) return
+            onClose()
+        }
+
+        if (index !== null) {
+            try {
+                window.history.pushState({ lightbox: true }, '')
+                pushedRef.current = true
+            } catch (err) {
+
+            }
+        }
+
+        window.addEventListener('popstate', onPop)
+        return () => {
+            window.removeEventListener('popstate', onPop)
+            try {
+                if (pushedRef.current && window.history.state && (window.history.state as any).lightbox) {
+                    window.history.replaceState(null, '', window.location.href)
+                }
+            } catch (err) {
+
+            }
+        }
+    }, [index, fullscreenOpen, onClose])
+
 
     return (
         <AnimatePresence>
@@ -177,7 +206,7 @@ export default function Lightbox({ images, index, onClose, onNext, onPrev }: Pro
                                     aria-label="Open image in full screen"
                                     title="Open full screen (Esc to exit, ←/→ to navigate)"
                                 >
-                                    ⤢
+                                    <span className="text-xl leading-none">⤢</span>
                                 </button>
 
                                 <button
