@@ -139,6 +139,8 @@ export default function Lightbox({ images, index, onClose, onNext, onPrev }: Pro
     React.useEffect(() => {
         const pushedRef = { current: false }
         const onPop = (e: PopStateEvent) => {
+            // only handle popstate if we know we pushed a state for the lightbox
+            if (!pushedRef.current) return
             try {
                 ; (e as any).stopImmediatePropagation?.()
                 e.stopPropagation()
@@ -148,8 +150,11 @@ export default function Lightbox({ images, index, onClose, onNext, onPrev }: Pro
             // If fullscreen is open, close that first; otherwise close the lightbox
             if (fullscreenOpen) {
                 setFullscreenOpen(false)
+                // mark handled so subsequent pop isn't treated again
+                pushedRef.current = false
                 return
             }
+            pushedRef.current = false
             onClose()
         }
 
@@ -213,9 +218,8 @@ export default function Lightbox({ images, index, onClose, onNext, onPrev }: Pro
                                     onMouseUp={(e) => (e.currentTarget as HTMLButtonElement).blur()}
                                     className="text-white bg-black/40 hover:bg-black/60 rounded-full w-9 h-9 flex items-center justify-center transform transition-transform duration-200 ease-out hover:-translate-y-1 hover:scale-105 focus-visible:-translate-y-1 focus-visible:scale-105"
                                     aria-label="Open image in full screen"
-                                    title="Open full screen (Esc to exit, ←/→ to navigate)"
                                 >
-                                    ⤢
+                                    ⛶
                                 </button>
 
                                 <button
