@@ -39,32 +39,30 @@ export default function Footer() {
           </svg>
 
           <div className="pt-12 pb-6 text-sm text-slate-400">
-            <div className="max-w-6xl mx-auto grid gap-6 grid-cols-1 md:grid-cols-2 items-start">
-              <div>
-                <div className="grid grid-cols-3 grid-rows-2 gap-4 text-center place-items-center">
-                  {social.map((s) => {
-                    const isHovered = hovered === s.name
-                    return (
-                      <a
-                        key={s.name}
-                        href={s.href}
-                        aria-label={s.name}
-                        className="inline-flex text-white"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onMouseEnter={() => setHovered(s.name)}
-                        onMouseLeave={() => setHovered(null)}
-                        onFocus={() => setHovered(s.name)}
-                        onBlur={() => setHovered(null)}
-                      >
-                        <div className={`flex flex-col items-center justify-center h-14 gap-1 transform transition-transform duration-200 ease-out ${isHovered ? '-translate-y-1 scale-105' : ''}`}>
-                          <s.Icon className="h-6 w-6 transition-colors" aria-hidden style={{ color: isHovered ? s.color : undefined }} />
-                          <span className={`text-xs transition-colors ${s.name === 'Facebook' ? 'pl-0.5' : ''}`} style={{ color: isHovered ? s.color : undefined }}>{s.name}</span>
-                        </div>
-                      </a>
-                    )
-                  })}
-                </div>
+            <div className="max-w-6xl mx-auto flex items-center justify-center">
+              <div className="grid grid-cols-3 grid-rows-2 gap-4 text-center place-items-center">
+                {social.map((s) => {
+                  const isHovered = hovered === s.name
+                  return (
+                    <a
+                      key={s.name}
+                      href={s.href}
+                      aria-label={s.name}
+                      className="inline-flex text-white"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onMouseEnter={() => setHovered(s.name)}
+                      onMouseLeave={() => setHovered(null)}
+                      onFocus={() => setHovered(s.name)}
+                      onBlur={() => setHovered(null)}
+                    >
+                      <div className={`flex flex-col items-center justify-center h-14 gap-1 transform transition-transform duration-200 ease-out ${isHovered ? '-translate-y-1 scale-105' : ''}`}>
+                        <s.Icon className="h-6 w-6 transition-colors" aria-hidden style={{ color: isHovered ? s.color : undefined }} />
+                        <span className={`text-xs transition-colors ${s.name === 'Facebook' ? 'pl-0.5' : ''}`} style={{ color: isHovered ? s.color : undefined }}>{s.name}</span>
+                      </div>
+                    </a>
+                  )
+                })}
               </div>
             </div>
 

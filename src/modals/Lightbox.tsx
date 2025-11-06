@@ -1,5 +1,6 @@
 import React, { useLayoutEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import FullscreenImage from './FullscreenImage'
 
 const MDiv: any = motion.div
 const MImg: any = motion.img
@@ -27,32 +28,32 @@ export default function Lightbox({ images, index, onClose, onNext, onPrev }: Pro
     const bottomRef = useRef<HTMLDivElement | null>(null)
     const [showDescription, setShowDescription] = useState(true)
     const [showTitle, setShowTitle] = useState(true)
-    // Don't reveal the bottom area until we've measured what should be shown
     const [bottomVisible, setBottomVisible] = useState(false)
+    const [fullscreenOpen, setFullscreenOpen] = useState(false)
+    const openedAtRef = useRef<number>(0)
 
-    // touch/swipe state
+    const openFullscreen = () => {
+        setFullscreenOpen(true)
+    }
+
+    const closeFullscreen = () => {
+        setFullscreenOpen(false)
+    }
+
     const touchStartX = useRef<number | null>(null)
     const touchCurrentX = useRef<number | null>(null)
-    const SWIPE_THRESHOLD = 50 // pixels
-
-    // no raf: we use useLayoutEffect to synchronously measure before paint to avoid flicker
+    const SWIPE_THRESHOLD = 50
 
     useLayoutEffect(() => {
         if (!bottomRef.current) return
         let mounted = true
         const adjust = () => {
             if (!mounted || !bottomRef.current) return
-            // ensure we start hidden to avoid any paint with full details
             setBottomVisible(false)
             const el = bottomRef.current!
             const TOL = 8 // small tolerance in pixels to avoid over-sensitive hiding
 
-            // helper: clone the bottom element, optionally remove title/description nodes,
-            // and measure scrollHeight synchronously offscreen.
             const measure = (showDesc: boolean, showTitleLocal: boolean) => {
-                // Build a fresh offscreen element using the current `img` data so
-                // measurements don't depend on the existing DOM (which may be
-                // in a transient state due to AnimatePresence).
                 const wrapper = document.createElement('div')
                 wrapper.style.position = 'absolute'
                 wrapper.style.left = '-9999px'
@@ -101,7 +102,6 @@ export default function Lightbox({ images, index, onClose, onNext, onPrev }: Pro
             }
 
             const clientH = el.clientHeight
-            // if everything fits with both visible
             if (measure(true, true) <= clientH + TOL) {
                 setShowDescription(true)
                 setShowTitle(true)
@@ -109,7 +109,6 @@ export default function Lightbox({ images, index, onClose, onNext, onPrev }: Pro
                 return
             }
 
-            // if fits without description
             if (measure(false, true) <= clientH + TOL) {
                 setShowDescription(false)
                 setShowTitle(true)
@@ -117,13 +116,11 @@ export default function Lightbox({ images, index, onClose, onNext, onPrev }: Pro
                 return
             }
 
-            // otherwise hide both
             setShowDescription(false)
             setShowTitle(false)
             setBottomVisible(true)
         }
 
-        // run adjust synchronously in the layout phase to avoid any intermediate paint
         adjust()
         const onResize = () => adjust()
         window.addEventListener('resize', onResize)
@@ -132,6 +129,12 @@ export default function Lightbox({ images, index, onClose, onNext, onPrev }: Pro
             window.removeEventListener('resize', onResize)
         }
     }, [index, img?.title, img?.description, img?.other, (img?.tags || []).length])
+
+    React.useEffect(() => {
+        if (index !== null) {
+            openedAtRef.current = Date.now()
+        }
+    }, [index])
 
 
     return (
@@ -160,14 +163,33 @@ export default function Lightbox({ images, index, onClose, onNext, onPrev }: Pro
                         transition={{ duration: 0.25 }}
                         onClick={(e: React.MouseEvent<HTMLDivElement>) => e.stopPropagation()}
                     >
-                        <button
-                            onClick={onClose}
-                            onMouseUp={(e) => (e.currentTarget as HTMLButtonElement).blur()}
-                            className="absolute top-4 right-4 text-white bg-black/40 hover:bg-black/60 rounded-full w-9 h-9 flex items-center justify-center z-50 transform transition-transform duration-200 ease-out hover:-translate-y-1 hover:scale-105 focus-visible:-translate-y-1 focus-visible:scale-105"
-                            aria-label="Close lightbox"
-                        >
-                            ✕
-                        </button>
+                        {!fullscreenOpen && (
+                            <div className="absolute top-4 right-4 z-50 flex items-center gap-2">
+                                <button
+                                    onClick={() => {
+                                        // ignore clicks that happen immediately after opening the lightbox
+                                        const age = Date.now() - (openedAtRef.current || 0)
+                                        if (age < 200) return
+                                        openFullscreen()
+                                    }}
+                                    onMouseUp={(e) => (e.currentTarget as HTMLButtonElement).blur()}
+                                    className="text-white bg-black/40 hover:bg-black/60 rounded-full w-9 h-9 flex items-center justify-center transform transition-transform duration-200 ease-out hover:-translate-y-1 hover:scale-105 focus-visible:-translate-y-1 focus-visible:scale-105"
+                                    aria-label="Open image in full screen"
+                                    title="Open full screen (Esc to exit, ←/→ to navigate)"
+                                >
+                                    ⤢
+                                </button>
+
+                                <button
+                                    onClick={onClose}
+                                    onMouseUp={(e) => (e.currentTarget as HTMLButtonElement).blur()}
+                                    className="text-white bg-black/40 hover:bg-black/60 rounded-full w-9 h-9 flex items-center justify-center transform transition-transform duration-200 ease-out hover:-translate-y-1 hover:scale-105 focus-visible:-translate-y-1 focus-visible:scale-105"
+                                    aria-label="Close lightbox"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+                        )}
 
                         <div
                             className="relative xl:w-[900px] xl:h-[600px] xl:min-h-[600px] xl:max-h-[600px] lg:w-[700px] lg:h-[440px] lg:min-h-[440px] lg:max-h-[440px] md:w-[640px] md:h-[420px] md:min-h-[420px] md:max-h-[420px] sm:w-[480px] sm:h-[320px] sm:min-h-[320px] sm:max-h-[320px] w-[320px] h-[200px] min-h-[200px] max-h-[200px] max-w-full flex items-center justify-center px-6 py-6"
@@ -188,24 +210,24 @@ export default function Lightbox({ images, index, onClose, onNext, onPrev }: Pro
                                 }
                                 const dx = touchCurrentX.current - touchStartX.current
                                 if (dx > SWIPE_THRESHOLD) {
-                                    // swipe right -> previous
                                     onPrev()
                                 } else if (dx < -SWIPE_THRESHOLD) {
-                                    // swipe left -> next
                                     onNext()
                                 }
                                 touchStartX.current = null
                                 touchCurrentX.current = null
                             }}
                         >
-                            <button
-                                onClick={onPrev}
-                                onMouseUp={(e) => (e.currentTarget as HTMLButtonElement).blur()}
-                                aria-label="Previous image"
-                                className="absolute top-1/2 -translate-y-1/2 rounded-full w-6 h-10 flex items-center justify-center z-50 group left-4 md:left-8 lg:-left-4 xl:-left-4"
-                            >
-                                <span className="text-white bg-black/40 group-hover:bg-black/60 group-focus-visible:bg-black/60 rounded-full w-6 h-10 flex items-center justify-center transform transition-transform duration-200 ease-out group-hover:-translate-y-1 group-hover:scale-105 group-focus-visible:-translate-y-1 group-focus-visible:scale-105">‹</span>
-                            </button>
+                            {!fullscreenOpen && (
+                                <button
+                                    onClick={onPrev}
+                                    onMouseUp={(e) => (e.currentTarget as HTMLButtonElement).blur()}
+                                    aria-label="Previous image"
+                                    className="absolute top-1/2 -translate-y-1/2 rounded-full w-6 h-10 flex items-center justify-center z-50 group left-4 md:left-8 lg:-left-4 xl:-left-4"
+                                >
+                                    <span className="text-white bg-black/40 group-hover:bg-black/60 group-focus-visible:bg-black/60 rounded-full w-6 h-10 flex items-center justify-center transform transition-transform duration-200 ease-out group-hover:-translate-y-1 group-hover:scale-105 group-focus-visible:-translate-y-1 group-focus-visible:scale-105">‹</span>
+                                </button>
+                            )}
 
                             <AnimatePresence mode="wait">
                                 {img && (
@@ -213,6 +235,11 @@ export default function Lightbox({ images, index, onClose, onNext, onPrev }: Pro
                                         key={img.resizedSrc || index || 'img'}
                                         src={img?.resizedSrc || ''}
                                         alt={img?.title || ''}
+                                        onClick={() => {
+                                            const age = Date.now() - (openedAtRef.current || 0)
+                                            if (age < 200) return
+                                            openFullscreen()
+                                        }}
                                         className="w-full h-full object-contain rounded-md"
                                         initial={{ opacity: 0, scale: 0.99 }}
                                         animate={{ opacity: 1, scale: 1 }}
@@ -222,14 +249,16 @@ export default function Lightbox({ images, index, onClose, onNext, onPrev }: Pro
                                 )}
                             </AnimatePresence>
 
-                            <button
-                                onClick={onNext}
-                                onMouseUp={(e) => (e.currentTarget as HTMLButtonElement).blur()}
-                                aria-label="Next image"
-                                className="absolute top-1/2 -translate-y-1/2 rounded-full w-6 h-10 flex items-center justify-center z-50 group right-4 md:right-8 lg:-right-4 xl:-right-4"
-                            >
-                                <span className="text-white bg-black/40 group-hover:bg-black/60 group-focus-visible:bg-black/60 rounded-full w-6 h-10 flex items-center justify-center transform transition-transform duration-200 ease-out group-hover:-translate-y-1 group-hover:scale-105 group-focus-visible:-translate-y-1 group-focus-visible:scale-105">›</span>
-                            </button>
+                            {!fullscreenOpen && (
+                                <button
+                                    onClick={onNext}
+                                    onMouseUp={(e) => (e.currentTarget as HTMLButtonElement).blur()}
+                                    aria-label="Next image"
+                                    className="absolute top-1/2 -translate-y-1/2 rounded-full w-6 h-10 flex items-center justify-center z-50 group right-4 md:right-8 lg:-right-4 xl:-right-4"
+                                >
+                                    <span className="text-white bg-black/40 group-hover:bg-black/60 group-focus-visible:bg-black/60 rounded-full w-6 h-10 flex items-center justify-center transform transition-transform duration-200 ease-out group-hover:-translate-y-1 group-hover:scale-105 group-focus-visible:-translate-y-1 group-focus-visible:scale-105">›</span>
+                                </button>
+                            )}
                         </div>
 
                         <div ref={bottomRef} className={`w-full mt-4 p-6 bg-[#1E1E25] rounded-b-md text-white text-center overflow-hidden xl:h-[160px] xl:min-h-[160px] xl:max-h-[160px] lg:h-[140px] lg:min-h-[140px] lg:max-h-[140px] md:h-[140px] md:min-h-[140px] md:max-h-[140px] sm:h-[120px] sm:min-h-[120px] sm:max-h-[120px] h-[120px] min-h-[120px] max-h-[120px] flex flex-col items-center justify-center space-y-2 transition-opacity duration-150 ${bottomVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
@@ -246,6 +275,16 @@ export default function Lightbox({ images, index, onClose, onNext, onPrev }: Pro
                                 ))}
                             </div>
                         </div>
+
+                        {fullscreenOpen && img && (
+                            <FullscreenImage
+                                src={img.resizedSrc || ''}
+                                alt={img?.title}
+                                onClose={() => closeFullscreen()}
+                                onNext={onNext}
+                                onPrev={onPrev}
+                            />
+                        )}
                     </MDiv>
                 </MDiv>
             )}

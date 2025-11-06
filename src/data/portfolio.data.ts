@@ -32,7 +32,7 @@ export const portfolioData: PortfolioSet[] = [
   {
     setTitle: "Street Photography",
     year: 2025,
-    description: "A collection shots I took during my commute to university",
+    description: "A collection shots I took during my commutes",
     other: "Camera: Sony ZV E10 • Lens: Viltrox 56mm f1.7 + 7Artisans 27mm f2.8",
     tags: ["Street Photography", "Car Photography"],
     images: [
