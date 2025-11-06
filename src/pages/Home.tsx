@@ -18,7 +18,7 @@ export default function Home() {
         <div className="h-[400px] xl:h-[600px] p-4 md:p-6 lg:p-8 flex items-center justify-center bg-gradient-to-b from-[#373944] to-[#1E1E25] shadow-md">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1.0 }}>
             <img src={logo} alt="…" className="h-[120px] md:h-[160px] lg:h-[180px] xl:h-[300px] w-auto mx-auto" />
-            <h1 className="text-2xl md:text-4xl lg:text-4xl xl:text-6xl font-bold leading-snug md:leading-tight text-white text-center">DIKONAKAYA</h1>
+            <h1 className="text-2xl md:text-4xl lg:text-4xl xl:text-6xl font-extrabold leading-snug md:leading-tight text-white text-center">DIKONAKAYA</h1>
             <p className="mt-2 md:mt-4 max-w-md md:max-w-2xl text-slate-400 text-sm md:text-base text-center leading-snug md:leading-tight">
               Pixel Artist
               <br />

@@ -234,7 +234,7 @@ export default function Lightbox({ images, index, onClose, onNext, onPrev }: Pro
                         )}
 
                         <div
-                            className="relative xl:w-[900px] xl:h-[600px] xl:min-h-[600px] xl:max-h-[600px] lg:w-[700px] lg:h-[440px] lg:min-h-[440px] lg:max-h-[440px] md:w-[640px] md:h-[420px] md:min-h-[420px] md:max-h-[420px] sm:w-[480px] sm:h-[320px] sm:min-h-[320px] sm:max-h-[320px] w-[320px] h-[200px] min-h-[200px] max-h-[200px] max-w-full flex items-center justify-center px-6 py-6"
+                            className="relative 3xl:w-[1200px] 3xl:h-[800px] 3xl:min-h-[800px] 3xl:max-h-[800px] 2xl:w-[820px] 2xl:h-[540px] 2xl:min-h-[540px] 2xl:max-h-[540px] xl:w-[820px] xl:h-[540px] xl:min-h-[540px] xl:max-h-[540px] lg:w-[640px] lg:h-[420px] lg:min-h-[420px] lg:max-h-[420px] md:w-[640px] md:h-[420px] md:min-h-[420px] md:max-h-[420px] sm:w-[480px] sm:h-[320px] sm:min-h-[320px] sm:max-h-[320px] w-[320px] h-[200px] min-h-[200px] max-h-[200px] max-w-full flex items-center justify-center px-6 pb-6 pt-10"
                             onTouchStart={(e) => {
                                 const t = e.touches[0]
                                 touchStartX.current = t.clientX

@@ -19,13 +19,13 @@ type Job = {
 }
 
 const hardSkills: Skill[] = [
-    { title: 'Programmer', since: 'Self-Taught Since 2015\nBS Computer Science Major in Data Science Since 2026' },
+    { title: 'Programmer', since: 'Self-Taught Since 2015\nBS Computer Science\nMajor in Data Science Since 2026' },
     { title: 'Pixel Artist', since: 'Since 2018' },
     { title: 'Photographer', since: 'Since 2024' },
     { title: 'Graphics Designer', since: 'Since 2016' },
     { title: 'Video Editor', since: 'Since 2016', specialization: 'Gaming Videos & Vlogs', programs: 'Adobe Premiere Pro, Audacity' },
     { title: 'Minecraft 3D Model Maker', since: 'Since 2022', specialization: 'Blocks & Weapons', programs: 'Blockbench' },
-    { title: 'Digital/Traditional Artist (Hobby Only)', since: 'Since 2018', programs: 'Clip Studio Paint' },
+    { title: 'Digital/Traditional Artist', since: 'Since 2018', specialization: '(Hobby Only)', programs: 'Clip Studio Paint' },
 ]
 
 const workExperience: Job[] = [

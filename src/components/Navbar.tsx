@@ -1,16 +1,17 @@
 import React, { useEffect, useRef, useState } from "react";
+import logoUrl from "../assets/logo_head.png";
 import { useLocation, Link, useNavigate } from "react-router-dom";
 import { scrollToTop } from "../utils/scrollToTop";
 import { scrollToId } from "../utils/scrollToId";
 
 const Navbar: React.FC = () => {
-  const [openMenu, setOpenMenu] = useState<"portfolio" | "more" | null>(null);
+  const [openMenu, setOpenMenu] = useState<"portfolio" | "about" | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const closeTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
-  const isMoreActive = location.pathname === "/about" || location.pathname === "/contact";
+  const isAboutActive = location.pathname === "/about";
 
   useEffect(() => {
     if (!location.hash) return;
@@ -24,7 +25,7 @@ const Navbar: React.FC = () => {
 
 
 
-  function handleMenuEnter(menu: "portfolio" | "more") {
+  function handleMenuEnter(menu: "portfolio" | "about") {
     if (closeTimeout.current) {
       clearTimeout(closeTimeout.current);
       closeTimeout.current = null;
@@ -68,7 +69,7 @@ const Navbar: React.FC = () => {
         <Link
           to="/"
           aria-label="Home"
-          className="text-center text-lg font-bold text-white"
+          className="text-center text-lg font-bold text-white inline-flex items-center gap-2"
           onClick={(e) => {
             if (location.pathname === "/") {
               e.preventDefault();
@@ -79,6 +80,7 @@ const Navbar: React.FC = () => {
             scrollToTop();
           }}
         >
+          <img src={logoUrl} alt="Dikonakaya logo" className="w-[1.6em] h-[1.6em] object-contain -mr-[0.15em]" />
           DIKONAKAYA
         </Link>
         <div className="absolute right-4">
@@ -99,7 +101,7 @@ const Navbar: React.FC = () => {
             <Link
               to="/"
               aria-label="Home"
-              className="absolute left-6 top-0 h-full flex items-center gap-3 text-3xl font-bold text-white z-50"
+              className="absolute left-6 top-0 h-full flex items-center gap-3 text-3xl font-extrabold text-white z-50"
               onClick={(e) => {
                 if (location.pathname === "/") {
                   e.preventDefault();
@@ -110,6 +112,7 @@ const Navbar: React.FC = () => {
                 scrollToTop();
               }}
             >
+              <img src={logoUrl} alt="Dikonakaya logo" className="w-[1.6em] h-[1.6em] object-contain -mr-[0.35em]" />
               DIKONAKAYA
             </Link>
           </div>
@@ -132,9 +135,9 @@ const Navbar: React.FC = () => {
 
         <div className="items-center h-10 bg-[#373944]">
           <div className="relative items-center px-4 h-10 overflow-hidden">
-            <div className="absolute left-0 top-0 h-10 w-[255px] bg-[#1E1E25] pointer-events-none" />
+            <div className="absolute left-0 top-0 h-10 w-[300px] bg-[#1E1E25] pointer-events-none" />
             <svg
-              className="absolute left-[255px] top-0 h-10 w-28 pointer-events-none text-[#1E1E25]"
+              className="absolute left-[300px] top-0 h-10 w-28 pointer-events-none text-[#1E1E25]"
               viewBox="0 0 100 100"
               preserveAspectRatio="none"
               xmlns="http://www.w3.org/2000/svg"
@@ -227,48 +230,50 @@ const Navbar: React.FC = () => {
                 </a>
               </li>
 
-              {/* More dropdown */}
+              <li>
+                <Link
+                  to="/contact"
+                  className={`flex items-center px-3 py-2.5 transition-colors relative z-10 ${location.pathname === "/contact" ? "text-slate-400" : "text-white"} hover:bg-[#1E1E25]`}
+                  onClick={(e) => {
+                    scrollToTop();
+                  }}
+                >
+                  Contact
+                </Link>
+              </li>
+
               <li
                 className="relative"
-                onMouseEnter={() => handleMenuEnter("more")}
+                onMouseEnter={() => handleMenuEnter("about")}
                 onMouseLeave={() => handleMenuLeave()}
               >
-                <button aria-expanded={openMenu === "more"} className="flex items-center gap-2 px-3 py-2.5 hover:bg-[#1E1E25] transition-colors">
-                  <span className={`${isMoreActive ? "text-slate-400" : "text-white"}`}>More</span>
-                  <svg width="10" height="7" viewBox="0 0 10 7" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M0.75 1.25L5 5.5L9.25 1.25" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </button>
+                <Link
+                  to="/about"
+                  aria-expanded={openMenu === "about"}
+                  className="flex items-center gap-2 px-3 py-2.5 transition-colors hover:bg-[#1E1E25]"
+                  onClick={(e) => {
+                    if (location.pathname === "/about") {
+                      e.preventDefault();
+                      try {
+                        navigate('/about', { replace: true })
+                      } catch (err) { }
+                    }
+                    scrollToTop();
+                    setOpenMenu(null);
+                  }}
+                >
+                  <span className={`${isAboutActive ? "text-slate-400" : "text-white"}`}>About Me</span>
+                </Link>
 
                 <ul
-                  aria-hidden={openMenu !== "more"}
-                  className={`absolute left-0 mt-2 w-48 bg-[rgba(0,0,0,0.5)] border border-[rgba(0,0,0,0.2)] rounded-md shadow-md text-white py-1 z-50 transition-opacity duration-200 ease-out transform ${openMenu === "more" ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 translate-y-0 pointer-events-none"
+                  aria-hidden={openMenu !== "about"}
+                  className={`absolute left-0 mt-2 w-40 bg-[rgba(0,0,0,0.5)] border border-[rgba(0,0,0,0.2)] rounded-md shadow-md text-white py-1 z-50 transition-opacity duration-200 ease-out transform ${openMenu === "about" ? "opacity-100 translate-y-0 pointer-events-auto" : "opacity-0 translate-y-0 pointer-events-none"
                     }`}
                 >
                   <li>
                     <Link
-                      to="/about"
-                      className="block px-4 py-2 transition-colors duration-200 ease-in-out hover:bg-black focus:bg-black"
-                      onClick={(e) => {
-                        if (location.pathname === "/about") {
-                          e.preventDefault();
-                          try {
-                            navigate('/about', { replace: true })
-                          } catch (err) { }
-                        }
-                        // always scroll to top when opening About
-                        scrollToTop();
-                        setOpenMenu(null);
-                      }}
-                    >
-                      About Me
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
                       to="/about#socials"
                       onClick={(e) => {
-                        // if we're already on /about, prevent routing, update the hash and scroll to id
                         if (location.pathname === "/about") {
                           e.preventDefault();
                           try {
@@ -281,15 +286,6 @@ const Navbar: React.FC = () => {
                       className={`block px-4 py-2 transition-colors duration-200 ease-in-out hover:bg-black focus:bg-black ${location.pathname === "/about" && location.hash === "#socials" ? 'bg-[#1E1E25]' : ''}`}
                     >
                       Socials
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/contact" className="block px-4 py-2 transition-colors duration-200 ease-in-out hover:bg-black focus:bg-black"
-                      onClick={(e) => {
-                        scrollToTop();
-                      }}
-                    >
-                      Contact
                     </Link>
                   </li>
                 </ul>
