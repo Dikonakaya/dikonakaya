@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { projectsData } from "../data/projects.data";
+import { scrollToId } from "../utils/scrollToId";
 
 export type PortfolioImage = {
     src: string;
@@ -46,6 +47,8 @@ const TRANSITION_MS = 220;
 
 const ProjectGrid: React.FC<Props> = ({ title, sets }) => {
     const containerRef = useRef<HTMLDivElement | null>(null);
+
+    const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
     const [imageData, setImageData] = useState<Array<PortfolioImageWithMeta | null>>([]);
     const [rows, setRows] = useState<RowData[]>([]);
@@ -245,12 +248,42 @@ const ProjectGrid: React.FC<Props> = ({ title, sets }) => {
                             {rowImages.map((img, idx) => {
                                 const width = scaledWidths[idx];
                                 const height = Math.round(TARGET_ROW_HEIGHT * row.scale);
+                                const isExpanded = expandedIndex === img.originalIndex;
+
+                                const proj = typeof img.originalIndex === "number" ? projectsData[img.originalIndex] : undefined;
+
+                                const toggleExpanded = (e: React.MouseEvent) => {
+                                    e.stopPropagation();
+
+                                    const next = expandedIndex === img.originalIndex ? null : img.originalIndex ?? null;
+                                    setExpandedIndex(next);
+
+                                    const id = typeof img.originalIndex === "number" ? `project-${img.originalIndex}` : `project-${rowIndex}-${idx}`;
+                                    requestAnimationFrame(() => requestAnimationFrame(() => {
+                                        try {
+                                            scrollToId(id);
+                                        } catch (err) {
+
+                                        }
+                                    }));
+                                };
 
                                 return (
                                     <div
+                                        id={typeof img.originalIndex === "number" ? `project-${img.originalIndex}` : `project-${rowIndex}-${idx}`}
                                         key={img.originalIndex}
-                                        className="relative group overflow-visible p-0 border-0 rounded-md transition-transform duration-[300ms] ease-in-out hover:scale-[1.02]"
+                                        className="relative scroll-mt-[6rem] group overflow-visible p-0 border-0 rounded-md transition-transform duration-[300ms] ease-in-out hover:scale-[1.02]"
                                         style={{ transition: `transform ${TRANSITION_MS}ms ease` }}
+                                        onClick={toggleExpanded}
+                                        role="button"
+                                        tabIndex={0}
+                                        onKeyDown={(e) => {
+                                            if (e.key === "Enter" || e.key === " ") {
+                                                e.preventDefault();
+                                                toggleExpanded(e as any);
+                                            }
+                                        }}
+                                        aria-expanded={isExpanded}
                                     >
                                         <div
                                             className="relative rounded-t-md bg-black"
@@ -266,12 +299,46 @@ const ProjectGrid: React.FC<Props> = ({ title, sets }) => {
                                             </div>
                                         </div>
 
-                                        <div
-                                            className={`text-left text-white bg-black rounded-b-md px-2 py-2`}
-                                            style={{ width }}
-                                        >
+                                        <div className={`text-left text-white bg-black ${isExpanded ? "" : "rounded-b-md"} px-2 py-2`} style={{ width }}>
                                             <h4 className="text-sm font-semibold">{img.title}</h4>
                                             <p className="text-xs text-slate-300 truncate">{img.description}</p>
+                                        </div>
+
+                                        <div
+                                            className="overflow-hidden transition-[max-height] duration-300 ease-in-out rounded-b-md"
+                                            style={{ maxHeight: isExpanded ? 400 : 0 }}
+                                        >
+                                            <div className={`opacity-0 transition-opacity duration-300 ${isExpanded ? "opacity-100 delay-[120ms]" : ""} bg-black rounded-b-md px-4 py-4`}>
+                                                {proj ? (
+                                                    <div>
+                                                        <h4 className="text-lg font-semibold text-white">{proj.name}</h4>
+                                                        {proj.subtitle && <p className="text-sm text-slate-300 mt-1">{proj.subtitle}</p>}
+                                                        {proj.description && <p className="mt-2 text-sm text-slate-300">{proj.description}</p>}
+                                                        <div className="mt-3 text-xs text-slate-400">
+                                                            {proj.year && <span className="mr-3">Year: {proj.year}</span>}
+                                                            {proj.tags && <span>Tags: {proj.tags.join(", ")}</span>}
+                                                        </div>
+                                                        <div className="mt-4 flex gap-3">
+                                                            {proj.viewUrl && (
+                                                                <a href={proj.viewUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center px-4 py-2 min-w-[160px] rounded-md bg-green-600 text-white text-base font-medium hover:bg-white hover:text-[#373944] transition-colors">
+                                                                    View Project
+                                                                </a>
+                                                            )}
+
+                                                            {proj.getUrl && (
+                                                                <a href={proj.getUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center px-4 py-2 min-w-[160px] rounded-md bg-blue-600 text-white text-base font-medium hover:bg-white hover:text-[#373944] transition-colors">
+                                                                    Get Project
+                                                                </a>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <div>
+                                                        <h4 className="text-lg font-semibold text-white">{img.title}</h4>
+                                                        <p className="mt-2 text-sm text-slate-300">{img.description}</p>
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
                                 );
