@@ -139,7 +139,17 @@ export default function Lightbox({ images, index, onClose, onNext, onPrev }: Pro
     React.useEffect(() => {
         const pushedRef = { current: false }
         const onPop = (e: PopStateEvent) => {
-            if (fullscreenOpen) return
+            try {
+                ; (e as any).stopImmediatePropagation?.()
+                e.stopPropagation()
+            } catch (err) {
+
+            }
+            // If fullscreen is open, close that first; otherwise close the lightbox
+            if (fullscreenOpen) {
+                setFullscreenOpen(false)
+                return
+            }
             onClose()
         }
 
@@ -196,7 +206,6 @@ export default function Lightbox({ images, index, onClose, onNext, onPrev }: Pro
                             <div className="absolute top-4 right-4 z-50 flex items-center gap-2">
                                 <button
                                     onClick={() => {
-                                        // ignore clicks that happen immediately after opening the lightbox
                                         const age = Date.now() - (openedAtRef.current || 0)
                                         if (age < 200) return
                                         openFullscreen()
@@ -206,7 +215,7 @@ export default function Lightbox({ images, index, onClose, onNext, onPrev }: Pro
                                     aria-label="Open image in full screen"
                                     title="Open full screen (Esc to exit, ←/→ to navigate)"
                                 >
-                                    <span className="text-xl leading-none">⤢</span>
+                                    ⤢
                                 </button>
 
                                 <button
