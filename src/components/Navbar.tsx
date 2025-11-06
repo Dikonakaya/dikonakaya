@@ -10,6 +10,7 @@ const Navbar: React.FC = () => {
   const closeTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
+  const isMoreActive = ["/about", "/contact", "/socials"].includes(location.pathname);
 
   useEffect(() => {
     if (!location.hash) return;
@@ -232,7 +233,7 @@ const Navbar: React.FC = () => {
                 onMouseLeave={() => handleMenuLeave()}
               >
                 <button aria-expanded={openMenu === "more"} className="flex items-center gap-2 px-3 py-2.5 hover:bg-[#1E1E25] transition-colors">
-                  <span className="text-white">More</span>
+                  <span className={`${isMoreActive ? "text-slate-400" : "text-white"}`}>More</span>
                   <svg width="10" height="7" viewBox="0 0 10 7" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M0.75 1.25L5 5.5L9.25 1.25" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
@@ -244,7 +245,7 @@ const Navbar: React.FC = () => {
                     }`}
                 >
                   <li>
-                    <Link to="#about" className="block px-4 py-2 transition-colors duration-200 ease-in-out hover:bg-black focus:bg-black"
+                    <Link to="/about" className="block px-4 py-2 transition-colors duration-200 ease-in-out hover:bg-black focus:bg-black"
                       onClick={(e) => {
                         scrollToTop();
                       }}>

@@ -18,12 +18,26 @@ export type PortfolioSet = {
 
 export const portfolioData: PortfolioSet[] = [
   {
-    setTitle: "Mini Cooper",
+    setTitle: "Self-Portraits",
+    year: 2024,
+    description: "Some self-portraits taken in my home",
+    other: "Camera: Sony ZV E10 • Lens: Meike 33mm f1.4",
+    tags: ["Portrait Photography"],
+    images: [
+      { src: "https://i.imgur.com/x4aYzh8.jpeg" },
+      { src: "https://i.imgur.com/GLl1tDw.jpeg" }
+    ],
+  },
+
+  {
+    setTitle: "Street Photography",
     year: 2025,
-    description: "A shot of a Mini Cooper on the streets of Sampaloc, Manila",
-    other: "Camera: Sony ZV E10 • Lens: 7Artisans 27mm f2.8",
+    description: "A collection shots I took during my commute to university",
+    other: "Camera: Sony ZV E10 • Lens: Viltrox 56mm f1.7 + 7Artisans 27mm f2.8",
     tags: ["Street Photography", "Car Photography"],
     images: [
+      { src: "https://i.imgur.com/L3yb9qj.jpeg" },
+      { src: "https://i.imgur.com/X7YkWzU.jpeg" },
       { src: "https://i.imgur.com/NLuGcjE.jpeg" }
     ],
   },

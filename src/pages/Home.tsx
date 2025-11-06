@@ -74,7 +74,7 @@ export default function Home() {
             <PortfolioGrid
               title="PHOTOGRAPHY"
               sets={portfolioData.filter(s =>
-                ["Mini Cooper", "Tofu60 V1", "RK87", "Jris65", "2025 Keyboard Collection"].includes(s.setTitle)
+                ["Self-Portraits", "Street Photography", "Tofu60 V1", "RK87", "Jris65", "2025 Keyboard Collection"].includes(s.setTitle)
               )}
               showBorder={true}
             />
