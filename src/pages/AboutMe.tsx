@@ -1,8 +1,3 @@
-// src/pages/AboutMe.tsx
-import React from "react";
-import { IconType } from 'react-icons';
-import { FaYoutube, FaTwitter, FaInstagram, FaTwitch, FaFacebook, FaDiscord } from 'react-icons/fa'
-
 export default function AboutMe() {
 
     return (

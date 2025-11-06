@@ -3,25 +3,37 @@ import { Link, useLocation } from 'react-router-dom'
 import { scrollToTop } from '../utils/scrollToTop'
 import logo from '../assets/logo.png'
 import { IconType } from 'react-icons'
-import { FaYoutube, FaTwitter, FaInstagram, FaTwitch, FaFacebook, FaDiscord } from 'react-icons/fa'
+import { FaYoutube, FaTwitter, FaInstagram, FaTwitch, FaFacebook, FaDiscord, FaGithub, FaLinkedin, FaCrown, FaGlobe, FaBroadcastTower, FaPatreon } from 'react-icons/fa'
+import { SiKofi } from 'react-icons/si'
 
 export default function Footer() {
   const location = useLocation()
   const isAbout = location.pathname === '/about'
-  const social: { name: string; href: string; Icon: IconType; color: string }[] = [
+  const defaultSocials: { name: string; href: string; Icon: IconType; color: string }[] = [
     { name: 'YouTube', href: 'https://www.youtube.com/@dikonakaya', Icon: FaYoutube, color: '#FF0000' },
-    { name: 'Twitter', href: '#', Icon: FaTwitter, color: '#1DA1F2' },
+    { name: 'Twitter', href: 'https://twitter.com/dikonakayach', Icon: FaTwitter, color: '#1DA1F2' },
     { name: 'Instagram', href: 'https://www.instagram.com/dikonakaya.png/', Icon: FaInstagram, color: '#FF7A08' },
     { name: 'Twitch', href: 'https://www.twitch.tv/dikonakaya', Icon: FaTwitch, color: '#9146FF' },
-    { name: 'Facebook', href: '#', Icon: FaFacebook, color: '#1877F2' },
+    { name: 'Facebook', href: 'https://www.facebook.com/profile.php?id=61575071376793', Icon: FaFacebook, color: '#1877F2' },
     { name: 'Discord', href: 'https://discord.com/invite/GBrAhGK6kE', Icon: FaDiscord, color: '#5865F2' },
   ]
+
+  const extendedSocials: { name: string; href: string; Icon: IconType; color: string }[] = [
+    { name: 'GitHub', href: 'https://github.com/dikonakaya', Icon: FaGithub, color: '#24292E' },
+    { name: 'LinkedIn', href: '', Icon: FaLinkedin, color: '#0A66C2' },
+    { name: 'Patreon', href: '', Icon: FaPatreon, color: '#ff424d' },
+    { name: 'Throne', href: 'https://throne.com/dikonakaya', Icon: FaCrown, color: '#D4AF37' },
+    { name: 'Ko-fi', href: 'https://ko-fi.com/dikonakaya', Icon: SiKofi, color: '#29abe0' },
+    { name: 'PMC', href: 'https://www.planetminecraft.com/member/dikonakaya', Icon: FaGlobe, color: '#2E8B57' },
+  ]
+
+  const footerSocials = isAbout ? [...defaultSocials, ...extendedSocials] : defaultSocials
 
   const [hovered, setHovered] = useState<string | null>(null)
 
   if (isAbout) {
     return (
-      <footer className="bg-[#373944] w-full pt-16">
+      <footer id="socials" className="bg-[#373944] w-full pt-16">
         <div className="relative">
           <svg
             className="absolute -top-20 left-0 w-full h-20 md:h-28 pointer-events-none"
@@ -39,9 +51,11 @@ export default function Footer() {
           </svg>
 
           <div className="pt-12 pb-6 text-sm text-slate-400">
+            <h3 className="text-center text-2xl font-semibold text-white mt-6 mb-4">SOCIALS</h3>
+            <div className="h-[2px] bg-white w-full max-w-[800px] mx-auto mb-6" aria-hidden="true" />
             <div className="max-w-6xl mx-auto flex items-center justify-center">
-              <div className="grid grid-cols-3 grid-rows-2 gap-4 text-center place-items-center">
-                {social.map((s) => {
+              <div className="grid grid-cols-3 md:grid-cols-6 grid-rows-2 gap-x-12 gap-y-8 text-center place-items-center">
+                {footerSocials.map((s) => {
                   const isHovered = hovered === s.name
                   return (
                     <a
@@ -56,9 +70,9 @@ export default function Footer() {
                       onFocus={() => setHovered(s.name)}
                       onBlur={() => setHovered(null)}
                     >
-                      <div className={`flex flex-col items-center justify-center h-14 gap-1 transform transition-transform duration-200 ease-out ${isHovered ? '-translate-y-1 scale-105' : ''}`}>
-                        <s.Icon className="h-6 w-6 transition-colors" aria-hidden style={{ color: isHovered ? s.color : undefined }} />
-                        <span className={`text-xs transition-colors ${s.name === 'Facebook' ? 'pl-0.5' : ''}`} style={{ color: isHovered ? s.color : undefined }}>{s.name}</span>
+                      <div className={`flex flex-col items-center justify-center h-14 w-14 gap-1 transform origin-center transition-transform duration-200 ease-out ${isHovered ? '-translate-y-1 scale-105' : ''}`}>
+                        <s.Icon className="h-6 w-6 transition-colors block" aria-hidden style={{ color: isHovered ? s.color : undefined }} />
+                        <span className={`text-xs transition-colors ${s.name === 'Facebook' ? 'pl-0.5' : ''} ${s.name === 'Ko-fi' ? 'pr-1' : ''}`} style={{ color: isHovered ? s.color : undefined }}>{s.name}</span>
                       </div>
                     </a>
                   )
@@ -66,7 +80,7 @@ export default function Footer() {
               </div>
             </div>
 
-            <div className="h-[2px] bg-white w-full max-w-[1200px] mx-auto my-4" aria-hidden="true" />
+            <div className="h-[2px] bg-white w-full max-w-[800px] mx-auto my-4" aria-hidden="true" />
             <div className="text-center">© {new Date().getFullYear()}</div>
           </div>
         </div>
@@ -113,8 +127,8 @@ export default function Footer() {
 
             {/* Right */}
             <div>
-              <div className="grid grid-cols-3 grid-rows-2 gap-4 text-center place-items-center">
-                {social.map((s) => {
+              <div className="grid grid-cols-3 grid-rows-2 gap-x-8 gap-y-4 text-center place-items-center">
+                {footerSocials.map((s) => {
                   const isHovered = hovered === s.name
                   return (
                     <a
@@ -129,8 +143,8 @@ export default function Footer() {
                       onFocus={() => setHovered(s.name)}
                       onBlur={() => setHovered(null)}
                     >
-                      <div className={`flex flex-col items-center justify-center h-14 gap-1 transform transition-transform duration-200 ease-out ${isHovered ? '-translate-y-1 scale-105' : ''}`}>
-                        <s.Icon className="h-6 w-6 transition-colors" aria-hidden style={{ color: isHovered ? s.color : undefined }} />
+                      <div className={`flex flex-col items-center justify-center h-14 w-14 gap-1 transform origin-center transition-transform duration-200 ease-out ${isHovered ? '-translate-y-1 scale-105' : ''}`}>
+                        <s.Icon className="h-6 w-6 transition-colors block" aria-hidden style={{ color: isHovered ? s.color : undefined }} />
                         <span className={`text-xs transition-colors ${s.name === 'Facebook' ? 'pl-0.5' : ''}`} style={{ color: isHovered ? s.color : undefined }}>{s.name}</span>
                       </div>
                     </a>

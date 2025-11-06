@@ -10,7 +10,7 @@ const Navbar: React.FC = () => {
   const closeTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
-  const isMoreActive = ["/about", "/contact", "/socials"].includes(location.pathname);
+  const isMoreActive = location.pathname === "/about" || location.pathname === "/contact";
 
   useEffect(() => {
     if (!location.hash) return;
@@ -221,9 +221,9 @@ const Navbar: React.FC = () => {
               </li>
 
               <li>
-                <Link to="#store" className="flex items-center px-3 py-2.5 hover:bg-[#1E1E25] transition-colors relative z-10">
+                <a href="https://ko-fi.com/dikonakaya" target="_blank" rel="noopener noreferrer" className="flex items-center px-3 py-2.5 hover:bg-[#1E1E25] transition-colors relative z-10">
                   Store
-                </Link>
+                </a>
               </li>
 
               {/* More dropdown */}
@@ -245,15 +245,41 @@ const Navbar: React.FC = () => {
                     }`}
                 >
                   <li>
-                    <Link to="/about" className="block px-4 py-2 transition-colors duration-200 ease-in-out hover:bg-black focus:bg-black"
+                    <Link
+                      to="/about"
+                      className="block px-4 py-2 transition-colors duration-200 ease-in-out hover:bg-black focus:bg-black"
                       onClick={(e) => {
-                        scrollToTop();
-                      }}>
+                        // if we're already on /about, prevent routing and scroll to top
+                        if (location.pathname === "/about") {
+                          e.preventDefault();
+                          // replace the current entry with /about to clear any hash and update react-router location
+                          try {
+                            navigate('/about', { replace: true })
+                          } catch (err) { }
+                          scrollToTop();
+                        }
+                        setOpenMenu(null);
+                      }}
+                    >
                       About Me
                     </Link>
                   </li>
                   <li>
-                    <Link to="#socials" className="block px-4 py-2 transition-colors duration-200 ease-in-out hover:bg-black focus:bg-black">
+                    <Link
+                      to="/about#socials"
+                      onClick={(e) => {
+                        // if we're already on /about, prevent routing, update the hash and scroll to id
+                        if (location.pathname === "/about") {
+                          e.preventDefault();
+                          try {
+                            navigate('/about#socials', { replace: true })
+                          } catch (err) { }
+                          scrollToId("socials");
+                        }
+                        setOpenMenu(null);
+                      }}
+                      className={`block px-4 py-2 transition-colors duration-200 ease-in-out hover:bg-black focus:bg-black ${location.pathname === "/about" && location.hash === "#socials" ? 'bg-[#1E1E25]' : ''}`}
+                    >
                       Socials
                     </Link>
                   </li>
@@ -338,20 +364,38 @@ const Navbar: React.FC = () => {
             >
               Projects
             </Link>
-            <Link to="/#store" className={`px-3 py-2 rounded text-white ${(location.hash === "#store" || location.pathname === "/store") ? "bg-[#1E1E25]" : ""}`} onClick={() => setSidebarOpen(false)}>
+            <a href="https://ko-fi.com/dikonakaya" target="_blank" rel="noopener noreferrer" className={`px-3 py-2 rounded text-white ${(location.hash === "#store" || location.pathname === "/store") ? "bg-[#1E1E25]" : ""}`} onClick={() => setSidebarOpen(false)}>
               Store
-            </Link>
+            </a>
             <Link
               to="/about"
-              className={`px-3 py-2 rounded text-white ${(location.hash === "#contact" || location.pathname === "/about") ? "bg-[#1E1E25]" : ""}`}
+              className={`px-3 py-2 rounded text-white ${(location.pathname === "/about" && location.hash !== "#socials") ? "bg-[#1E1E25]" : ""}`}
               onClick={(e) => {
-                scrollToTop();
-                setSidebarOpen(false);
+                if (location.pathname === "/about") {
+                  e.preventDefault()
+                  try {
+                    navigate('/about', { replace: true })
+                  } catch (err) { }
+                  scrollToTop()
+                }
+                setSidebarOpen(false)
               }}
             >
               About Me
             </Link>
-            <Link to="/#socials" className={`px-3 py-2 rounded text-white ${(location.hash === "#socials" || location.pathname === "/socials") ? "bg-[#1E1E25]" : ""}`} onClick={() => setSidebarOpen(false)}>
+            <Link
+              to="/about#socials"
+              onClick={(e) => {
+                if (location.pathname === "/about") {
+                  e.preventDefault()
+                  try {
+                    navigate('/about#socials', { replace: true })
+                  } catch (err) { }
+                  scrollToId("socials")
+                }
+                setSidebarOpen(false)
+              }}
+              className={`px-3 py-2 rounded text-white ${(location.pathname === "/about" && location.hash === "#socials") ? "bg-[#1E1E25]" : ""}`}>
               Socials
             </Link>
             <Link
