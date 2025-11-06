@@ -1,5 +1,7 @@
+import React, { useState, useRef, useEffect } from 'react'
 import logo from '../assets/logo.png'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import ReCAPTCHA from 'react-google-recaptcha'
 import lineReveal from '../utils/lineReveal'
 
 type Skill = {
@@ -37,6 +39,78 @@ export default function AboutMe() {
     // separate reveal hooks for top and bottom dividers so each one stays revealed once seen
     const { ref: dividerRefTop, revealed: dividerInViewTop } = lineReveal('about-top')
     const { ref: dividerRefBottom, revealed: dividerInViewBottom } = lineReveal('about-bottom')
+    // --- Contact form state (merged from Contact.tsx) ---
+    const [name, setName] = useState("")
+    const [email, setEmail] = useState("")
+    const [discord, setDiscord] = useState("")
+    const [subject, setSubject] = useState("")
+    const [message, setMessage] = useState("")
+    const [status, setStatus] = useState<null | "sending" | "sent" | "error">(null)
+    const [submittedName, setSubmittedName] = useState<string | null>(null)
+
+    const recaptchaRef = useRef<ReCAPTCHA | null>(null)
+    const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null)
+    const siteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY as string | undefined
+
+    const navigate = useNavigate()
+    const redirectTimer = useRef<number | null>(null)
+
+    async function handleSubmit(e: React.FormEvent) {
+        e.preventDefault()
+        setStatus("sending")
+
+        try {
+            const siteKeyLocal = import.meta.env.VITE_RECAPTCHA_SITE_KEY as string | undefined
+            if (siteKeyLocal && !recaptchaToken) {
+                if (recaptchaRef.current && typeof (recaptchaRef.current.execute) === 'function') {
+                    const t = await (recaptchaRef.current as any).executeAsync()
+                    setRecaptchaToken(t)
+                } else {
+                    setStatus('error')
+                    console.error('recaptcha token missing')
+                    return
+                }
+            }
+
+            const resp = await fetch('/api/contact', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, discord, subject, message, recaptchaToken }),
+            })
+
+            if (!resp.ok) {
+                const body = await resp.json().catch(() => ({}))
+                console.error('Contact send failed', body)
+                setStatus('error')
+                return
+            }
+
+            setSubmittedName(name || null)
+            setStatus('sent')
+            setName(''); setEmail(''); setDiscord(''); setSubject(''); setMessage('')
+            if (recaptchaRef.current && typeof (recaptchaRef.current.reset) === 'function') {
+                (recaptchaRef.current as any).reset()
+                setRecaptchaToken(null)
+            }
+        } catch (err) {
+            console.error(err)
+            setStatus('error')
+        }
+    }
+
+    useEffect(() => {
+        if (status === 'sent') {
+            redirectTimer.current = window.setTimeout(() => {
+                navigate('/')
+            }, 8000) as unknown as number
+        }
+        return () => {
+            if (redirectTimer.current) {
+                clearTimeout(redirectTimer.current as unknown as number)
+                redirectTimer.current = null
+            }
+        }
+    }, [status, navigate])
     return (
         <section className="bg-gradient-to-b from-[#373944] to-[#1E1E25] min-h-screen flex flex-col py-12">
             <div className="flex flex-col items-center gap-4">

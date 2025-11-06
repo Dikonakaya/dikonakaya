@@ -5,7 +5,7 @@ import logo from '../assets/logo.png'
 import { IconType } from 'react-icons'
 import { FaYoutube, FaTwitter, FaInstagram, FaTwitch, FaFacebook, FaDiscord, FaGithub, FaLinkedin, FaCrown, FaGlobe, FaBroadcastTower, FaPatreon } from 'react-icons/fa'
 import { SiKofi } from 'react-icons/si'
-import lineReveal from '../utils/lineReveal'
+// divider reveal removed for footer — static lines now
 
 export default function Footer() {
   const location = useLocation()
@@ -32,11 +32,7 @@ export default function Footer() {
 
   const [hovered, setHovered] = useState<string | null>(null)
 
-  // separate divider hooks so each divider animates independently
-  // pass a session key so once a divider is revealed it stays revealed for the session
-  const { ref: dividerRefAboutTop, revealed: dividerInViewAboutTop } = lineReveal('footer-about-top')
-  const { ref: dividerRefAboutBottom, revealed: dividerInViewAboutBottom } = lineReveal('footer-about-bottom')
-  const { ref: dividerRefMain, revealed: dividerInViewMain } = lineReveal('footer-main')
+  // Footer uses static dividers (no reveal animation)
 
   if (isAbout) {
     return (
@@ -64,9 +60,8 @@ export default function Footer() {
                 <h3 className="text-left text-4xl font-semibold text-white -ml-4 mt-8">SOCIALS</h3>
               </div>
               <div
-                ref={dividerRefAboutTop}
                 aria-hidden="true"
-                className={`h-[2px] bg-white w-full max-w-[900px] mx-auto origin-center transform ${dividerInViewAboutTop ? 'scale-x-100 opacity-100' : 'scale-x-0 opacity-0'}`}
+                className="h-[2px] bg-white w-full max-w-[900px] mx-auto origin-center transform scale-x-100 opacity-100"
                 style={{ transition: 'transform 2000ms ease-out, opacity 2000ms ease-out' }}
               />
             </div>
@@ -98,9 +93,8 @@ export default function Footer() {
             </div>
 
             <div
-              ref={dividerRefAboutBottom}
               aria-hidden="true"
-              className={`my-4 h-[2px] bg-white w-full max-w-[900px] mx-auto origin-center transform ${dividerInViewAboutBottom ? 'scale-x-100 opacity-100' : 'scale-x-0 opacity-0'}`}
+              className="my-4 h-[2px] bg-white w-full max-w-[900px] mx-auto origin-center transform scale-x-100 opacity-100"
               style={{ transition: 'transform 2000ms ease-out, opacity 2000ms ease-out' }}
             />
             <div className="text-center">© {new Date().getFullYear()}</div>
@@ -149,7 +143,7 @@ export default function Footer() {
 
             {/* Right */}
             <div>
-              <div className="grid grid-cols-3 grid-rows-2 gap-x-8 gap-y-4 text-center place-items-center">
+              <div className="grid grid-cols-3 grid-rows-2 -gap-x-8 gap-y-4 text-center place-items-center">
                 {footerSocials.map((s) => {
                   const isHovered = hovered === s.name
                   return (
@@ -177,9 +171,8 @@ export default function Footer() {
           </div>
 
           <div
-            ref={dividerRefMain}
             aria-hidden="true"
-            className={`my-4 h-[2px] bg-white w-full max-w-[1200px] mx-auto origin-center transform ${dividerInViewMain ? 'scale-x-100 opacity-100' : 'scale-x-0 opacity-0'}`}
+            className="my-4 h-[2px] bg-white w-full max-w-[1200px] mx-auto origin-center transform scale-x-100 opacity-100"
             style={{ transition: 'transform 2000ms ease-out, opacity 2000ms ease-out' }}
           />
           <div className="text-center">© {new Date().getFullYear()}</div>
