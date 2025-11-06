@@ -50,6 +50,11 @@ const ProjectGrid: React.FC<Props> = ({ title, sets }) => {
 
     const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
+    // track which per-card small headers are hidden (only hide the selected one)
+    const [hiddenHeaders, setHiddenHeaders] = useState<Set<number>>(new Set());
+    const headerTimeoutRef = useRef<number | null>(null);
+    const prevExpandedRef = useRef<number | null>(null);
+
     const [imageData, setImageData] = useState<Array<PortfolioImageWithMeta | null>>([]);
     const [rows, setRows] = useState<RowData[]>([]);
     const [isPreloading, setIsPreloading] = useState(false);
@@ -200,6 +205,47 @@ const ProjectGrid: React.FC<Props> = ({ title, sets }) => {
     };
 
     useEffect(() => {
+        // when expandedIndex changes, hide/show the small header for that specific card
+        if (headerTimeoutRef.current) {
+            clearTimeout(headerTimeoutRef.current);
+            headerTimeoutRef.current = null;
+        }
+
+        if (expandedIndex !== null) {
+            // hide only the newly expanded card's small header
+            if (typeof expandedIndex === 'number') {
+                setHiddenHeaders((prev) => {
+                    const copy = new Set(prev);
+                    copy.add(expandedIndex as number);
+                    return copy;
+                });
+                prevExpandedRef.current = expandedIndex;
+            }
+        } else {
+            // on collapse, wait for collapse animation then unhide that card's small header
+            const last = prevExpandedRef.current;
+            if (typeof last === 'number') {
+                headerTimeoutRef.current = window.setTimeout(() => {
+                    setHiddenHeaders((prev) => {
+                        const copy = new Set(prev);
+                        copy.delete(last);
+                        return copy;
+                    });
+                    headerTimeoutRef.current = null;
+                    prevExpandedRef.current = null;
+                }, 300);
+            }
+        }
+
+        return () => {
+            if (headerTimeoutRef.current) {
+                clearTimeout(headerTimeoutRef.current);
+                headerTimeoutRef.current = null;
+            }
+        };
+    }, [expandedIndex]);
+
+    useEffect(() => {
         const apply = () => {
             const newRows = calculateRows();
             setRows(newRows);
@@ -299,10 +345,23 @@ const ProjectGrid: React.FC<Props> = ({ title, sets }) => {
                                             </div>
                                         </div>
 
-                                        <div className={`text-left text-white bg-black ${isExpanded ? "" : "rounded-b-md"} px-2 py-2`} style={{ width }}>
-                                            <h4 className="text-sm font-semibold">{img.title}</h4>
-                                            <p className="text-xs text-slate-300 truncate">{img.description}</p>
-                                        </div>
+                                        {/* small header: animate fade & collapse/expand smoothly */}
+                                        {(() => {
+                                            const smallVisible = !isExpanded && !(typeof img.originalIndex === 'number' && hiddenHeaders.has(img.originalIndex));
+                                            return (
+                                                <div style={{ width }} aria-hidden={!smallVisible}>
+                                                    <div
+                                                        className={`overflow-hidden transition-[max-height] duration-300 ease-in-out`}
+                                                        style={{ maxHeight: smallVisible ? 200 : 0 }}
+                                                    >
+                                                        <div className={`text-left text-white bg-black rounded-b-md px-2 py-2 transition-opacity duration-300 ${smallVisible ? 'opacity-100' : 'opacity-0'}`}>
+                                                            <h4 className="text-sm font-semibold">{img.title}</h4>
+                                                            <p className="text-xs text-slate-300 truncate">{img.description}</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })()}
 
                                         <div
                                             className="overflow-hidden transition-[max-height] duration-300 ease-in-out rounded-b-md"

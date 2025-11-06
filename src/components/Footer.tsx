@@ -51,9 +51,14 @@ export default function Footer() {
           </svg>
 
           <div className="pt-12 pb-6 text-sm text-slate-400">
-            <h3 className="text-center text-2xl font-semibold text-white mt-6 mb-4">SOCIALS</h3>
-            <div className="h-[2px] bg-white w-full max-w-[800px] mx-auto mb-6" aria-hidden="true" />
-            <div className="max-w-6xl mx-auto flex items-center justify-center">
+            <div className="max-w-6xl mx-auto flex flex-col items-center gap-4">
+              <div className="flex items-center gap-6 -ml-4">
+                <img src={logo} alt="dikonakaya logo" className="h-24 w-auto" />
+                <h3 className="text-left text-4xl font-semibold text-white -ml-4 mt-8">SOCIALS</h3>
+              </div>
+              <div className="h-[2px] bg-white w-full max-w-[900px] mt-2 mb-6" aria-hidden="true" />
+            </div>
+            <div className="max-w-6xl mx-auto flex items-center justify-center mt-4">
               <div className="grid grid-cols-3 md:grid-cols-6 grid-rows-2 gap-x-12 gap-y-8 text-center place-items-center">
                 {footerSocials.map((s) => {
                   const isHovered = hovered === s.name
@@ -80,7 +85,7 @@ export default function Footer() {
               </div>
             </div>
 
-            <div className="h-[2px] bg-white w-full max-w-[800px] mx-auto my-4" aria-hidden="true" />
+            <div className="h-[2px] bg-white w-full max-w-[900px] mx-auto my-4" aria-hidden="true" />
             <div className="text-center">© {new Date().getFullYear()}</div>
           </div>
         </div>

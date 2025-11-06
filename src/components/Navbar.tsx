@@ -162,6 +162,7 @@ const Navbar: React.FC = () => {
                         navigate("/", { replace: true });
                       }
                     }
+                    setOpenMenu(null)
                     scrollToTop();
                   }}
                 >
@@ -249,15 +250,14 @@ const Navbar: React.FC = () => {
                       to="/about"
                       className="block px-4 py-2 transition-colors duration-200 ease-in-out hover:bg-black focus:bg-black"
                       onClick={(e) => {
-                        // if we're already on /about, prevent routing and scroll to top
                         if (location.pathname === "/about") {
                           e.preventDefault();
-                          // replace the current entry with /about to clear any hash and update react-router location
                           try {
                             navigate('/about', { replace: true })
                           } catch (err) { }
-                          scrollToTop();
                         }
+                        // always scroll to top when opening About
+                        scrollToTop();
                         setOpenMenu(null);
                       }}
                     >
@@ -371,13 +371,15 @@ const Navbar: React.FC = () => {
               to="/about"
               className={`px-3 py-2 rounded text-white ${(location.pathname === "/about" && location.hash !== "#socials") ? "bg-[#1E1E25]" : ""}`}
               onClick={(e) => {
+                // if already on /about, prevent default and replace to clear any hash
                 if (location.pathname === "/about") {
                   e.preventDefault()
                   try {
                     navigate('/about', { replace: true })
                   } catch (err) { }
-                  scrollToTop()
                 }
+                // always scroll to top when opening About
+                scrollToTop()
                 setSidebarOpen(false)
               }}
             >
