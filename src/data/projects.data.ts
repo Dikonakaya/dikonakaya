@@ -12,6 +12,8 @@ export type Project = {
   description?: string;
   tags?: string[];
   images?: ProjectImage[];
+  viewUrl?: string;
+  getUrl?: string;
 };
 
 export const projectsData: Project[] = [
@@ -26,6 +28,8 @@ export const projectsData: Project[] = [
       { src: "https://i.imgur.com/NLuGcjE.jpeg", title: "Alpha 1" },
       { src: "https://i.imgur.com/NLuGcjE.jpeg", title: "Alpha 2" },
     ],
+    viewUrl: "https://example.com/view/project-alpha",
+    getUrl: "https://example.com/get/project-alpha",
   },
   {
     name: "Project Beta",
@@ -38,6 +42,8 @@ export const projectsData: Project[] = [
       { src: "https://i.imgur.com/NLuGcjE.jpeg", title: "Alpha 1" },
       { src: "https://i.imgur.com/NLuGcjE.jpeg", title: "Alpha 2" },
     ],
+    viewUrl: "https://example.com/view/project-beta",
+    getUrl: "https://example.com/get/project-beta",
   },
   {
     name: "Project Gamma",
@@ -50,6 +56,8 @@ export const projectsData: Project[] = [
       { src: "https://i.imgur.com/NLuGcjE.jpeg", title: "Alpha 1" },
       { src: "https://i.imgur.com/NLuGcjE.jpeg", title: "Alpha 2" },
     ],
+    viewUrl: "https://example.com/view/project-gamma-1",
+    getUrl: "https://example.com/get/project-gamma-1",
   },
   {
     name: "Project Gamma",
@@ -62,6 +70,8 @@ export const projectsData: Project[] = [
       { src: "https://i.imgur.com/NLuGcjE.jpeg", title: "Alpha 1" },
       { src: "https://i.imgur.com/NLuGcjE.jpeg", title: "Alpha 2" },
     ],
+    viewUrl: "https://example.com/view/project-gamma-2",
+    getUrl: "https://example.com/get/project-gamma-2",
   },
   {
     name: "Project Gamma",
@@ -74,6 +84,8 @@ export const projectsData: Project[] = [
       { src: "https://i.imgur.com/NLuGcjE.jpeg", title: "Alpha 1" },
       { src: "https://i.imgur.com/NLuGcjE.jpeg", title: "Alpha 2" },
     ],
+    viewUrl: "https://example.com/view/project-gamma-3",
+    getUrl: "https://example.com/get/project-gamma-3",
   },
   {
     name: "Project Gamma",
@@ -86,6 +98,8 @@ export const projectsData: Project[] = [
       { src: "https://i.imgur.com/NLuGcjE.jpeg", title: "Alpha 1" },
       { src: "https://i.imgur.com/NLuGcjE.jpeg", title: "Alpha 2" },
     ],
+    viewUrl: "https://example.com/view/project-gamma-4",
+    getUrl: "https://example.com/get/project-gamma-4",
   },
   {
     name: "Project Gamma",
@@ -98,5 +112,7 @@ export const projectsData: Project[] = [
       { src: "https://i.imgur.com/NLuGcjE.jpeg", title: "Alpha 1" },
       { src: "https://i.imgur.com/NLuGcjE.jpeg", title: "Alpha 2" },
     ],
+    viewUrl: "https://example.com/view/project-gamma-5",
+    getUrl: "https://example.com/get/project-gamma-5",
   },
 ];
