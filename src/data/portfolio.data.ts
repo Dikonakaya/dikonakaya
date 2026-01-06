@@ -21,11 +21,12 @@ export const portfolioData: PortfolioSet[] = [
     setTitle: "Self-Portraits",
     year: 2024,
     description: "Some self-portraits taken in my home",
-    other: "Camera: Sony ZV E10 • Lens: Meike 33mm f1.4",
+    other: "Camera: Sony ZV E10 • Lens: Meike 33mm f1.4 + Viltrox 27mm f1.2 Pro",
     tags: ["Portrait Photography"],
     images: [
       { src: "https://i.imgur.com/x4aYzh8.jpeg" },
-      { src: "https://i.imgur.com/GLl1tDw.jpeg" }
+      { src: "https://i.imgur.com/GLl1tDw.jpeg" },
+      { src: "https://i.imgur.com/Loillty.jpeg" }
     ],
   },
 

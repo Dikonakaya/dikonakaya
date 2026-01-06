@@ -1,102 +1,126 @@
-import React, { useState } from 'react'
+/**
+ * Footer Component
+ * 
+ * Site footer with social media links and contact information.
+ * Displays different layouts depending on the current page:
+ * - About page: Extended socials grid with title header
+ * - Other pages: Compact two-column layout with bio
+ * 
+ * Features:
+ * - Decorative curved SVG separator at top
+ * - Animated hover effects on social icons
+ * - Responsive grid layouts for different screen sizes
+ * 
+ * @author Dikonakaya
+ */
+
+import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { scrollToTop } from '../utils/scrollToTop'
+import { scrollToTop } from '../utils/scroll'
 import logo from '../assets/logo.png'
 import { IconType } from 'react-icons'
-import { FaYoutube, FaTwitter, FaInstagram, FaTwitch, FaFacebook, FaDiscord, FaGithub, FaLinkedin, FaCrown, FaGlobe, FaBroadcastTower, FaPatreon } from 'react-icons/fa'
+import { FaYoutube, FaTwitter, FaInstagram, FaTwitch, FaFacebook, FaDiscord, FaGithub, FaLinkedin, FaCrown, FaGlobe, FaPatreon } from 'react-icons/fa'
 import { SiKofi } from 'react-icons/si'
-// divider reveal removed for footer — static lines now
+
+// Social media link type definition
+type Social = { name: string; href: string; Icon: IconType; color: string }
+
+// Primary social links shown on all pages
+const defaultSocials: Social[] = [
+  { name: 'YouTube', href: 'https://www.youtube.com/@dikonakaya', Icon: FaYoutube, color: '#FF0000' },
+  { name: 'Twitter', href: 'https://twitter.com/dikonakayach', Icon: FaTwitter, color: '#1DA1F2' },
+  { name: 'Instagram', href: 'https://www.instagram.com/dikonakaya.png/', Icon: FaInstagram, color: '#FF7A08' },
+  { name: 'Twitch', href: 'https://www.twitch.tv/dikonakaya', Icon: FaTwitch, color: '#9146FF' },
+  { name: 'Facebook', href: 'https://www.facebook.com/profile.php?id=61575071376793', Icon: FaFacebook, color: '#1877F2' },
+  { name: 'Discord', href: 'https://discord.com/invite/GBrAhGK6kE', Icon: FaDiscord, color: '#5865F2' },
+]
+
+// Additional social links shown only on About page
+const extendedSocials: Social[] = [
+  { name: 'GitHub', href: 'https://github.com/dikonakaya', Icon: FaGithub, color: '#24292E' },
+  { name: 'LinkedIn', href: '', Icon: FaLinkedin, color: '#0A66C2' },
+  { name: 'Patreon', href: '', Icon: FaPatreon, color: '#ff424d' },
+  { name: 'Throne', href: 'https://throne.com/dikonakaya', Icon: FaCrown, color: '#D4AF37' },
+  { name: 'Ko-fi', href: 'https://ko-fi.com/dikonakaya', Icon: SiKofi, color: '#29abe0' },
+  { name: 'PMC', href: 'https://www.planetminecraft.com/member/dikonakaya', Icon: FaGlobe, color: '#2E8B57' },
+]
+
+/** Decorative curved SVG that creates a smooth transition from content to footer */
+const FooterCurve = () => (
+  <svg className="absolute -top-20 left-0 w-full h-20 md:h-28 pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+    <defs>
+      <mask id="footer-hole-mask">
+        <rect x="0" y="0" width="100" height="100" fill="white" />
+        <path d="M0 0 C25 50 75 50 100 0 L100 0 L0 0 Z" transform="rotate(180 50 50)" fill="black" />
+      </mask>
+    </defs>
+    <rect x="0" y="0" width="100" height="100" fill="var(--footer-bg, #1E1E25)" mask="url(#footer-hole-mask)" />
+  </svg>
+)
+
+/** Horizontal divider line with responsive max-width */
+const Divider = () => (
+  <div aria-hidden="true" className="h-[2px] bg-white w-full max-w-[90%] sm:max-w-[600px] md:max-w-[900px] mx-auto" />
+)
+
+type SocialLinkProps = { social: Social; hovered: string | null; setHovered: (name: string | null) => void }
+
+/**
+ * Individual social media link with icon and label
+ * Features hover animation and brand color highlighting
+ */
+const SocialLink = ({ social, hovered, setHovered }: SocialLinkProps) => {
+  const isHovered = hovered === social.name
+  // Calculate min-width based on longest social names (Facebook, LinkedIn, etc)
+  const needsWiderBox = ['Facebook', 'LinkedIn', 'Patreon'].includes(social.name)
+  const minWidth = needsWiderBox ? 'min-w-[60px]' : 'min-w-[50px]'
+  
+  return (
+    <a
+      href={social.href}
+      aria-label={social.name}
+      className="inline-flex text-white"
+      target="_blank"
+      rel="noopener noreferrer"
+      onMouseEnter={() => setHovered(social.name)}
+      onMouseLeave={() => setHovered(null)}
+      onFocus={() => setHovered(social.name)}
+      onBlur={() => setHovered(null)}
+    >
+      <div className={`flex flex-col items-center justify-center h-14 ${minWidth} px-1 gap-1 transition-transform duration-200 ${isHovered ? '-translate-y-1 scale-105' : ''}`}>
+        <social.Icon className="h-6 w-6 transition-colors" style={{ color: isHovered ? social.color : undefined }} />
+        <span className="text-xs text-center whitespace-nowrap transition-colors" style={{ color: isHovered ? social.color : undefined }}>{social.name}</span>
+      </div>
+    </a>
+  )
+}
 
 export default function Footer() {
   const location = useLocation()
   const isAbout = location.pathname === '/about'
-  const defaultSocials: { name: string; href: string; Icon: IconType; color: string }[] = [
-    { name: 'YouTube', href: 'https://www.youtube.com/@dikonakaya', Icon: FaYoutube, color: '#FF0000' },
-    { name: 'Twitter', href: 'https://twitter.com/dikonakayach', Icon: FaTwitter, color: '#1DA1F2' },
-    { name: 'Instagram', href: 'https://www.instagram.com/dikonakaya.png/', Icon: FaInstagram, color: '#FF7A08' },
-    { name: 'Twitch', href: 'https://www.twitch.tv/dikonakaya', Icon: FaTwitch, color: '#9146FF' },
-    { name: 'Facebook', href: 'https://www.facebook.com/profile.php?id=61575071376793', Icon: FaFacebook, color: '#1877F2' },
-    { name: 'Discord', href: 'https://discord.com/invite/GBrAhGK6kE', Icon: FaDiscord, color: '#5865F2' },
-  ]
-
-  const extendedSocials: { name: string; href: string; Icon: IconType; color: string }[] = [
-    { name: 'GitHub', href: 'https://github.com/dikonakaya', Icon: FaGithub, color: '#24292E' },
-    { name: 'LinkedIn', href: '', Icon: FaLinkedin, color: '#0A66C2' },
-    { name: 'Patreon', href: '', Icon: FaPatreon, color: '#ff424d' },
-    { name: 'Throne', href: 'https://throne.com/dikonakaya', Icon: FaCrown, color: '#D4AF37' },
-    { name: 'Ko-fi', href: 'https://ko-fi.com/dikonakaya', Icon: SiKofi, color: '#29abe0' },
-    { name: 'PMC', href: 'https://www.planetminecraft.com/member/dikonakaya', Icon: FaGlobe, color: '#2E8B57' },
-  ]
-
-  const footerSocials = isAbout ? [...defaultSocials, ...extendedSocials] : defaultSocials
-
   const [hovered, setHovered] = useState<string | null>(null)
 
-  // Footer uses static dividers (no reveal animation)
+  const socials = isAbout ? [...defaultSocials, ...extendedSocials] : defaultSocials
 
   if (isAbout) {
     return (
       <footer id="socials" className="bg-[#373944] w-full pt-16">
         <div className="relative">
-          <svg
-            className="absolute -top-20 left-0 w-full h-20 md:h-28 pointer-events-none"
-            viewBox="0 0 100 100"
-            preserveAspectRatio="none"
-            aria-hidden="true"
-          >
-            <defs>
-              <mask id="footer-hole-mask">
-                <rect x="0" y="0" width="100" height="100" fill="white" />
-                <path d="M0 0 C25 50 75 50 100 0 L100 0 L0 0 Z" transform="rotate(180 50 50)" fill="black" />
-              </mask>
-            </defs>
-            <rect x="0" y="0" width="100" height="100" fill="var(--footer-bg, #1E1E25)" mask="url(#footer-hole-mask)" />
-          </svg>
-
+          <FooterCurve />
           <div className="pt-12 pb-6 text-sm text-slate-400">
             <div className="max-w-6xl mx-auto flex flex-col items-center gap-4">
               <div className="flex items-center gap-6 -ml-4">
                 <img src={logo} alt="dikonakaya logo" className="h-24 w-auto" />
                 <h3 className="text-left text-4xl font-semibold text-white -ml-4 mt-8">SOCIALS</h3>
               </div>
-              <div
-                aria-hidden="true"
-                className="h-[2px] bg-white w-full max-w-[900px] mx-auto origin-center transform scale-x-100 opacity-100"
-                style={{ transition: 'transform 2000ms ease-out, opacity 2000ms ease-out' }}
-              />
+              <Divider />
             </div>
             <div className="max-w-6xl mx-auto flex items-center justify-center mt-4">
               <div className="grid grid-cols-3 md:grid-cols-6 grid-rows-2 gap-x-12 gap-y-8 text-center place-items-center">
-                {footerSocials.map((s) => {
-                  const isHovered = hovered === s.name
-                  return (
-                    <a
-                      key={s.name}
-                      href={s.href}
-                      aria-label={s.name}
-                      className="inline-flex text-white"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onMouseEnter={() => setHovered(s.name)}
-                      onMouseLeave={() => setHovered(null)}
-                      onFocus={() => setHovered(s.name)}
-                      onBlur={() => setHovered(null)}
-                    >
-                      <div className={`flex flex-col items-center justify-center h-14 w-14 gap-1 transform origin-center transition-transform duration-200 ease-out ${isHovered ? '-translate-y-1 scale-105' : ''}`}>
-                        <s.Icon className="h-6 w-6 transition-colors block" aria-hidden style={{ color: isHovered ? s.color : undefined }} />
-                        <span className={`text-xs transition-colors ${s.name === 'Facebook' ? 'pl-0.5' : ''} ${s.name === 'Ko-fi' ? 'pr-1' : ''}`} style={{ color: isHovered ? s.color : undefined }}>{s.name}</span>
-                      </div>
-                    </a>
-                  )
-                })}
+                {socials.map((s) => <SocialLink key={s.name} social={s} hovered={hovered} setHovered={setHovered} />)}
               </div>
             </div>
-
-            <div
-              aria-hidden="true"
-              className="my-4 h-[2px] bg-white w-full max-w-[900px] mx-auto origin-center transform scale-x-100 opacity-100"
-              style={{ transition: 'transform 2000ms ease-out, opacity 2000ms ease-out' }}
-            />
+            <div className="my-4"><Divider /></div>
             <div className="text-center">© {new Date().getFullYear()}</div>
           </div>
         </div>
@@ -107,74 +131,25 @@ export default function Footer() {
   return (
     <footer className="bg-[#373944] w-full pt-16">
       <div className="relative">
-        <svg
-          className="absolute -top-20 left-0 w-full h-20 md:h-28 pointer-events-none"
-          viewBox="0 0 100 100"
-          preserveAspectRatio="none"
-          aria-hidden="true"
-        >
-          <defs>
-            <mask id="footer-hole-mask">
-              <rect x="0" y="0" width="100" height="100" fill="white" />
-              <path d="M0 0 C25 50 75 50 100 0 L100 0 L0 0 Z" transform="rotate(180 50 50)" fill="black" />
-            </mask>
-          </defs>
-          <rect x="0" y="0" width="100" height="100" fill="var(--footer-bg, #1E1E25)" mask="url(#footer-hole-mask)" />
-        </svg>
-
+        <FooterCurve />
         <div className="pt-12 pb-6 text-sm text-slate-400">
           <div className="max-w-6xl mx-auto grid gap-6 grid-cols-1 md:grid-cols-2 items-start">
-
-            {/* Left */}
             <div className="flex items-center justify-center gap-4">
-              <img
-                src={logo}
-                alt="dikonakaya logo"
-                className="h-20 md:h-24 lg:h-28 aspect-square object-contain"
-              />
+              <img src={logo} alt="dikonakaya logo" className="h-20 md:h-24 lg:h-28 aspect-square object-contain" />
               <div className="text-white">
                 <p>Dikonakaya is a freelance pixel artist</p>
-                <p>and photographer based in the Philippines &lt;3</p><br />
-                <Link to="/contact" className="text-white hover:text-slate-400 transition-colors" onClick={() => { scrollToTop() }}>
+                <p>and photographer based in the Philippines &lt;3</p>
+                <br />
+                <Link to="/contact" className="text-white hover:text-slate-400 transition-colors" onClick={scrollToTop}>
                   Get in touch!
                 </Link>
               </div>
             </div>
-
-            {/* Right */}
-            <div>
-              <div className="grid grid-cols-3 grid-rows-2 -gap-x-8 gap-y-4 text-center place-items-center">
-                {footerSocials.map((s) => {
-                  const isHovered = hovered === s.name
-                  return (
-                    <a
-                      key={s.name}
-                      href={s.href}
-                      aria-label={s.name}
-                      className="inline-flex text-white"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onMouseEnter={() => setHovered(s.name)}
-                      onMouseLeave={() => setHovered(null)}
-                      onFocus={() => setHovered(s.name)}
-                      onBlur={() => setHovered(null)}
-                    >
-                      <div className={`flex flex-col items-center justify-center h-14 w-14 gap-1 transform origin-center transition-transform duration-200 ease-out ${isHovered ? '-translate-y-1 scale-105' : ''}`}>
-                        <s.Icon className="h-6 w-6 transition-colors block" aria-hidden style={{ color: isHovered ? s.color : undefined }} />
-                        <span className={`text-xs transition-colors ${s.name === 'Facebook' ? 'pl-0.5' : ''}`} style={{ color: isHovered ? s.color : undefined }}>{s.name}</span>
-                      </div>
-                    </a>
-                  )
-                })}
-              </div>
+            <div className="grid grid-cols-3 grid-rows-2 gap-y-4 text-center place-items-center">
+              {socials.map((s) => <SocialLink key={s.name} social={s} hovered={hovered} setHovered={setHovered} />)}
             </div>
           </div>
-
-          <div
-            aria-hidden="true"
-            className="my-4 h-[2px] bg-white w-full max-w-[1200px] mx-auto origin-center transform scale-x-100 opacity-100"
-            style={{ transition: 'transform 2000ms ease-out, opacity 2000ms ease-out' }}
-          />
+          <div className="my-4 max-w-[1200px] mx-auto"><Divider /></div>
           <div className="text-center">© {new Date().getFullYear()}</div>
         </div>
       </div>

@@ -1,35 +1,58 @@
-import React, { useEffect, useRef, useState } from 'react'
+/**
+ * Carousel Component
+ * 
+ * An auto-playing image carousel/slideshow with navigation controls.
+ * Features:
+ * - Automatic slideshow with configurable interval
+ * - Seamless infinite loop animation
+ * - Manual navigation (prev/next buttons and dot indicators)
+ * - Optional overlay text and click-through links
+ * - Pause on interaction, resume after navigation
+ * 
+ * @author Dikonakaya
+ */
 
+import { useEffect, useRef, useState } from 'react'
+
+// Slide data structure
 type Slide = { src: string; href?: string; alt?: string; title?: string; subtitle?: string }
 type Props = {
-  images?: Array<string | Slide>
-  interval?: number
+  images?: (string | Slide)[]  // Array of image URLs or slide objects
+  interval?: number            // Autoplay interval in milliseconds
 }
 
-const Carousel: React.FC<Props> = ({
-  images = [
-    { src: 'https://i.imgur.com/NLuGcjE.jpeg', href: '/#photography', title: 'Photography Works', subtitle: 'Pictures I\'ve taken in the past' },
-    { src: 'https://i.imgur.com/FLY4xbF.jpeg', href: '/#photography', title: '2025 Keyboard Collection', subtitle: 'A collection of pictures I\'ve taken of my keyboards' },
-    { src: 'https://i.imgur.com/z6OExwz.png', href: '/#pixelart', title: 'Past Commission Works', subtitle: 'Pixel art commissions I\'ve made in the past' },
-    { src: 'https://i.imgur.com/F5yAqs7.png', href: '/projects', title: 'Hero of the Village', subtitle: 'A Minecraft texture pack project' },
-  ],
-  interval = 8000,
-}) => {
-  // images can be strings or objects {src, href, alt}
-  const normalizedImages: Slide[] = (images || []).map((it) => (typeof it === 'string' ? { src: it } : it))
-  // clone-first technique: append the first slide to the end so we can slide forward seamlessly
-  if (normalizedImages.length === 0) return null
+// Default carousel slides showcasing portfolio highlights
+const defaultImages: Slide[] = [
+  { src: 'https://i.imgur.com/NLuGcjE.jpeg', href: '/#photography', title: 'Photography Works', subtitle: "Pictures I've taken in the past" },
+  { src: 'https://i.imgur.com/FLY4xbF.jpeg', href: '/#photography', title: '2025 Keyboard Collection', subtitle: "A collection of pictures I've taken of my keyboards" },
+  { src: 'https://i.imgur.com/z6OExwz.png', href: '/#pixelart', title: 'Past Commission Works', subtitle: "Pixel art commissions I've made in the past" },
+  { src: 'https://i.imgur.com/F5yAqs7.png', href: '/projects', title: 'Hero of the Village', subtitle: 'A Minecraft texture pack project' },
+]
 
+export default function Carousel({ images = defaultImages, interval = 8000 }: Props) {
+  // Normalize string inputs to Slide objects
+  const normalizedImages: Slide[] = images.map((it) => typeof it === 'string' ? { src: it } : it)
+  if (!normalizedImages.length) return null
+
+  // Duplicate first slide at end for seamless loop animation
   const slides = [...normalizedImages, normalizedImages[0]]
-  const slidesCount = slides.length
   const realCount = normalizedImages.length
 
-  const [index, setIndex] = useState(0) // 0 .. realCount (realCount is the cloned slide)
+  // State and refs
+  const [index, setIndex] = useState(0)
   const [animating, setAnimating] = useState(true)
   const intervalRef = useRef<number | null>(null)
   const isSliding = useRef(false)
 
-  function startAutoplay() {
+  // Autoplay control functions
+  const stopAutoplay = () => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current)
+      intervalRef.current = null
+    }
+  }
+
+  const startAutoplay = () => {
     stopAutoplay()
     intervalRef.current = window.setInterval(() => {
       if (isSliding.current) return
@@ -38,36 +61,30 @@ const Carousel: React.FC<Props> = ({
     }, interval)
   }
 
-  function stopAutoplay() {
-    if (intervalRef.current) {
-      window.clearInterval(intervalRef.current)
-      intervalRef.current = null
-    }
-  }
-
-  function resetAutoplay() {
+  const resetAutoplay = () => {
     stopAutoplay()
     startAutoplay()
   }
 
+  // Start autoplay on mount
   useEffect(() => {
     startAutoplay()
-    return () => stopAutoplay()
+    return stopAutoplay
   }, [interval])
 
+  // Handle wrap-around when reaching the duplicate slide
   useEffect(() => {
-    // keep index bounded
     if (index > realCount) setIndex(0)
   }, [index, realCount])
 
-  // when transition ends and we are on the cloned slide, snap to real 0 without animation
-  function handleTransitionEnd() {
-    // clear sliding flag for any ended transition
+  /**
+   * Handle seamless loop: when reaching the duplicate last slide,
+   * instantly jump to the real first slide without animation
+   */
+  const handleTransitionEnd = () => {
     isSliding.current = false
-
     if (index === realCount) {
       setAnimating(false)
-      // next frame: snap index to 0, then re-enable animation on next frame
       requestAnimationFrame(() => {
         setIndex(0)
         requestAnimationFrame(() => setAnimating(true))
@@ -75,8 +92,8 @@ const Carousel: React.FC<Props> = ({
     }
   }
 
-  function goPrev() {
-    // move backward; if at 0, jump to last real (we avoid negative indexes)
+  // Navigation handlers
+  const goPrev = () => {
     if (isSliding.current) return
     stopAutoplay()
     isSliding.current = true
@@ -84,7 +101,7 @@ const Carousel: React.FC<Props> = ({
     resetAutoplay()
   }
 
-  function goNext() {
+  const goNext = () => {
     if (isSliding.current) return
     stopAutoplay()
     isSliding.current = true
@@ -92,43 +109,33 @@ const Carousel: React.FC<Props> = ({
     resetAutoplay()
   }
 
-  function goTo(indexTarget: number) {
-    if (isSliding.current) return
-    // if already on the requested real slide, do nothing
-    const curr = index % realCount
-    if (curr === indexTarget) return
+  const goTo = (target: number) => {
+    if (isSliding.current || index % realCount === target) return
     stopAutoplay()
     isSliding.current = true
-    setIndex(indexTarget)
+    setIndex(target)
     resetAutoplay()
   }
 
-  const trackWidth = `${slidesCount * 100}%`
-  const slideWidth = `${100 / slidesCount}%`
+  const trackWidth = `${slides.length * 100}%`
+  const slideWidth = `${100 / slides.length}%`
 
   return (
     <div className="relative w-full h-full overflow-hidden">
-      {/* track */}
       <div
         onTransitionEnd={handleTransitionEnd}
         className={`flex h-full ${animating ? 'transition-transform duration-1000 ease-in-out' : ''}`}
-        style={{ width: trackWidth, transform: `translateX(-${index * (100 / slidesCount)}%)` }}
+        style={{ width: trackWidth, transform: `translateX(-${index * (100 / slides.length)}%)` }}
       >
         {slides.map((slide, i) => {
-          const external = slide.href && (slide.href.startsWith('http://') || slide.href.startsWith('https://') || slide.href.startsWith('//'))
+          const external = slide.href?.startsWith('http://') || slide.href?.startsWith('https://') || slide.href?.startsWith('//')
           return (
-            <div
-              key={i}
-              className="h-full flex-shrink-0"
-              style={{ width: slideWidth }}
-              aria-hidden={i !== index}
-            >
+            <div key={i} className="h-full flex-shrink-0" style={{ width: slideWidth }} aria-hidden={i !== index}>
               <div className="relative w-full h-full group overflow-hidden">
                 <div
-                  className="absolute inset-0 bg-center bg-cover transform transition-transform duration-[1000ms] ease-in-out group-hover:scale-[1.05]"
+                  className="absolute inset-0 bg-center bg-cover transition-transform duration-1000 group-hover:scale-105"
                   style={{ backgroundImage: `url(${slide.src})` }}
                 />
-
                 {slide.href ? (
                   <a
                     href={slide.href}
@@ -140,12 +147,7 @@ const Carousel: React.FC<Props> = ({
                 ) : (
                   <span className="absolute inset-0 block" />
                 )}
-
-                <div
-                  className="absolute inset-0 pointer-events-none"
-                  style={{ background: 'linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0) 80%, rgba(0,0,0,0.5) 100%)' }}
-                />
-
+                <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-transparent via-transparent to-black/50" />
                 <div className="absolute left-8 bottom-6 text-left text-white pointer-events-none">
                   <div className="text-xl font-extrabold">{slide.title ?? 'Untitled'}</div>
                   <div className="text-sm text-slate-200">{slide.subtitle ?? '—'}</div>
@@ -156,43 +158,38 @@ const Carousel: React.FC<Props> = ({
         })}
       </div>
 
-      {/* controls */}
       <button
         aria-label="Previous"
         onClick={goPrev}
-        onMouseUp={(e) => (e.currentTarget as HTMLButtonElement).blur()}
+        onMouseUp={(e) => e.currentTarget.blur()}
         className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full z-40 group"
       >
-        <span className="text-white bg-black/40 group-hover:bg-black/60 group-focus-visible:bg-black/60 rounded-full w-6 h-10 flex items-center justify-center transform transition-transform duration-200 ease-out group-hover:-translate-y-1 group-hover:scale-105 group-focus-visible:-translate-y-1 group-focus-visible:scale-105">‹</span>
+        <span className="text-white bg-black/40 group-hover:bg-black/60 rounded-full w-6 h-10 flex items-center justify-center transition-transform duration-200 group-hover:-translate-y-1 group-hover:scale-105">‹</span>
       </button>
+
       <button
         aria-label="Next"
         onClick={goNext}
-        onMouseUp={(e) => (e.currentTarget as HTMLButtonElement).blur()}
+        onMouseUp={(e) => e.currentTarget.blur()}
         className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full z-40 group"
       >
-        <span className="text-white bg-black/40 group-hover:bg-black/60 group-focus-visible:bg-black/60 rounded-full w-6 h-10 flex items-center justify-center transform transition-transform duration-200 ease-out group-hover:-translate-y-1 group-hover:scale-105 group-focus-visible:-translate-y-1 group-focus-visible:scale-105">›</span>
+        <span className="text-white bg-black/40 group-hover:bg-black/60 rounded-full w-6 h-10 flex items-center justify-center transition-transform duration-200 group-hover:-translate-y-1 group-hover:scale-105">›</span>
       </button>
 
-      {/* dots / indicators inside rounded container matching control buttons */}
       <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-40">
         <div className="bg-black/40 hover:bg-black/60 rounded-full px-2 py-1 flex items-center gap-2 transition-colors">
-          {images.map((_, i) => {
-            const isActive = (index % realCount) === i
-            return (
-              <button
-                key={i}
-                aria-label={`Go to slide ${i + 1}`}
-                onClick={() => goTo(i)}
-                onMouseUp={(e) => (e.currentTarget as HTMLButtonElement).blur()}
-                className={`w-2 h-2 rounded-full transition-colors focus:outline-none ${isActive ? 'bg-white' : 'bg-white/40 hover:bg-white/70'}`}
-              />
-            )
-          })}
+          {normalizedImages.map((_, i) => (
+            <button
+              key={i}
+              aria-label={`Go to slide ${i + 1}`}
+              onClick={() => goTo(i)}
+              onMouseUp={(e) => e.currentTarget.blur()}
+              className={`w-2 h-2 rounded-full transition-colors focus:outline-none ${index % realCount === i ? 'bg-white' : 'bg-white/40 hover:bg-white/70'
+                }`}
+            />
+          ))}
         </div>
       </div>
     </div>
   )
 }
-
-export default Carousel

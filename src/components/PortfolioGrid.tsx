@@ -1,86 +1,36 @@
-import React, { useEffect, useRef, useState } from "react";
-import Lightbox from "../modals/Lightbox";
-import lineReveal from "../utils/lineReveal";
+import { useEffect, useRef, useState } from 'react'
+import Lightbox from '../modals/Lightbox'
+import useLineReveal from '../hooks/useLineReveal'
+import type { PortfolioImage, PortfolioSet, PortfolioImageWithMeta, RowData } from '../types/portfolio'
 
-// -------------------------------
-// Type Definitions
-// -------------------------------
+// Layout configuration constants
+const MAX_WIDTH = 1920           // Maximum image width before resizing
+const GAP = 8                    // Gap between images in pixels
+const TARGET_ROW_HEIGHT = 300    // Ideal row height on desktop
+const MAX_ROW_HEIGHT = 500       // Maximum row height cap for incomplete rows
+const MOBILE_MAX_HEIGHT = 170    // Shorter row height on mobile for multi-image rows
 
-// Represents a single portfolio image
-export type PortfolioImage = {
-  src: string;
-  title?: string;
-  description?: string;
-  tags?: string[];
-  date?: string;
-  other?: string;
-};
-
-// Represents a set/collection of images
-export type PortfolioSet = {
-  setTitle: string;
-  year?: number;
-  description?: string;
-  tags?: string[];
-  other?: string;
-  images: PortfolioImage[];
-};
-
-// Props passed into PortfolioGrid component
 type Props = {
-  title?: string;           // Optional title for the grid
-  sets: PortfolioSet[];     // Array of image sets to display
-  showBorder?: boolean;     // Whether to display a border around images
-};
+  title?: string           // Section title displayed above grid
+  sets: PortfolioSet[]     // Array of portfolio sets containing images
+  showBorder?: boolean     // Whether to show white border around images
+}
 
-// Internal image type with extra metadata for layout calculations
-type PortfolioImageWithMeta = PortfolioImage & {
-  width: number;
-  height: number;
-  aspectRatio: number;
-  resizedSrc: string;       // Can be a resized data URL for faster loading
-  originalIndex?: number;   // original position in the merged images array
-};
+export default function PortfolioGrid({ title, sets, showBorder = true }: Props) {
+  // DOM refs
+  const containerRef = useRef<HTMLDivElement>(null)
+  const { ref: dividerRef, revealed: dividerInView } = useLineReveal()
 
-// Row layout data
-type RowData = {
-  images: PortfolioImageWithMeta[];
-  scale: number;            // Scale factor applied to images to fit row
-  capped: boolean;          // Whether row is capped at MAX_ROW_HEIGHT
-};
+  // State
+  const [imageData, setImageData] = useState<(PortfolioImageWithMeta | null)[]>([])
+  const [rows, setRows] = useState<RowData[]>([])
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
+  const [isPreloading, setIsPreloading] = useState(false)
 
-// -------------------------------
-// Constants
-// -------------------------------
-const MAX_WIDTH = 1920;           // Maximum width for resized images
-const GAP = 8;                    // Gap between images in pixels
-const TARGET_ROW_HEIGHT = 300;    // Desired height of each row
-const MAX_ROW_HEIGHT = 500;       // Maximum allowed height for any row
-
-// -------------------------------
-// PortfolioGrid Component
-// -------------------------------
-const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
-  // Ref to the container div to measure its width
-  const containerRef = useRef<HTMLDivElement | null>(null);
-
-  // divider animation: use reusable hook (provide max width in px)
-  const { ref: dividerRef, revealed: dividerInView } = lineReveal();
-
-  // State to store processed image data
-  const [imageData, setImageData] = useState<Array<PortfolioImageWithMeta | null>>([]);
-  const [rows, setRows] = useState<RowData[]>([]);
-
-  // Lightbox state
-  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
-  const [lightboxVisible, setLightboxVisible] = useState(false);
-
-  // Preloading state
-  const [isPreloading, setIsPreloading] = useState(false);
-
-  // -------------------------------
-  // Merge image sets and inherit metadata
-  // -------------------------------
+  /**
+   * Flatten all sets into a single array of images,
+   * inheriting set-level metadata where image-level is not specified
+   */
   const mergedImages: PortfolioImage[] = sets.flatMap((set) =>
     set.images.map((img) => ({
       ...img,
@@ -90,207 +40,186 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
       other: img.other ?? set.other,
       date: img.date ?? (set.year ? `${set.year}-01-01` : undefined),
     }))
-  );
+  )
 
-  // -------------------------------
-  // Resize image using a canvas for large images
-  // -------------------------------
-  const resizeImageDataUrl = (imgEl: HTMLImageElement) => {
-    if (!imgEl.width || imgEl.width <= MAX_WIDTH) return imgEl.src;
-    const scale = MAX_WIDTH / imgEl.width;
-    const canvas = document.createElement("canvas");
-    canvas.width = MAX_WIDTH;
-    canvas.height = Math.round(imgEl.height * scale);
-    const ctx = canvas.getContext("2d");
-    if (ctx) ctx.drawImage(imgEl, 0, 0, canvas.width, canvas.height);
-    return canvas.toDataURL("image/jpeg", 0.85);
-  };
+  /**
+   * Resize large images using canvas to improve performance
+   * Returns data URL of resized image or original src if small enough
+   */
+  const resizeImage = (imgEl: HTMLImageElement): string => {
+    if (!imgEl.width || imgEl.width <= MAX_WIDTH) return imgEl.src
+    const scale = MAX_WIDTH / imgEl.width
+    const canvas = document.createElement('canvas')
+    canvas.width = MAX_WIDTH
+    canvas.height = Math.round(imgEl.height * scale)
+    canvas.getContext('2d')?.drawImage(imgEl, 0, 0, canvas.width, canvas.height)
+    return canvas.toDataURL('image/jpeg', 0.85)
+  }
 
-  // -------------------------------
-  // Preload images and calculate metadata
-  // -------------------------------
+  /**
+   * Preload all images and calculate their dimensions
+   * Stores resized versions and aspect ratios for layout calculation
+   */
   useEffect(() => {
-    // Incremental loading while preserving original order: prefill an array of
-    // null slots equal to mergedImages.length and insert each loaded image at
-    // its original index. The UI will re-render and recalc rows as slots fill.
-    let mounted = true;
-    setIsPreloading(true);
-    setImageData(new Array(mergedImages.length).fill(null)); // reset slots
-
-    let loadedCount = 0;
+    let mounted = true
+    setIsPreloading(true)
+    setImageData(new Array(mergedImages.length).fill(null))
+    let loadedCount = 0
 
     mergedImages.forEach((it, idx) => {
-      const img = new Image();
-      img.crossOrigin = "anonymous";
-      img.src = it.src;
+      const img = new Image()
+      img.crossOrigin = 'anonymous'
+      img.src = it.src
 
-      const handleLoaded = () => {
-        if (!mounted) return;
-        const resizedSrc = resizeImageDataUrl(img);
-        const width = img.width > MAX_WIDTH ? MAX_WIDTH : img.width;
-        const height = Math.round((img.height * width) / img.width);
-        const item: PortfolioImageWithMeta = { ...it, width, height, aspectRatio: width / height, resizedSrc, originalIndex: idx };
-
-        setImageData((prev) => {
-          const copy = prev.slice();
-          copy[idx] = item;
-          return copy;
-        });
-
-        loadedCount++;
-        if (loadedCount === mergedImages.length) setIsPreloading(false);
-      };
-
-      const handleError = () => {
-        if (!mounted) return;
-        const fallbackWidth = Math.min(MAX_WIDTH, 1200);
-        const item: PortfolioImageWithMeta = {
-          ...it,
-          width: fallbackWidth,
-          height: Math.round(fallbackWidth * 0.66),
-          aspectRatio: fallbackWidth / Math.round(fallbackWidth * 0.66),
-          resizedSrc: it.src,
-          originalIndex: idx,
-        };
+      const onLoad = () => {
+        if (!mounted) return
+        const resizedSrc = resizeImage(img)
+        const width = Math.min(img.width, MAX_WIDTH)
+        const height = Math.round((img.height * width) / img.width)
 
         setImageData((prev) => {
-          const copy = prev.slice();
-          copy[idx] = item;
-          return copy;
-        });
+          const copy = [...prev]
+          copy[idx] = { ...it, width, height, aspectRatio: width / height, resizedSrc, originalIndex: idx }
+          return copy
+        })
 
-        loadedCount++;
-        if (loadedCount === mergedImages.length) setIsPreloading(false);
-      };
+        if (++loadedCount === mergedImages.length) setIsPreloading(false)
+      }
 
-      img.onload = handleLoaded;
-      img.onerror = handleError;
-    });
+      const onError = () => {
+        if (!mounted) return
+        const fallbackWidth = Math.min(MAX_WIDTH, 1200)
+        const fallbackHeight = Math.round(fallbackWidth * 0.66)
 
-    return () => {
-      mounted = false;
-    };
-  }, [sets]);
+        setImageData((prev) => {
+          const copy = [...prev]
+          copy[idx] = {
+            ...it,
+            width: fallbackWidth,
+            height: fallbackHeight,
+            aspectRatio: fallbackWidth / fallbackHeight,
+            resizedSrc: it.src,
+            originalIndex: idx,
+          }
+          return copy
+        })
 
-  // -------------------------------
-  // Calculate rows based on container width
-  // -------------------------------
+        if (++loadedCount === mergedImages.length) setIsPreloading(false)
+      }
+
+      img.onload = onLoad
+      img.onerror = onError
+    })
+
+    return () => { mounted = false }
+  }, [sets])
+
+  /**
+   * Calculate row layout using a justified algorithm
+   * Images are packed into rows and scaled to fill the container width
+   * On mobile, uses shorter target height to allow multiple images per row
+   */
   const calculateRows = () => {
-    if (!containerRef.current) return;
-    const loadedImages = imageData.filter((x): x is PortfolioImageWithMeta => x !== null);
-    if (loadedImages.length === 0) {
-      setRows([]);
-      return;
+    if (!containerRef.current) return
+    const loadedImages = imageData.filter((x): x is PortfolioImageWithMeta => x !== null)
+    if (!loadedImages.length) {
+      setRows([])
+      return
     }
 
-    const containerWidth = containerRef.current.offsetWidth;
-    const tempRows: RowData[] = [];
+    const containerWidth = containerRef.current.offsetWidth
+    const isMobile = containerWidth < 640
+    const targetHeight = isMobile ? MOBILE_MAX_HEIGHT : TARGET_ROW_HEIGHT
+    const maxHeight = isMobile ? MOBILE_MAX_HEIGHT : MAX_ROW_HEIGHT
 
-    let currentRow: PortfolioImageWithMeta[] = [];
-    let currentRowWidth = 0;
+    const tempRows: RowData[] = []
+    let currentRow: PortfolioImageWithMeta[] = []
+    let currentRowWidth = 0
 
     loadedImages.forEach((img, index) => {
-      const scaledWidth = img.aspectRatio * TARGET_ROW_HEIGHT;
-      const gap = currentRow.length > 0 ? GAP : 0;
+      const scaledWidth = img.aspectRatio * targetHeight
+      const gap = currentRow.length > 0 ? GAP : 0
 
       if (currentRowWidth + scaledWidth + gap <= containerWidth) {
-        currentRow.push(img);
-        currentRowWidth += scaledWidth + gap;
+        currentRow.push(img)
+        currentRowWidth += scaledWidth + gap
       } else {
-        const totalGap = GAP * (currentRow.length - 1);
-        const scale = (containerWidth - totalGap) / currentRowWidth;
-        const capped = TARGET_ROW_HEIGHT * scale > MAX_ROW_HEIGHT;
-
+        const totalGap = GAP * (currentRow.length - 1)
+        const availableWidth = containerWidth - totalGap
+        const totalImageWidth = currentRow.reduce((sum, i) => sum + i.aspectRatio * targetHeight, 0)
+        const scale = availableWidth / totalImageWidth
+        const capped = targetHeight * scale > maxHeight
         tempRows.push({
           images: currentRow,
-          scale: capped ? MAX_ROW_HEIGHT / TARGET_ROW_HEIGHT : scale,
+          scale: capped ? maxHeight / targetHeight : scale,
           capped,
-        });
-
-        currentRow = [img];
-        currentRowWidth = scaledWidth;
+        })
+        currentRow = [img]
+        currentRowWidth = scaledWidth
       }
 
-      // Push last row
       if (index === loadedImages.length - 1 && currentRow.length) {
-        const totalGap = GAP * (currentRow.length - 1);
-        const scale = (containerWidth - totalGap) / currentRowWidth;
-        const capped = TARGET_ROW_HEIGHT * scale > MAX_ROW_HEIGHT;
+        const totalGap = GAP * (currentRow.length - 1)
+        const availableWidth = containerWidth - totalGap
+        const totalImageWidth = currentRow.reduce((sum, i) => sum + i.aspectRatio * targetHeight, 0)
+        const scale = availableWidth / totalImageWidth
+        const capped = targetHeight * scale > maxHeight
         tempRows.push({
           images: currentRow,
-          scale: capped ? MAX_ROW_HEIGHT / TARGET_ROW_HEIGHT : scale,
+          scale: capped ? maxHeight / targetHeight : scale,
           capped,
-        });
+        })
       }
-    });
+    })
 
-    setRows(tempRows);
-  };
+    setRows(tempRows)
+  }
 
-  // -------------------------------
-  // Recalculate rows whenever images are loaded
-  // -------------------------------
+  // Recalculate rows when image data changes
+  useEffect(() => { calculateRows() }, [imageData])
+
+  // Observe container resize and recalculate rows with debounce
   useEffect(() => {
-    calculateRows();
-  }, [imageData]);
-
-  // (divider reveal handled by lineReveal)
-
-  // -------------------------------
-  // Recalculate rows on container resize
-  // -------------------------------
-  useEffect(() => {
-    if (!containerRef.current) return;
-    let raf = 0;
+    if (!containerRef.current) return
+    let raf = 0
     const ro = new ResizeObserver(() => {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => calculateRows());
-    });
-    ro.observe(containerRef.current);
+      cancelAnimationFrame(raf)
+      raf = requestAnimationFrame(calculateRows)
+    })
+    ro.observe(containerRef.current)
     return () => {
-      ro.disconnect();
-      cancelAnimationFrame(raf);
-    };
-  }, [imageData]);
+      ro.disconnect()
+      cancelAnimationFrame(raf)
+    }
+  }, [imageData])
 
-  // Helper to find next/previous loaded image index (skips null slots)
+  /**
+   * Find the next/previous loaded image index (wraps around)
+   * Skips any null entries in the image data array
+   */
   const findNextLoaded = (start: number, dir: 1 | -1) => {
-    const n = imageData.length;
-    if (n === 0) return start;
-    let i = start;
+    const n = imageData.length
+    if (!n) return start
+    let i = start
     do {
-      i = (i + dir + n) % n;
-      if (imageData[i] !== null) return i;
-    } while (i !== start);
-    return start;
-  };
+      i = (i + dir + n) % n
+      if (imageData[i]) return i
+    } while (i !== start)
+    return start
+  }
 
-  // -------------------------------
-  // Lightbox keyboard navigation (ESC, Arrow keys)
-  // -------------------------------
+  // Keyboard navigation for lightbox (Escape, Arrow keys)
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
-      if (lightboxIndex === null) return;
-      if (e.key === "Escape") setLightboxIndex(null); // ESC closes lightbox
-      else if (e.key === "ArrowRight")
-        setLightboxIndex((i) => (i === null ? null : findNextLoaded(i, 1)));
-      else if (e.key === "ArrowLeft")
-        setLightboxIndex((i) => (i === null ? null : findNextLoaded(i, -1)));
-    };
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-  }, [lightboxIndex, imageData.length]);
+      if (lightboxIndex === null) return
+      if (e.key === 'Escape') setLightboxIndex(null)
+      else if (e.key === 'ArrowRight') setLightboxIndex((i) => i !== null ? findNextLoaded(i, 1) : null)
+      else if (e.key === 'ArrowLeft') setLightboxIndex((i) => i !== null ? findNextLoaded(i, -1) : null)
+    }
+    window.addEventListener('keydown', handleKey)
+    return () => window.removeEventListener('keydown', handleKey)
+  }, [lightboxIndex, imageData.length])
 
-  // -------------------------------
-  // Lightbox navigation helpers
-  // -------------------------------
-  const openLightboxAt = (index: number) => setLightboxIndex(index);
-  const nextLightbox = () => setLightboxIndex((i) => (i === null ? null : findNextLoaded(i, 1)));
-  const prevLightbox = () => setLightboxIndex((i) => (i === null ? null : findNextLoaded(i, -1)));
-
-  // -------------------------------
-  // Render
-  // -------------------------------
   return (
     <div className="w-full">
       {title && (
@@ -299,55 +228,53 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
           <div
             ref={dividerRef}
             aria-hidden="true"
-            className={`h-[2px] bg-white w-full max-w-[600px] mx-auto mb-8 origin-center transform ${dividerInView ? 'scale-x-100 opacity-100' : 'scale-x-0 opacity-0'}`}
-            style={{ transition: 'transform 2000ms ease-out, opacity 2000ms ease-out' }}
+            className={`h-[2px] bg-white w-full max-w-[90%] sm:max-w-[400px] md:max-w-[600px] mx-auto mb-8 origin-center transition-all duration-[2000ms] ease-out ${dividerInView ? 'scale-x-100 opacity-100' : 'scale-x-0 opacity-0'
+              }`}
           />
         </>
       )}
 
-      {/* Portfolio rows */}
-      <div ref={containerRef} className="w-full flex flex-col gap-4">
+      <div ref={containerRef} className="w-full flex flex-col gap-2">
         {isPreloading && <div className="text-center text-sm text-slate-300 mb-2">Loading images…</div>}
 
         {rows.map((row, rowIndex) => {
-          const scaledWidths = row.images.map((img) => img.aspectRatio * TARGET_ROW_HEIGHT * row.scale);
+          const isMobile = containerRef.current && containerRef.current.offsetWidth < 640
+          const targetHeight = isMobile ? MOBILE_MAX_HEIGHT : TARGET_ROW_HEIGHT
+          const scaledWidths = row.images.map((img) => img.aspectRatio * targetHeight * row.scale)
 
           return (
             <div
               key={rowIndex}
-              className={`flex ${row.capped ? "justify-center" : ""} gap-4 transition-all duration-[2000ms] ease-in-out`}
-              style={{ transform: `scale(${row.capped ? 0.98 : 1})`, opacity: 1 }}
+              className={`flex ${row.capped ? 'justify-center' : 'justify-between'}`}
+              style={{ gap: `${GAP}px` }}
             >
               {row.images.map((img, idx) => {
-                const width = scaledWidths[idx];
-                const height = Math.round(TARGET_ROW_HEIGHT * row.scale);
-                const flattenedIndex = img.originalIndex ?? imageData.findIndex(
-                  (x) => x !== null && x.resizedSrc === img.resizedSrc && x.title === img.title
-                );
+                const width = scaledWidths[idx]
+                const height = Math.round(targetHeight * row.scale)
+                const flatIndex = img.originalIndex ?? idx
 
                 return (
                   <button
                     key={idx}
-                    onClick={() => openLightboxAt(flattenedIndex === -1 ? 0 : flattenedIndex)}
-                    className="relative overflow-visible p-0 border-0 focus:outline-none rounded-md transition-transform duration-[300ms] ease-in-out hover:scale-[1.02]"
+                    onClick={() => setLightboxIndex(flatIndex)}
+                    className="relative overflow-visible p-0 border-0 focus:outline-none rounded-md transition-transform duration-300 hover:scale-[1.02]"
+                    style={{ flex: row.capped ? 'none' : `0 0 ${width}px` }}
                   >
                     <div className="relative group">
-                      {/* Image container */}
                       <div
-                        className={`relative rounded-md overflow-hidden ${showBorder ? "border-[2px] border-white" : ""}`}
+                        className={`relative rounded-md overflow-hidden ${showBorder ? 'border-2 border-white' : ''}`}
                         style={{ width, height }}
                       >
                         <img
                           src={img.resizedSrc}
-                          alt={img.title || ""}
-                          className="w-full h-full object-cover block transition-transform duration-[1000ms] ease-in-out group-hover:scale-[1.05] will-change-transform"
+                          alt={img.title || ''}
+                          className="w-full h-full object-cover block transition-transform duration-1000 group-hover:scale-105 will-change-transform"
                           loading="lazy"
                         />
                       </div>
 
-                      {/* Overlay with title/description */}
-                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-[300ms] ease-in-out pointer-events-none">
-                        <div className="absolute rounded-md inset-0 bg-gradient-to-b from-black/50 to-transparent"></div>
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                        <div className="absolute rounded-md inset-0 bg-gradient-to-b from-black/50 to-transparent" />
                         <div className="relative flex flex-col justify-start p-4 text-left text-white">
                           <h4 className="text-lg font-semibold">{img.title}</h4>
                           <p className="text-sm mt-1">{img.description}</p>
@@ -355,23 +282,21 @@ const PortfolioGrid: React.FC<Props> = ({ title, sets, showBorder = true }) => {
                       </div>
                     </div>
                   </button>
-                );
+                )
               })}
             </div>
-          );
+          )
         })}
       </div>
 
-      {/* Lightbox (extracted to a separate component) */}
       <Lightbox
         images={imageData}
         index={lightboxIndex}
         onClose={() => setLightboxIndex(null)}
-        onNext={nextLightbox}
-        onPrev={prevLightbox}
+        onNext={() => setLightboxIndex((i) => i !== null ? findNextLoaded(i, 1) : null)}
+        onPrev={() => setLightboxIndex((i) => i !== null ? findNextLoaded(i, -1) : null)}
       />
     </div>
-  );
-};
+  )
+}
 
-export default PortfolioGrid;
