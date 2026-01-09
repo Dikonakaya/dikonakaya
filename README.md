@@ -1,7 +1,7 @@
 # Dikonakaya — Portfolio Website
 
 <div align="center">
-  <img src="public/dikonakaya_banner.png" alt="Dikonakaya Banner" width="600" />
+  <img src="public/banner.png" alt="Dikonakaya Banner" width="600" />
   
   **A responsive personal portfolio showcasing pixel art, photography, and creative projects.**
   
@@ -12,13 +12,12 @@
 
 ## 👋 About Me
 
-Hello! I'm **Dikonakaya** — a pixel artist, photographer, software developer, and content creator based in the Philippines.
+Hello! I'm **Dikonakaya** — a pixel artist, photographer, and software developer based in the Philippines.
 
 ### What I Do
 - 🎨 **Pixel Art** — Minecraft textures, character portraits, UI design, and commissioned works
 - 📸 **Photography** — Keyboard photography, self-portraits, and street photography
 - 💻 **Software Development** — Web applications, tools, and creative coding projects
-- 🎮 **Content Creation** — Gaming videos, streams, and creative tutorials
 
 ### Connect With Me
 - [YouTube](https://www.youtube.com/@dikonakaya) • [Twitter](https://twitter.com/dikonakayach) • [Instagram](https://www.instagram.com/dikonakaya.png/)
