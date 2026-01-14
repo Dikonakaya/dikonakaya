@@ -1,16 +1,3 @@
-/**
- * Navbar Component
- * 
- * Main navigation bar with responsive design.
- * Features:
- * - Desktop: Horizontal nav with dropdown menus for Portfolio and About sections
- * - Mobile: Hamburger menu with slide-out sidebar drawer
- * - Hash-based navigation for smooth scrolling to page sections
- * - Active state highlighting based on current route
- * 
- * @author Dikonakaya
- */
-
 import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import logoUrl from '../assets/logo_head.png'
@@ -20,11 +7,11 @@ export default function Navbar() {
   // State
   const [openMenu, setOpenMenu] = useState<'portfolio' | 'about' | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  
+
   // Refs
   const containerRef = useRef<HTMLDivElement>(null)
   const closeTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
-  
+
   // Router hooks
   const location = useLocation()
   const navigate = useNavigate()
@@ -164,7 +151,7 @@ export default function Navbar() {
               </li>
 
               <li><NavLink to="/projects" isActive={location.pathname === '/projects'}>Projects</NavLink></li>
-              <li><a href="https://ko-fi.com/dikonakaya" target="_blank" rel="noopener noreferrer" className="flex items-center px-3 py-2.5 hover:bg-[#1E1E25] transition-colors text-white">Store</a></li>
+              <li><a href="https://ko-fi.com/dikonakaya" target="_blank" className="flex items-center px-3 py-2.5 transition-colors relative z-10 hover:bg-[#1E1E25]">Store</a></li>
               <li><NavLink to="/contact" isActive={location.pathname === '/contact'}>Contact</NavLink></li>
 
               {/* About dropdown */}

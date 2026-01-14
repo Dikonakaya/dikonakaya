@@ -1,19 +1,3 @@
-/**
- * Footer Component
- * 
- * Site footer with social media links and contact information.
- * Displays different layouts depending on the current page:
- * - About page: Extended socials grid with title header
- * - Other pages: Compact two-column layout with bio
- * 
- * Features:
- * - Decorative curved SVG separator at top
- * - Animated hover effects on social icons
- * - Responsive grid layouts for different screen sizes
- * 
- * @author Dikonakaya
- */
-
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { scrollToTop } from '../utils/scroll'
@@ -47,7 +31,7 @@ const extendedSocials: Social[] = [
 
 /** Decorative curved SVG that creates a smooth transition from content to footer */
 const FooterCurve = () => (
-  <svg className="absolute -top-20 left-0 w-full h-20 md:h-28 pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+  <svg className="absolute -top-[83px] left-0 w-full h-20 md:h-28 pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
     <defs>
       <mask id="footer-hole-mask">
         <rect x="0" y="0" width="100" height="100" fill="white" />
@@ -74,7 +58,7 @@ const SocialLink = ({ social, hovered, setHovered }: SocialLinkProps) => {
   // Calculate min-width based on longest social names (Facebook, LinkedIn, etc)
   const needsWiderBox = ['Facebook', 'LinkedIn', 'Patreon'].includes(social.name)
   const minWidth = needsWiderBox ? 'min-w-[60px]' : 'min-w-[50px]'
-  
+
   return (
     <a
       href={social.href}

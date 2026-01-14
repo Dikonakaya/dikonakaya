@@ -18,10 +18,10 @@ export type PortfolioSet = {
 
 export const portfolioData: PortfolioSet[] = [
   {
-    setTitle: "Self-Portraits",
+    setTitle: "Portraits",
     year: 2024,
-    description: "Some self-portraits taken in my home",
-    other: "Camera: Sony ZV E10 • Lens: Meike 33mm f1.4 + Viltrox 27mm f1.2 Pro",
+    description: "A collection of shots showcasing some portrait photography I took",
+    other: "Camera: Sony ZV E10",
     tags: ["Portrait Photography"],
     images: [
       { src: "https://i.imgur.com/x4aYzh8.jpeg" },
@@ -33,7 +33,7 @@ export const portfolioData: PortfolioSet[] = [
   {
     setTitle: "Street Photography",
     year: 2025,
-    description: "A collection shots I took during my commutes",
+    description: "A collection of shots I took during my commutes",
     other: "Camera: Sony ZV E10 • Lens: Viltrox 56mm f1.7 + 7Artisans 27mm f2.8",
     tags: ["Street Photography", "Car Photography"],
     images: [

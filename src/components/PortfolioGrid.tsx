@@ -117,7 +117,7 @@ export default function PortfolioGrid({ title, sets, showBorder = true }: Props)
   /**
    * Calculate row layout using a justified algorithm
    * Images are packed into rows and scaled to fill the container width
-   * On mobile, uses shorter target height to allow multiple images per row
+   * On mobile (<lg), forces exactly 2 images per row with justified positioning
    */
   const calculateRows = () => {
     if (!containerRef.current) return
@@ -128,49 +128,79 @@ export default function PortfolioGrid({ title, sets, showBorder = true }: Props)
     }
 
     const containerWidth = containerRef.current.offsetWidth
-    const isMobile = containerWidth < 640
+    const isMobile = containerWidth < 1024 // lg breakpoint
     const targetHeight = isMobile ? MOBILE_MAX_HEIGHT : TARGET_ROW_HEIGHT
     const maxHeight = isMobile ? MOBILE_MAX_HEIGHT : MAX_ROW_HEIGHT
 
     const tempRows: RowData[] = []
-    let currentRow: PortfolioImageWithMeta[] = []
-    let currentRowWidth = 0
 
-    loadedImages.forEach((img, index) => {
-      const scaledWidth = img.aspectRatio * targetHeight
-      const gap = currentRow.length > 0 ? GAP : 0
-
-      if (currentRowWidth + scaledWidth + gap <= containerWidth) {
-        currentRow.push(img)
-        currentRowWidth += scaledWidth + gap
-      } else {
-        const totalGap = GAP * (currentRow.length - 1)
+    if (isMobile) {
+      // Mobile: Force exactly 2 images per row with justified positioning
+      for (let i = 0; i < loadedImages.length; i += 2) {
+        const rowImages = loadedImages.slice(i, i + 2)
+        const totalGap = GAP * (rowImages.length - 1)
         const availableWidth = containerWidth - totalGap
-        const totalImageWidth = currentRow.reduce((sum, i) => sum + i.aspectRatio * targetHeight, 0)
-        const scale = availableWidth / totalImageWidth
-        const capped = targetHeight * scale > maxHeight
-        tempRows.push({
-          images: currentRow,
-          scale: capped ? maxHeight / targetHeight : scale,
-          capped,
-        })
-        currentRow = [img]
-        currentRowWidth = scaledWidth
-      }
+        const totalAspectRatio = rowImages.reduce((sum, img) => sum + img.aspectRatio, 0)
 
-      if (index === loadedImages.length - 1 && currentRow.length) {
-        const totalGap = GAP * (currentRow.length - 1)
-        const availableWidth = containerWidth - totalGap
-        const totalImageWidth = currentRow.reduce((sum, i) => sum + i.aspectRatio * targetHeight, 0)
-        const scale = availableWidth / totalImageWidth
-        const capped = targetHeight * scale > maxHeight
+        // Calculate the row height that makes images fill the container width
+        const rowHeight = availableWidth / totalAspectRatio
+
+        // For single image in last row, cap the height to not be too big
+        const singleImageMaxHeight = MOBILE_MAX_HEIGHT * 1.5
+        const cappedHeight = rowImages.length === 1
+          ? Math.min(rowHeight, singleImageMaxHeight)
+          : rowHeight
+
+        const scale = cappedHeight / targetHeight
+        const capped = rowImages.length === 1 && rowHeight > singleImageMaxHeight
+
         tempRows.push({
-          images: currentRow,
-          scale: capped ? maxHeight / targetHeight : scale,
+          images: rowImages,
+          scale,
           capped,
         })
       }
-    })
+    } else {
+      // Desktop: Use the original justified algorithm
+      let currentRow: PortfolioImageWithMeta[] = []
+      let currentRowWidth = 0
+
+      loadedImages.forEach((img, index) => {
+        const scaledWidth = img.aspectRatio * targetHeight
+        const gap = currentRow.length > 0 ? GAP : 0
+
+        if (currentRowWidth + scaledWidth + gap <= containerWidth) {
+          currentRow.push(img)
+          currentRowWidth += scaledWidth + gap
+        } else {
+          const totalGap = GAP * (currentRow.length - 1)
+          const availableWidth = containerWidth - totalGap
+          const totalImageWidth = currentRow.reduce((sum, i) => sum + i.aspectRatio * targetHeight, 0)
+          const scale = availableWidth / totalImageWidth
+          const capped = targetHeight * scale > maxHeight
+          tempRows.push({
+            images: currentRow,
+            scale: capped ? maxHeight / targetHeight : scale,
+            capped,
+          })
+          currentRow = [img]
+          currentRowWidth = scaledWidth
+        }
+
+        if (index === loadedImages.length - 1 && currentRow.length) {
+          const totalGap = GAP * (currentRow.length - 1)
+          const availableWidth = containerWidth - totalGap
+          const totalImageWidth = currentRow.reduce((sum, i) => sum + i.aspectRatio * targetHeight, 0)
+          const scale = availableWidth / totalImageWidth
+          const capped = targetHeight * scale > maxHeight
+          tempRows.push({
+            images: currentRow,
+            scale: capped ? maxHeight / targetHeight : scale,
+            capped,
+          })
+        }
+      })
+    }
 
     setRows(tempRows)
   }
@@ -238,9 +268,10 @@ export default function PortfolioGrid({ title, sets, showBorder = true }: Props)
         {isPreloading && <div className="text-center text-sm text-slate-300 mb-2">Loading images…</div>}
 
         {rows.map((row, rowIndex) => {
-          const isMobile = containerRef.current && containerRef.current.offsetWidth < 640
+          const isMobile = containerRef.current && containerRef.current.offsetWidth < 1024
           const targetHeight = isMobile ? MOBILE_MAX_HEIGHT : TARGET_ROW_HEIGHT
-          const scaledWidths = row.images.map((img) => img.aspectRatio * targetHeight * row.scale)
+          const rowHeight = Math.round(targetHeight * row.scale)
+          const scaledWidths = row.images.map((img) => img.aspectRatio * rowHeight)
 
           return (
             <div
@@ -250,7 +281,7 @@ export default function PortfolioGrid({ title, sets, showBorder = true }: Props)
             >
               {row.images.map((img, idx) => {
                 const width = scaledWidths[idx]
-                const height = Math.round(targetHeight * row.scale)
+                const height = rowHeight
                 const flatIndex = img.originalIndex ?? idx
 
                 return (

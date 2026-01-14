@@ -1,15 +1,3 @@
-/**
- * About Me Page
- * 
- * Personal bio page featuring:
- * - Introduction paragraph
- * - Hard skills list with programs used
- * - Work experience timeline
- * - Contact CTA button
- * 
- * @author Dikonakaya
- */
-
 import { Link } from 'react-router-dom'
 import logo from '../assets/logo.png'
 import useLineReveal from '../hooks/useLineReveal'
@@ -21,12 +9,12 @@ type Job = { title: string; company: string; period: string; description: string
 
 // Hard skills data
 const hardSkills: Skill[] = [
-    { title: 'Programmer', since: 'Self-Taught Since 2015\nBS Computer Science\nMajor in Data Science Since 2026' },
+    { title: 'Programmer', since: 'Self-taught since 2015\nBS Computer Science major specializing in Data Science, Web & Mobile Development, and AI Engineering since 2026' },
     { title: 'Pixel Artist', since: 'Since 2018' },
     { title: 'Photographer', since: 'Since 2024' },
     { title: 'Graphics Designer', since: 'Since 2016' },
-    { title: 'Video Editor', since: 'Since 2016', specialization: 'Gaming Videos & Vlogs', programs: 'Adobe Premiere Pro, Audacity' },
     { title: 'Minecraft 3D Model Maker', since: 'Since 2022', specialization: 'Blocks & Weapons', programs: 'Blockbench' },
+    { title: 'Video Editor', since: 'Since 2016', specialization: '(Hobby Only)', programs: 'Adobe Premiere Pro, Audacity' },
     { title: 'Digital/Traditional Artist', since: 'Since 2018', specialization: '(Hobby Only)', programs: 'Clip Studio Paint' },
 ]
 
@@ -34,7 +22,7 @@ const workExperience: Job[] = [
     { title: 'Texture Artist', company: 'Lunar Studios', period: '2023 - 2024', description: 'Part of the texture artist team; contributed textures and basic 3D modelling for various Minecraft projects.' },
     { title: 'Texture Artist', company: 'Pixelmon Realms', period: 'Since 2023', description: 'Worked on monthly content updates and texture assets for a Pokemon-inspired Minecraft server.' },
     { title: 'Pixel Artist', company: 'MobBlocks', period: 'Since 2022', description: 'Created pixel art assets for Minecraft Marketplace releases.' },
-    { title: 'Freelancer', company: '(Discord & Fiverr)', period: 'Since 2020', description: 'Commissioned pixel art and graphics.' },
+    { title: 'Freelancer', company: '(Discord & Fiverr)', period: 'Since 2020', description: 'Did pixel art and graphics design.' },
 ]
 
 export default function AboutMe() {
@@ -67,7 +55,7 @@ export default function AboutMe() {
 
                     <div id="experience" className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <div className="bg-black/30 rounded-md p-6">
-                            <h3 className="text-xl font-semibold text-white mb-4">Hard Skills</h3>
+                            <h3 className="text-xl font-semibold text-white mb-4">Skills</h3>
                             <div className="space-y-3">
                                 {hardSkills.map((s) => (
                                     <div key={s.title} className="p-3 rounded-md bg-black/50 hover:bg-black/70 transition-colors">

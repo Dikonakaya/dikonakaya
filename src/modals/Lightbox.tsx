@@ -246,7 +246,7 @@ export default function Lightbox({ images, index, onClose, onNext, onPrev }: Pro
                         {/* Bottom info panel */}
                         <div
                             ref={bottomRef}
-                            className={`w-full mt-6 px-6 py-6 sm:px-8 sm:py-5 bg-[#1E1E25] rounded-b-md text-white text-center overflow-hidden xl:h-[160px] lg:h-[140px] md:h-[140px] sm:h-[140px] h-[160px] flex flex-col items-center justify-center space-y-2 transition-opacity duration-150 ${bottomVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                            className={`w-full mt-2 px-6 py-6 sm:px-8 sm:py-5 bg-[#1E1E25] rounded-b-md text-white text-center overflow-hidden xl:h-[160px] lg:h-[140px] md:h-[140px] sm:h-[140px] h-[160px] flex flex-col items-center justify-center space-y-2 transition-opacity duration-150 ${bottomVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
                         >
                             {showTitle && <h2 className="text-xl font-semibold m-0">{img?.title}</h2>}
                             {showDescription && <p className="text-sm m-0">{img?.description}</p>}

@@ -8,7 +8,7 @@ import { scrollToTop } from '../utils/scroll'
 
 // Portfolio set names for each section filter
 const pixelArtSets = ['Minecraft Armor', 'Pixel Art Characters', 'Pixel Art Portraits', 'Chest Portraits', 'Minecraft GUI', 'Pixel Art Banners', 'More GUI']
-const photographySets = ['Self-Portraits', 'Street Photography', 'Tofu60 V1', 'RK87', 'Jris65', '2025 Keyboard Collection']
+const photographySets = ['Portraits', 'Street Photography', 'Tofu60 V1', 'RK87', 'Jris65', '2025 Keyboard Collection']
 
 export default function Home() {
   return (
