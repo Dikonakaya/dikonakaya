@@ -1,15 +1,3 @@
-/**
- * Contact Page
- * 
- * Contact form with:
- * - Name, email, Discord, subject, and message fields
- * - Google reCAPTCHA spam protection
- * - Form validation and submission handling
- * - Success message with auto-redirect to home
- * 
- * @author Dikonakaya
- */
-
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import ReCAPTCHA from 'react-google-recaptcha'

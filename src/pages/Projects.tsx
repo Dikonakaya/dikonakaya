@@ -1,12 +1,3 @@
-/**
- * Projects Page
- * 
- * Displays the ProjectGrid component showcasing major projects
- * like Minecraft texture packs and other creative works.
- * 
- * @author Dikonakaya
- */
-
 import ProjectGrid from '../components/ProjectGrid'
 
 export default function Projects() {

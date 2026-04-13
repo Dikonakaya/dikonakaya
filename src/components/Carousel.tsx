@@ -1,17 +1,3 @@
-/**
- * Carousel Component
- * 
- * An auto-playing image carousel/slideshow with navigation controls.
- * Features:
- * - Automatic slideshow with configurable interval
- * - Seamless infinite loop animation
- * - Manual navigation (prev/next buttons and dot indicators)
- * - Optional overlay text and click-through links
- * - Pause on interaction, resume after navigation
- * 
- * @author Dikonakaya
- */
-
 import { useEffect, useRef, useState } from 'react'
 
 // Slide data structure

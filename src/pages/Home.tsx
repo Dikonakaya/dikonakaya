@@ -5,12 +5,13 @@ import PortfolioGrid from '../components/PortfolioGrid'
 import logo from '../assets/logo.png'
 import { portfolioData } from '../data/portfolio.data'
 import { scrollToTop } from '../utils/scroll'
+import usePhotography from '../hooks/usePhotography'
 
 // Portfolio set names for each section filter
 const pixelArtSets = ['Minecraft Armor', 'Pixel Art Characters', 'Pixel Art Portraits', 'Chest Portraits', 'Minecraft GUI', 'Pixel Art Banners', 'More GUI']
-const photographySets = ['Portraits', 'Street Photography', 'Tofu60 V1', 'RK87', 'Jris65', '2025 Keyboard Collection']
 
 export default function Home() {
+  const { sets: photoSets } = usePhotography()
   return (
     <section className="bg-[#1E1E25] overflow-x-hidden">
       <div className="-mb-20 grid w-full grid-cols-1 lg:grid-cols-[30%_70%] items-stretch">
@@ -48,10 +49,10 @@ export default function Home() {
       <div className="flex items-start justify-center p-8 mt-10 h-full bg-gradient-to-b from-[#373944] to-[#1E1E25]">
         <div className="w-full gap-8">
           <div id="pixelart" className="scroll-mt-24">
-            <PortfolioGrid title="PIXEL ART" sets={portfolioData.filter((s) => pixelArtSets.includes(s.setTitle))} showBorder={false} />
+            <PortfolioGrid title="PIXEL ART" sets={portfolioData.filter((s) => pixelArtSets.includes(s.title))} showBorder={false} />
           </div>
           <div id="photography" className="scroll-mt-24">
-            <PortfolioGrid title="PHOTOGRAPHY" sets={portfolioData.filter((s) => photographySets.includes(s.setTitle))} showBorder={true} />
+            <PortfolioGrid title="PHOTOGRAPHY" sets={photoSets} showBorder={true} />
           </div>
         </div>
       </div>

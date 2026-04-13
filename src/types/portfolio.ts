@@ -6,6 +6,7 @@ export type PortfolioImage = {
     tags?: string[]
     date?: string
     other?: string
+    hiddenInGrid?: boolean
 }
 
 /** Collection of related images (e.g., a project or photo series) */
@@ -15,7 +16,20 @@ export type PortfolioSet = {
     description?: string
     tags?: string[]
     other?: string
+    collection?: boolean
     images: PortfolioImage[]
+}
+
+/** Firebase photography document format */
+export type PhotoSet = {
+    title: string
+    description: string
+    details?: string
+    images: string[]
+    order?: number
+    tags: string[]
+    year?: number
+    collection?: boolean
 }
 
 /** Image with computed metadata for justified grid layout */
