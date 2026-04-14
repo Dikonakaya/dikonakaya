@@ -1,47 +1,39 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, type ChangeEvent, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import ReCAPTCHA from 'react-google-recaptcha'
-import useLineReveal from '../hooks/useLineReveal'
+import { Divider } from '../Shared'
 
 export default function Contact() {
-    // Form state
     const [formData, setFormData] = useState({ name: '', email: '', discord: '', subject: '', message: '' })
     const [status, setStatus] = useState<null | 'sending' | 'sent' | 'error'>(null)
     const [submittedName, setSubmittedName] = useState<string | null>(null)
-    
-    // reCAPTCHA
     const recaptchaRef = useRef<ReCAPTCHA>(null)
     const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null)
     const siteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY as string | undefined
-    
-    // Navigation and animation
     const navigate = useNavigate()
     const redirectTimer = useRef<number | null>(null)
-    const { ref: dividerRef, revealed: dividerInView } = useLineReveal()
 
-    /** Update a single form field */
-    const updateField = (field: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+    const updateField = (field: string) => (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
         setFormData((prev) => ({ ...prev, [field]: e.target.value }))
 
-    /** Handle form submission with reCAPTCHA verification */
-    async function handleSubmit(e: React.FormEvent) {
+    async function handleSubmit(e: FormEvent) {
         e.preventDefault()
         setStatus('sending')
 
         try {
-            // Execute reCAPTCHA if needed
-            if (siteKey && !recaptchaToken && recaptchaRef.current) {
+            let token = recaptchaToken
+            if (siteKey && !token && recaptchaRef.current) {
                 const captcha = recaptchaRef.current as any
                 if (typeof captcha.executeAsync === 'function') {
-                    const t = await captcha.executeAsync()
-                    setRecaptchaToken(t)
+                    token = await captcha.executeAsync()
+                    setRecaptchaToken(token)
                 }
             }
 
             const resp = await fetch('/api/contact', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ...formData, recaptchaToken }),
+                body: JSON.stringify({ ...formData, recaptchaToken: token }),
             })
 
             if (!resp.ok) {
@@ -76,12 +68,7 @@ export default function Contact() {
                 <h3 className="text-center text-3xl font-semibold text-white mt-6 mb-4">
                     {status === 'sent' ? 'MESSAGE SENT' : 'CONTACT ME'}
                 </h3>
-                <div
-                    ref={dividerRef}
-                    aria-hidden="true"
-                    className={`h-[2px] bg-white w-full max-w-[900px] mx-auto mb-6 origin-center transition-all duration-[2000ms] ease-out ${dividerInView ? 'scale-x-100 opacity-100' : 'scale-x-0 opacity-0'
-                        }`}
-                />
+                <Divider className="w-full max-w-[900px] mb-6" />
 
                 <div className="w-full max-w-3xl bg-black/30 backdrop-blur-sm rounded-md p-8">
                     <p className="text-sm text-slate-300 text-center mt-2">

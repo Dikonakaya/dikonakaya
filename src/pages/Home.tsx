@@ -1,11 +1,10 @@
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import Carousel from '../components/Carousel'
-import PortfolioGrid from '../components/PortfolioGrid'
+import JustifiedGrid from '../components/JustifiedGrid'
 import logo from '../assets/logo.png'
 import { portfolioData } from '../data/portfolio.data'
-import { scrollToTop } from '../utils/scroll'
-import usePhotography from '../hooks/usePhotography'
+import { scrollToTop, usePhotography } from '../Shared'
 
 // Portfolio set names for each section filter
 const pixelArtSets = ['Minecraft Armor', 'Pixel Art Characters', 'Pixel Art Portraits', 'Chest Portraits', 'Minecraft GUI', 'Pixel Art Banners', 'More GUI']
@@ -49,10 +48,10 @@ export default function Home() {
       <div className="flex items-start justify-center p-8 mt-10 h-full bg-gradient-to-b from-[#373944] to-[#1E1E25]">
         <div className="w-full gap-8">
           <div id="pixelart" className="scroll-mt-24">
-            <PortfolioGrid title="PIXEL ART" sets={portfolioData.filter((s) => pixelArtSets.includes(s.title))} showBorder={false} />
+            <JustifiedGrid title="PIXEL ART" sets={portfolioData.filter((s) => pixelArtSets.includes(s.title))} showBorder={false} />
           </div>
           <div id="photography" className="scroll-mt-24">
-            <PortfolioGrid title="PHOTOGRAPHY" sets={photoSets} showBorder={true} />
+            <JustifiedGrid title="PHOTOGRAPHY" sets={photoSets} showBorder={true} />
           </div>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, type TouchEvent as ReactTouchEvent } from 'react'
 
 type Props = {
     src: string
@@ -42,14 +42,14 @@ export default function FullscreenImage({ src, alt, onClose, onNext, onPrev }: P
         }
     }, [onClose, onNext, onPrev])
 
-    const handleTouchStart = (e: React.TouchEvent) => {
+    const handleTouchStart = (e: ReactTouchEvent) => {
         const t = e.touches[0]
         touchStart.current = { x: t.clientX, y: t.clientY }
         touchCurrent.current = { x: t.clientX, y: t.clientY }
         swiping.current = false
     }
 
-    const handleTouchMove = (e: React.TouchEvent) => {
+    const handleTouchMove = (e: ReactTouchEvent) => {
         const t = e.touches[0]
         touchCurrent.current = { x: t.clientX, y: t.clientY }
         const dx = touchCurrent.current.x - touchStart.current.x

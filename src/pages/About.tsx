@@ -1,12 +1,9 @@
 import { Link } from 'react-router-dom'
 import logo from '../assets/logo.png'
-import useLineReveal from '../hooks/useLineReveal'
-import { scrollToTop } from '../utils/scroll'
+import { Divider, scrollToTop } from '../Shared'
 
-// Type definitions for skills and jobs
 type Skill = { title: string; since?: string; specialization?: string; programs?: string }
 type Job = { title: string; company: string; period: string; description: string }
-
 // Hard skills data
 const hardSkills: Skill[] = [
     { title: 'Programmer', since: 'Self-taught since 2015\nBS Computer Science major specializing in Data Science, Web & Mobile Development, and AI Engineering since 2026' },
@@ -25,10 +22,7 @@ const workExperience: Job[] = [
     { title: 'Freelancer', company: '(Discord & Fiverr)', period: 'Since 2020', description: 'Did pixel art and graphics design.' },
 ]
 
-export default function AboutMe() {
-    const { ref: dividerRefTop, revealed: dividerInViewTop } = useLineReveal()
-    const { ref: dividerRefBottom, revealed: dividerInViewBottom } = useLineReveal()
-
+export default function About() {
     return (
         <section className="bg-gradient-to-b from-[#373944] to-[#1E1E25] min-h-screen flex flex-col py-12">
             <div className="flex flex-col items-center gap-4">
@@ -36,12 +30,7 @@ export default function AboutMe() {
                     <img src={logo} alt="dikonakaya logo" className="h-24 w-auto" />
                     <h3 className="text-left text-4xl font-semibold text-white -ml-4 mt-8">ABOUT ME</h3>
                 </div>
-                <div
-                    ref={dividerRefTop}
-                    aria-hidden="true"
-                    className={`h-[2px] bg-white w-full max-w-[90%] sm:max-w-[600px] md:max-w-[900px] mx-auto mb-6 origin-center transition-all duration-[2000ms] ease-out ${dividerInViewTop ? 'scale-x-100 opacity-100' : 'scale-x-0 opacity-0'
-                        }`}
-                />
+                <Divider className="w-full max-w-[90%] sm:max-w-[600px] md:max-w-[900px] mb-6" />
             </div>
 
             <div className="flex-1 flex flex-col items-center px-6">
@@ -95,20 +84,13 @@ export default function AboutMe() {
                     </div>
 
                     <div className="md:col-span-2 flex justify-center mt-6">
-                        <Link to="/contact" onClick={scrollToTop}>
-                            <button className="inline-flex items-center justify-center px-4 py-2 min-w-[160px] rounded-md bg-green-600 text-white text-base font-medium hover:bg-white hover:text-[#373944] transition-all duration-300 hover:-translate-y-1 hover:scale-105">
-                                Contact Me
-                            </button>
+                        <Link to="/contact" onClick={scrollToTop} className="inline-flex items-center justify-center px-4 py-2 min-w-[160px] rounded-md bg-green-600 text-white text-base font-medium hover:bg-white hover:text-[#373944] transition-all duration-300 hover:-translate-y-1 hover:scale-105">
+                            Contact Me
                         </Link>
                     </div>
                 </div>
 
-                <div
-                    ref={dividerRefBottom}
-                    aria-hidden="true"
-                    className={`h-[2px] bg-white w-full max-w-[90%] sm:max-w-[600px] md:max-w-[900px] mx-auto mb-6 origin-center transition-all duration-[2000ms] ease-out ${dividerInViewBottom ? 'scale-x-100 opacity-100' : 'scale-x-0 opacity-0'
-                        }`}
-                />
+                <Divider className="w-full max-w-[90%] sm:max-w-[600px] md:max-w-[900px] mb-6" />
             </div>
         </section>
     )

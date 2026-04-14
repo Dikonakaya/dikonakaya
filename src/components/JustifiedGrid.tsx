@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import Lightbox from '../modals/Lightbox'
-import useLineReveal from '../hooks/useLineReveal'
+import { SectionTitle } from '../Shared'
 import type { PhotoSet } from '../types/portfolio'
 
 const MAX_WIDTH = 1920
@@ -31,9 +31,8 @@ type Props = {
   showBorder?: boolean
 }
 
-export default function PortfolioGrid({ title, sets, showBorder = true }: Props) {
+export default function JustifiedGrid({ title, sets, showBorder = true }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
-  const { ref: dividerRef, revealed: dividerInView } = useLineReveal()
   const [imageData, setImageData] = useState<(ImageMeta | null)[]>([])
   const [rows, setRows] = useState<RowData[]>([])
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
@@ -205,17 +204,7 @@ export default function PortfolioGrid({ title, sets, showBorder = true }: Props)
 
   return (
     <div className="w-full">
-      {title && (
-        <>
-          <h3 className="text-center text-3xl font-semibold text-white mt-16 mb-4">{title}</h3>
-          <div
-            ref={dividerRef}
-            aria-hidden="true"
-            className={`h-[2px] bg-white w-full max-w-[90%] sm:max-w-[400px] md:max-w-[600px] mx-auto mb-8 origin-center transition-all duration-[2000ms] ease-out ${dividerInView ? 'scale-x-100 opacity-100' : 'scale-x-0 opacity-0'
-              }`}
-          />
-        </>
-      )}
+      {title && <SectionTitle title={title} dividerClass="w-full max-w-[90%] sm:max-w-[400px] md:max-w-[600px]" />}
 
       <div ref={containerRef} className="w-full flex flex-col gap-2">
         {isPreloading && <div className="text-center text-sm text-slate-300 mb-2">Loading images…</div>}

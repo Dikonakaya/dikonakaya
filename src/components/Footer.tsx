@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { scrollToTop } from '../utils/scroll'
+import { scrollToTop } from '../Shared'
 import logo from '../assets/logo.png'
 import { IconType } from 'react-icons'
 import { FaYoutube, FaTwitter, FaInstagram, FaTwitch, FaFacebook, FaDiscord, FaGithub, FaLinkedin, FaCrown, FaGlobe, FaPatreon } from 'react-icons/fa'

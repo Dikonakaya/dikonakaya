@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import logoUrl from '../assets/logo_head.png'
-import { scrollToTop, scrollToId } from '../utils/scroll'
+import { scrollToTop, scrollToId } from '../Shared'
 
 export default function Navbar() {
   // State

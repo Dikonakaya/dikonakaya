@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useRef, useState, useEffect } from 'react'
+import { useLayoutEffect, useRef, useState, useEffect, type TouchEvent as ReactTouchEvent, type MouseEvent as ReactMouseEvent } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import FullscreenImage from './FullscreenImage'
 
@@ -156,7 +156,7 @@ export default function Lightbox({ images, index, onClose, onNext, onPrev }: Pro
         }
     }, [index, fullscreenOpen, onClose])
 
-    const handleSwipe = (action: 'start' | 'move' | 'end', e?: React.TouchEvent) => {
+    const handleSwipe = (action: 'start' | 'move' | 'end', e?: ReactTouchEvent) => {
         if (action === 'start' && e) {
             touchStartX.current = e.touches[0].clientX
             touchCurrentX.current = e.touches[0].clientX
@@ -197,7 +197,7 @@ export default function Lightbox({ images, index, onClose, onNext, onPrev }: Pro
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 20 }}
                         transition={{ duration: 0.25 }}
-                        onClick={(e: React.MouseEvent) => e.stopPropagation()}
+                        onClick={(e: ReactMouseEvent) => e.stopPropagation()}
                     >
                         {/* Top controls */}
                         {!fullscreenOpen && (
