@@ -20,16 +20,26 @@ export type PortfolioSet = {
     images: PortfolioImage[]
 }
 
+/** Single photo within a set, with optional per-image overrides */
+export type PhotoImage = {
+    url: string
+    title?: string
+    description?: string
+    details?: string
+    year?: number
+    tags?: string[]
+    display?: boolean
+}
+
 /** Firebase photography document format */
 export type PhotoSet = {
     title: string
     description: string
     details?: string
-    images: string[]
+    images: (string | PhotoImage)[]
     order?: number
     tags: string[]
     year?: number
-    collection?: boolean
 }
 
 /** Image with computed metadata for justified grid layout */

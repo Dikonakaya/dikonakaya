@@ -51,7 +51,7 @@ export default function Home() {
             <JustifiedGrid title="PIXEL ART" sets={portfolioData.filter((s) => pixelArtSets.includes(s.title))} showBorder={false} />
           </div>
           <div id="photography" className="scroll-mt-24">
-            <JustifiedGrid title="PHOTOGRAPHY" sets={photoSets} showBorder={true} />
+            <JustifiedGrid title="PHOTOGRAPHY" sets={photoSets} showBorder={true} targetRowHeight={400} />
           </div>
         </div>
       </div>

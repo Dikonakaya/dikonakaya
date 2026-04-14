@@ -5,7 +5,6 @@ import type { PhotoSet } from '../types/portfolio'
 
 const MAX_WIDTH = 1920
 const GAP = 8
-const TARGET_ROW_HEIGHT = 300
 const MAX_ROW_HEIGHT = 500
 const MOBILE_MAX_HEIGHT = 170
 
@@ -15,7 +14,7 @@ type ImageMeta = {
   description: string
   details?: string
   tags: string[]
-  hiddenInGrid: boolean
+  display: boolean
   width: number
   height: number
   aspectRatio: number
@@ -29,9 +28,10 @@ type Props = {
   title?: string
   sets: PhotoSet[]
   showBorder?: boolean
+  targetRowHeight?: number
 }
 
-export default function JustifiedGrid({ title, sets, showBorder = true }: Props) {
+export default function JustifiedGrid({ title, sets, showBorder = true, targetRowHeight = 300 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [imageData, setImageData] = useState<(ImageMeta | null)[]>([])
   const [rows, setRows] = useState<RowData[]>([])
@@ -39,14 +39,17 @@ export default function JustifiedGrid({ title, sets, showBorder = true }: Props)
   const [isPreloading, setIsPreloading] = useState(false)
 
   const flatImages = sets.flatMap((set) =>
-    set.images.map((src, i) => ({
-      src,
-      title: set.title,
-      description: set.description,
-      details: set.details,
-      tags: set.tags,
-      hiddenInGrid: !!set.collection && i > 0,
-    }))
+    set.images.map((img) => {
+      const o = typeof img === 'object' ? img : null
+      return {
+        src: o ? o.url : img as string,
+        title: o?.title || set.title,
+        description: o?.description || set.description,
+        details: o?.details || set.details,
+        tags: o?.tags?.length ? o.tags : set.tags,
+        display: o ? o.display !== false : true,
+      }
+    })
   )
 
   const resizeImage = (imgEl: HTMLImageElement): string => {
@@ -99,15 +102,15 @@ export default function JustifiedGrid({ title, sets, showBorder = true }: Props)
 
   const calculateRows = () => {
     if (!containerRef.current) return
-    const loaded = imageData.filter((x): x is ImageMeta => x !== null && !x.hiddenInGrid)
+    const loaded = imageData.filter((x): x is ImageMeta => x !== null && x.display)
     if (!loaded.length) {
       setRows([])
       return
     }
 
     const containerWidth = containerRef.current.offsetWidth
-    const isMobile = containerWidth < 1024 // lg breakpoint
-    const targetHeight = isMobile ? MOBILE_MAX_HEIGHT : TARGET_ROW_HEIGHT
+    const isMobile = containerWidth < 1024
+    const targetHeight = isMobile ? MOBILE_MAX_HEIGHT : targetRowHeight
     const maxHeight = isMobile ? MOBILE_MAX_HEIGHT : MAX_ROW_HEIGHT
 
     const tempRows: RowData[] = []
@@ -211,7 +214,7 @@ export default function JustifiedGrid({ title, sets, showBorder = true }: Props)
 
         {rows.map((row, rowIndex) => {
           const isMobile = containerRef.current && containerRef.current.offsetWidth < 1024
-          const targetHeight = isMobile ? MOBILE_MAX_HEIGHT : TARGET_ROW_HEIGHT
+          const targetHeight = isMobile ? MOBILE_MAX_HEIGHT : targetRowHeight
           const rowHeight = Math.round(targetHeight * row.scale)
           const scaledWidths = row.images.map((img) => img.aspectRatio * rowHeight)
 

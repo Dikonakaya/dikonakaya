@@ -63,7 +63,6 @@ export function usePhotography() {
                     order: d.order,
                     tags: d.tags ?? [],
                     year: d.year,
-                    collection: d.collection ?? false,
                 }
             }))
         )
