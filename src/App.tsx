@@ -6,10 +6,12 @@ import Contact from './pages/Contact'
 import About from './pages/About'
 import Admin from './pages/Admin'
 import Footer from './components/Footer'
+import { Analytics } from "@vercel/analytics/react"
 
 export default function App() {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-[#373944] to-[#1E1E25] text-[#FFFFFF]">
+      <Analytics />
       <Header />
       <main className="flex-1">
         <Routes>

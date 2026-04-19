@@ -48,11 +48,11 @@ export const SectionTitle = ({ title, dividerClass }: { title: string; dividerCl
     )
 }
 
-// Photography hook
-export function usePhotography() {
+// Firebase photo set hook (reusable for any collection with PhotoSet shape)
+function usePhotoSets(collectionName: string) {
     const [sets, setSets] = useState<PhotoSet[]>([])
     useEffect(() => {
-        getDocs(query(collection(db, 'photography'), orderBy('order'))).then((snap) =>
+        getDocs(query(collection(db, collectionName), orderBy('order'))).then((snap) =>
             setSets(snap.docs.map((doc) => {
                 const d = doc.data()
                 return {
@@ -69,3 +69,6 @@ export function usePhotography() {
     }, [])
     return { sets }
 }
+
+export function usePhotography() { return usePhotoSets('photography') }
+export function usePixelArt() { return usePhotoSets('pixelart') }

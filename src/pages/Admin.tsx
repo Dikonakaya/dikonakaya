@@ -7,6 +7,7 @@ import { SectionTitle } from '../Shared'
 
 type EditImage = { url: string; title: string; description: string; details: string; year?: number; tags: string[]; display: boolean }
 type EditSet = { id: string; docName: string; title: string; description: string; details: string; images: EditImage[]; order: number; tags: string[]; year?: number }
+type CollectionKey = 'photography' | 'pixelart'
 
 const emptyImg: EditImage = { url: '', title: '', description: '', details: '', tags: [], display: true }
 const emptySet: EditSet = { id: '', docName: '', title: '', description: '', details: '', images: [], order: 0, tags: [] }
@@ -54,6 +55,7 @@ const AdminImg = ({ src, className }: { src: string; className: string }) => {
 
 export default function Admin() {
     const nav = useNavigate()
+    const [activeCollection, setActiveCollection] = useState<CollectionKey>('photography')
     const [sets, setSets] = useState<EditSet[]>([])
     const [edit, setEdit] = useState<EditSet | null>(null)
     const [expandedImg, setExpandedImg] = useState<number | null>(null)
@@ -66,11 +68,11 @@ export default function Admin() {
     const notify = (msg: string) => { setToast(msg); setTimeout(() => setToast(''), 3000) }
 
     useEffect(() => {
-        const unsub = onAuthStateChanged(auth, user => { if (!user) nav('/'); else load() })
+        const unsub = onAuthStateChanged(auth, user => { if (!user) nav('/'); else load(activeCollection) })
         const onBack = () => { signOut(auth); nav('/') }
         window.addEventListener('popstate', onBack)
         return () => { unsub(); window.removeEventListener('popstate', onBack) }
-    }, [nav])
+    }, [nav, activeCollection])
 
     useEffect(() => {
         const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') { setEdit(null); setExpandedImg(null) } }
@@ -86,8 +88,8 @@ export default function Admin() {
         return () => { const top = document.body.style.top; document.body.style.overflowY = ''; document.body.style.position = ''; document.body.style.width = ''; document.body.style.top = ''; if (top) window.scrollTo(0, -parseInt(top)) }
     }, [edit, confirm])
 
-    const load = async () => {
-        const snap = await getDocs(collection(db, 'photography'))
+    const load = async (col: CollectionKey = activeCollection) => {
+        const snap = await getDocs(collection(db, col))
         setSets(snap.docs.map(d => {
             const data = d.data()
             return { ...emptySet, ...data, id: d.id, docName: d.id, images: (data.images || []).map(parseImg), tags: data.tags || [] }
@@ -99,29 +101,33 @@ export default function Admin() {
         try {
             const batch = writeBatch(db)
             const newId = edit.docName.trim() || `set_${Date.now()}`
-            if (edit.id && edit.id !== newId) batch.delete(doc(db, 'photography', edit.id))
-            batch.set(doc(db, 'photography', newId), { title: edit.title, description: edit.description, details: edit.details || '', images: edit.images.map(serImg), order: edit.order, tags: edit.tags, year: edit.year || null })
+            if (edit.id && edit.id !== newId) batch.delete(doc(db, activeCollection, edit.id))
+            batch.set(doc(db, activeCollection, newId), { title: edit.title, description: edit.description, details: edit.details || '', images: edit.images.map(serImg), order: edit.order, tags: edit.tags, year: edit.year || null })
             await batch.commit()
-            setEdit(null); setExpandedImg(null); load(); notify('Photo set saved!')
+            setEdit(null); setExpandedImg(null); load(); notify('Set saved!')
         } catch { notify('Error saving') }
     }
 
     const delSet = async (id: string) => {
         try {
             const batch = writeBatch(db)
-            batch.delete(doc(db, 'photography', id))
+            batch.delete(doc(db, activeCollection, id))
             await batch.commit()
-            load(); notify('Photo set deleted!')
+            load(); notify('Set deleted!')
         } catch { notify('Error deleting') }
     }
 
     const saveOrder = async () => {
         try {
             const batch = writeBatch(db)
-            sets.forEach((s, i) => batch.update(doc(db, 'photography', s.id), { order: i }))
+            sets.forEach((s, i) => batch.update(doc(db, activeCollection, s.id), { order: i }))
             await batch.commit()
             notify('Order saved!')
         } catch { notify('Error saving order') }
+    }
+
+    const switchCollection = (col: CollectionKey) => {
+        setEdit(null); setExpandedImg(null); setActiveCollection(col)
     }
 
     const reorder = <T,>(arr: T[], from: number, to: number) => { const a = [...arr]; const [item] = a.splice(from, 1); a.splice(to, 0, item); return a }
@@ -134,7 +140,15 @@ export default function Admin() {
         <section className="p-4 mt-4 min-h-screen">
             <SectionTitle title="ADMIN" />
             <div className="max-w-4xl mx-auto">
-                <h2 className="text-xl font-bold mb-2">PHOTO SETS</h2>
+                <div className="flex gap-2 mb-4">
+                    {(['photography', 'pixelart'] as CollectionKey[]).map(col => (
+                        <button key={col} onClick={() => switchCollection(col)} className={`px-4 py-2 rounded-md font-bold text-sm transition-colors ${activeCollection === col ? 'bg-white text-[#1E1E25]' : 'bg-black/30 text-white hover:bg-black/50'}`}>
+                            {col === 'photography' ? 'PHOTOGRAPHY' : 'PIXEL ART'}
+                        </button>
+                    ))}
+                    <button onClick={logout} className="ml-auto px-5 py-2 rounded-md font-bold text-sm bg-red-500 text-white hover:bg-white hover:text-[#373944] transition-colors">LOGOUT</button>
+                </div>
+                <h2 className="text-xl font-bold mb-2">{activeCollection === 'photography' ? 'PHOTO' : 'PIXEL ART'} SETS</h2>
                 {sets.map((s, i) => (
                     <div key={s.id} onDragOver={e => dragSet(e, i)} className={`flex items-center gap-2 my-1 ${dragIdx?.type === 'set' && dragIdx.idx === i ? 'opacity-50' : ''}`}>
                         <div draggable onDragStart={() => setDragIdx({ type: 'set', idx: i })} onDragEnd={() => setDragIdx(null)} className="hidden md:block"><DragHandle /></div>
@@ -151,14 +165,13 @@ export default function Admin() {
                 <div className="my-4 flex justify-end gap-2 flex-wrap">
                     <button onClick={saveOrder} className="px-5 py-1 rounded-md font-bold bg-green-600 text-white hover:bg-white hover:text-[#373944] transition-colors">SAVE ORDER</button>
                     <button onClick={() => { setEdit({ ...emptySet, order: sets.length }); setExpandedImg(null) }} className="px-5 py-1 rounded-md font-bold bg-blue-600 text-white hover:bg-white hover:text-[#373944] transition-colors">NEW SET</button>
-                    <button onClick={logout} className="px-5 py-1 rounded-md font-bold bg-red-500 text-white hover:bg-white hover:text-[#373944] transition-colors">LOGOUT</button>
                 </div>
             </div>
 
             {edit && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center overflow-auto z-50" onMouseDown={() => setMouseDownInside(false)} onMouseUp={() => !mouseDownInside && setEdit(null)}>
                     <div className="bg-[#373944] rounded-md max-w-[90vw] max-h-[90vh] overflow-auto" onMouseDown={e => { e.stopPropagation(); setMouseDownInside(true) }} onMouseUp={e => e.stopPropagation()}>
-                        <div className="px-4 pt-1 w-full bg-[#1E1E25] text-white font-bold rounded-t-md">{edit.id ? 'EDIT' : 'NEW'} PHOTO SET</div>
+                        <div className="px-4 pt-1 w-full bg-[#1E1E25] text-white font-bold rounded-t-md">{edit.id ? 'EDIT' : 'NEW'} SET</div>
                         <div className="px-6 pt-4 pb-6">
                             <h3 className="font-bold text-sm">DOCUMENT NAME</h3><input value={edit.docName} onChange={e => setEdit({ ...edit, docName: e.target.value })} className={inp} placeholder="firestore-document-id" />
                             <h3 className="font-bold text-sm">TITLE</h3><input value={edit.title} onChange={e => setEdit({ ...edit, title: e.target.value })} className={inp} />
