@@ -48,8 +48,8 @@ export const SectionTitle = ({ title, dividerClass }: { title: string; dividerCl
     )
 }
 
-// Firebase photo set hook (reusable for any collection with PhotoSet shape)
-function usePhotoSets(collectionName: string) {
+// Portfolio data hook
+function usePortfolio(collectionName: string) {
     const [sets, setSets] = useState<PhotoSet[]>([])
     useEffect(() => {
         getDocs(query(collection(db, collectionName), orderBy('order'))).then((snap) =>
@@ -70,5 +70,57 @@ function usePhotoSets(collectionName: string) {
     return { sets }
 }
 
-export function usePhotography() { return usePhotoSets('photography') }
-export function usePixelArt() { return usePhotoSets('pixelart') }
+export function usePhotography() { return usePortfolio('photography') }
+export function usePixelArt() { return usePortfolio('pixelart') }
+
+// Carousel data hook
+export type CarouselSlide = { src: string; href?: string; title?: string; subtitle?: string }
+export function useCarousel() {
+    const [slides, setSlides] = useState<CarouselSlide[]>([])
+    useEffect(() => {
+        getDocs(query(collection(db, 'carousel'), orderBy('order'))).then(snap => {
+            setSlides(snap.docs.map(d => {
+                const data = d.data()
+                return { src: data.thumbnail, href: data.url || undefined, title: data.title, subtitle: data.description }
+            }))
+        })
+    }, [])
+    return { slides }
+}
+
+// Projects data hook
+export type FirebaseProject = {
+    id: string
+    title: string
+    description: string
+    details: string
+    download: string
+    tags: string
+    thumbnail: string
+    view: string
+    order: number
+    year: number
+}
+export function useProjects() {
+    const [projects, setProjects] = useState<FirebaseProject[]>([])
+    useEffect(() => {
+        getDocs(query(collection(db, 'projects'), orderBy('order'))).then(snap => {
+            setProjects(snap.docs.map((d, i) => {
+                const data = d.data()
+                return {
+                    id: d.id,
+                    title: data.title || '',
+                    description: data.description || '',
+                    details: data.details || '',
+                    download: data.download || '',
+                    tags: data.tags || '',
+                    thumbnail: data.thumbnail || '',
+                    view: data.view || '',
+                    order: data.order ?? i,
+                    year: data.year || 0,
+                }
+            }))
+        })
+    }, [])
+    return { projects }
+}

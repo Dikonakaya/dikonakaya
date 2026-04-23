@@ -31,7 +31,7 @@ type Props = {
   targetRowHeight?: number
 }
 
-export default function JustifiedGrid({ title, sets, showBorder = true, targetRowHeight = 300 }: Props) {
+export default function PortfolioGrid({ title, sets, showBorder = true, targetRowHeight = 300 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [imageData, setImageData] = useState<(ImageMeta | null)[]>([])
   const [rows, setRows] = useState<RowData[]>([])

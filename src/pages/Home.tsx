@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import Carousel from '../components/Carousel'
-import JustifiedGrid from '../components/JustifiedGrid'
+import PortfolioGrid from '../components/PortfolioGrid'
 import logo from '../assets/logo.png'
 import { scrollToTop, usePhotography, usePixelArt } from '../Shared'
 
@@ -45,10 +45,10 @@ export default function Home() {
       <div className="flex items-start justify-center p-8 mt-10 h-full bg-gradient-to-b from-[#373944] to-[#1E1E25]">
         <div className="w-full gap-8">
           <div id="pixelart" className="scroll-mt-24">
-            <JustifiedGrid title="PIXEL ART" sets={pixelArtSets} showBorder={false} />
+            <PortfolioGrid title="PIXEL ART" sets={pixelArtSets} showBorder={false} />
           </div>
           <div id="photography" className="scroll-mt-24">
-            <JustifiedGrid title="PHOTOGRAPHY" sets={photoSets} showBorder={true} targetRowHeight={400} />
+            <PortfolioGrid title="PHOTOGRAPHY" sets={photoSets} showBorder={true} targetRowHeight={400} />
           </div>
         </div>
       </div>
