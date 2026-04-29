@@ -91,13 +91,15 @@ export default function Home() {
 
       <div className="relative z-10 bg-gradient-to-b from-[#373944] to-[#1E1E25]">
         {/* Pixel Art Marquee */}
-        <SectionTitle title="PIXEL ART" titleClass="pt-12" />
-        <Marquee sets={pixelArtSets} height={300} linkTo="/pixelart" duration={200} mobileDuration={360} />
-        <Marquee sets={pixelArtSets} height={300} linkTo="/pixelart" duration={200} mobileDuration={360} reverse />
+        <div id="pixelart" className="pt-8">
+          <SectionTitle title="PIXEL ART" />
+          <Marquee sets={pixelArtSets} height={300} linkTo="/pixelart" duration={200} mobileDuration={360} />
+          <Marquee sets={pixelArtSets} height={300} linkTo="/pixelart" duration={200} mobileDuration={360} reverse />
+        </div>
 
         {/* Photography Marquee */}
-        <div id="photography" className="scroll-mt-24">
-          <SectionTitle title="PHOTOGRAPHY" titleClass="pt-12" />
+        <div id="photography" className="pt-8">
+          <SectionTitle title="PHOTOGRAPHY" />
           <Marquee sets={photoSets} height={400} linkTo="/photography" showBorder duration={240} mobileDuration={400} />
           <Marquee sets={photoSets} height={400} linkTo="/photography" showBorder duration={240} mobileDuration={400} reverse />
         </div>
@@ -212,7 +214,7 @@ export default function Home() {
           </div>
         </div>
       </div>
-    </section>
+    </section >
   )
 }
 

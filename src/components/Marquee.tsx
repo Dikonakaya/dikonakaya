@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { scrollToTop } from '../functions'
 import type { PhotoSet } from '../types/portfolio'
 
@@ -22,8 +22,6 @@ type Props = {
 export default function Marquee({ sets, height = 180, linkTo, showBorder = false, duration = 120, mobileDuration = 240, reverse = false }: Props) {
     const outerRef = useRef<HTMLDivElement>(null)
     const innerRef = useRef<HTMLDivElement>(null)
-    const navigate = useNavigate()
-
     // All mutable scroll state in one ref — avoids stale closure issues entirely
     const sc = useRef({
         offsetX: 0,
@@ -110,7 +108,6 @@ export default function Marquee({ sets, height = 180, linkTo, showBorder = false
             sc.current.prevX = e.pageX
             sc.current.prevTime = now
             sc.current.offsetX += dx
-            dragDistRef.current += Math.abs(dx)
         }
         const onMouseUp = () => {
             if (!sc.current.isDragging) return
@@ -125,17 +122,12 @@ export default function Marquee({ sets, height = 180, linkTo, showBorder = false
         }
     }, [])
 
-    // Accumulated drag distance — sum of |dx| across all mousemove ticks.
-    // More reliable than start-vs-end position for slow drags on wide images.
-    const dragDistRef = useRef(0)
-
     const onMouseDown = (e: React.MouseEvent) => {
         e.preventDefault() // prevent native image/text drag hijacking mouseup
         sc.current.isDragging = true
         sc.current.prevX = e.pageX
         sc.current.prevTime = performance.now()
         sc.current.velocity = 0
-        dragDistRef.current = 0
         if (outerRef.current) outerRef.current.style.cursor = 'grabbing'
     }
 
@@ -144,7 +136,6 @@ export default function Marquee({ sets, height = 180, linkTo, showBorder = false
         sc.current.prevX = e.touches[0].pageX
         sc.current.prevTime = performance.now()
         sc.current.velocity = 0
-        dragDistRef.current = 0
     }
     const onTouchMove = (e: React.TouchEvent) => {
         if (!sc.current.isDragging) return
@@ -155,20 +146,11 @@ export default function Marquee({ sets, height = 180, linkTo, showBorder = false
         sc.current.prevX = e.touches[0].pageX
         sc.current.prevTime = now
         sc.current.offsetX += dx
-        dragDistRef.current += Math.abs(dx)
     }
     const onTouchEnd = () => { sc.current.isDragging = false }
 
     // Early return AFTER all hooks — valid per Rules of Hooks
     if (!srcs.length) return null
-
-    const handleImageClick = (src: string) => {
-        if (dragDistRef.current > 8) return // was a drag, not a click
-        if (linkTo) {
-            scrollToTop()
-            navigate(linkTo, { state: { openSrc: src } })
-        }
-    }
 
     return (
         <div
@@ -186,22 +168,37 @@ export default function Marquee({ sets, height = 180, linkTo, showBorder = false
                 style={{ willChange: 'transform' }}
             >
                 {doubled.map((src, i) => (
-                    <div
-                        key={i}
-                        onClick={() => handleImageClick(src)}
-                        className={`flex-shrink-0 rounded group transition-transform duration-300 hover:scale-[1.02]${showBorder ? ' border-2 border-white' : ''}${linkTo ? ' cursor-pointer' : ''}`}
-                    >
-                        <div className="overflow-hidden rounded">
-                            <img
-                                src={src}
-                                alt=""
-                                draggable={false}
-                                className="object-cover block transition-transform duration-1000 group-hover:scale-105 will-change-transform"
-                                style={{ height: `${height}px` }}
-                                loading="lazy"
-                            />
+                    linkTo ? (
+                        <Link key={i} to={linkTo} onClick={scrollToTop}
+                            className={`flex-shrink-0 block rounded group transition-transform duration-300 hover:scale-[1.02]${showBorder ? ' border-2 border-white' : ''}`}
+                        >
+                            <div className="overflow-hidden rounded">
+                                <img
+                                    src={src}
+                                    alt=""
+                                    draggable={false}
+                                    className="object-cover block transition-transform duration-1000 group-hover:scale-105 will-change-transform"
+                                    style={{ height: `${height}px` }}
+                                    loading="lazy"
+                                />
+                            </div>
+                        </Link>
+                    ) : (
+                        <div key={i}
+                            className={`flex-shrink-0 rounded group transition-transform duration-300 hover:scale-[1.02]${showBorder ? ' border-2 border-white' : ''}`}
+                        >
+                            <div className="overflow-hidden rounded">
+                                <img
+                                    src={src}
+                                    alt=""
+                                    draggable={false}
+                                    className="object-cover block transition-transform duration-1000 group-hover:scale-105 will-change-transform"
+                                    style={{ height: `${height}px` }}
+                                    loading="lazy"
+                                />
+                            </div>
                         </div>
-                    </div>
+                    )
                 ))}
             </div>
         </div>

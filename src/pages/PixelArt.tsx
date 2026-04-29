@@ -9,7 +9,7 @@ export default function PixelArt() {
         <section className="bg-[#1E1E25] min-h-screen">
             <div className="flex items-start justify-center p-8 bg-gradient-to-b from-[#373944] to-[#1E1E25]">
                 <div className="w-full">
-                    <PortfolioGrid title="PIXEL ART" sets={sets} showBorder={false} targetRowHeight={250} initialOpenSrc={state?.openSrc} />
+                    <PortfolioGrid title="PIXEL ART" sets={sets} showBorder={false} targetRowHeight={300} initialOpenSrc={state?.openSrc} />
                 </div>
             </div>
         </section>

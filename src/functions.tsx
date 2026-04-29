@@ -31,11 +31,11 @@ export const Divider = ({ className }: { className?: string }) => {
 }
 
 // Section title component
-export const SectionTitle = ({ title, dividerClass, titleClass }: { title: string; dividerClass?: string; titleClass?: string }) => {
+export const SectionTitle = ({ title, dividerClass }: { title: string; dividerClass?: string; titleClass?: string }) => {
     const { ref, revealed } = useLineReveal()
     return (
         <>
-            <h3 className={`text-center text-3xl font-semibold text-white mb-4 ${titleClass ?? 'mt-16'}`}>{title}</h3>
+            <h3 className={`text-center text-3xl font-semibold text-white mb-4 `}>{title}</h3>
             <div
                 ref={ref}
                 aria-hidden="true"
