@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { scrollToTop } from '../functions'
-import type { PhotoSet } from '../types/portfolio'
+import type { PhotoSet } from '../hooks'
 
 function getImageUrl(img: string | { url?: string; display?: boolean }): string | null {
     if (typeof img === 'string') return img
@@ -38,7 +38,7 @@ export default function Marquee({ sets, height = 180, linkTo, showBorder = false
 
     const doubled = [...srcs, ...srcs]
 
-    // ── Single RAF loop handles auto-scroll + momentum ──────────────────────
+    // RAF loop: auto-scroll + momentum
     useEffect(() => {
         sc.current.velocity = 0
         let initialized = false
@@ -96,7 +96,7 @@ export default function Marquee({ sets, height = 180, linkTo, showBorder = false
         return () => cancelAnimationFrame(sc.current.rafId)
     }, [duration, mobileDuration, reverse, srcs.length])
 
-    // ── Document-level mouse events — cursor never gets "stuck" ─────────────
+    // Document-level mouse events (prevents stuck cursor state)
     useEffect(() => {
         const onMouseMove = (e: MouseEvent) => {
             if (!sc.current.isDragging) return
@@ -149,7 +149,7 @@ export default function Marquee({ sets, height = 180, linkTo, showBorder = false
     }
     const onTouchEnd = () => { sc.current.isDragging = false }
 
-    // Early return AFTER all hooks — valid per Rules of Hooks
+    // Early return after all hooks (Rules of Hooks)
     if (!srcs.length) return null
 
     return (

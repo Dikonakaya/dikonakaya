@@ -3,9 +3,9 @@ import { collection, doc, getDocs, orderBy, query, writeBatch } from 'firebase/f
 import { onAuthStateChanged, signOut } from 'firebase/auth'
 import { db, auth } from '../firebase'
 import { useNavigate } from 'react-router-dom'
-import { SectionTitle } from '../functions'
-import { DiscordFormatTextField } from '../functions'
+import { SectionTitle, DiscordFormatTextField } from '../functions'
 
+// Types
 type EditImage = { url: string; title: string; description: string; details: string; year?: number; tags: string[]; tagsStr: string; display: boolean }
 type EditSet = { id: string; docName: string; title: string; description: string; details: string; images: EditImage[]; order: number; tags: string[]; tagsStr: string; year?: number }
 type EditCarousel = { id: string; docName: string; title: string; description: string; thumbnail: string; url: string; order: number }
@@ -14,6 +14,7 @@ type EditSkill = { id: string; docName: string; title: string; description: stri
 type EditExperience = { id: string; docName: string; role: string; company: string; period: string; details: string; order: number }
 type CollectionKey = 'photography' | 'pixelart' | 'carousel' | 'projects' | 'skills' | 'experience'
 
+// Defaults
 const emptyImg: EditImage = { url: '', title: '', description: '', details: '', tags: [], tagsStr: '', display: true }
 const emptySet: EditSet = { id: '', docName: '', title: '', description: '', details: '', images: [], order: 0, tags: [], tagsStr: '' }
 const emptyCarousel: EditCarousel = { id: '', docName: '', title: '', description: '', thumbnail: '', url: '', order: 0 }
@@ -21,7 +22,7 @@ const emptyProject: EditProject = { id: '', docName: '', title: '', description:
 const emptySkill: EditSkill = { id: '', docName: '', title: '', description: '', status: '', year: 0, order: 0 }
 const emptyExperience: EditExperience = { id: '', docName: '', role: '', company: '', period: '', details: '', order: 0 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// Helpers
 const parseImg = (img: any): EditImage => typeof img === 'string'
     ? { ...emptyImg, url: img }
     : { url: img.url || '', title: img.title || '', description: img.description || '', details: img.details || '', year: img.year, tags: img.tags || [], tagsStr: (img.tags || []).join(', '), display: img.display !== false }
@@ -39,6 +40,7 @@ const serImg = (img: EditImage): string | Record<string, unknown> => {
     return o
 }
 
+// Subcomponents
 const DragHandle = () => <div className="w-6 h-6 flex items-center justify-center cursor-grab active:cursor-grabbing text-slate-400 hover:text-white"><svg className="w-4 h-4" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} strokeLinecap="round"><line x1="4" y1="6" x2="20" y2="6" /><line x1="4" y1="12" x2="20" y2="12" /><line x1="4" y1="18" x2="20" y2="18" /></svg></div>
 const DelBtn = ({ onClick }: { onClick: () => void }) => <button onClick={onClick} className="min-w-6 min-h-6 flex items-center justify-center rounded-full bg-red-500 text-white"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button>
 
@@ -65,6 +67,8 @@ const AdminImg = ({ src, className }: { src: string; className: string }) => {
 
 export default function Admin() {
     const nav = useNavigate()
+
+    // State
     const [activeCollection, setActiveCollection] = useState<CollectionKey>('photography')
     const [sets, setSets] = useState<EditSet[]>([])
     const [carouselItems, setCarouselItems] = useState<EditCarousel[]>([])
@@ -85,6 +89,7 @@ export default function Admin() {
 
     const notify = (msg: string) => { setToast(msg); setTimeout(() => setToast(''), 3000) }
 
+    // Auth: redirect if not logged in, sign out on back navigation
     useEffect(() => {
         const unsub = onAuthStateChanged(auth, user => { if (!user) nav('/'); else load(activeCollection) })
         const onBack = () => { signOut(auth); nav('/') }
@@ -92,20 +97,23 @@ export default function Admin() {
         return () => { unsub(); window.removeEventListener('popstate', onBack) }
     }, [nav, activeCollection])
 
+    // Close all modals on Escape
     useEffect(() => {
         const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') { setEdit(null); setEditCarousel(null); setEditProject(null); setEditSkill(null); setEditExperience(null); setExpandedImg(null) } }
         if (edit || editCarousel || editProject || editSkill || editExperience) window.addEventListener('keydown', onKey)
         return () => window.removeEventListener('keydown', onKey)
     }, [edit, editCarousel, editProject, editSkill, editExperience])
 
+    // Lock body scroll while any modal is open
     useEffect(() => {
         if (edit || editCarousel || editProject || editSkill || editExperience || confirm) {
             const scrollY = window.scrollY
             document.body.style.overflowY = 'scroll'; document.body.style.position = 'fixed'; document.body.style.width = '100%'; document.body.style.top = `-${scrollY}px`
         }
         return () => { const top = document.body.style.top; document.body.style.overflowY = ''; document.body.style.position = ''; document.body.style.width = ''; document.body.style.top = ''; if (top) window.scrollTo(0, -parseInt(top)) }
-    }, [edit, editCarousel, editProject, confirm])
+    }, [edit, editCarousel, editProject, editSkill, editExperience, confirm])
 
+    // Data
     const load = async (col: CollectionKey = activeCollection) => {
         const snap = await getDocs(query(collection(db, col), orderBy('order')))
         if (col === 'photography' || col === 'pixelart') {
@@ -136,6 +144,7 @@ export default function Admin() {
         }
     }
 
+    // Save / delete handlers
     const saveSet = async () => {
         if (!edit) return
         try {
@@ -206,6 +215,7 @@ export default function Admin() {
         } catch { notify('Error deleting') }
     }
 
+    // Order persistence
     const saveOrder = async () => {
         try {
             const batch = writeBatch(db)
@@ -229,6 +239,7 @@ export default function Admin() {
         setEdit(null); setEditCarousel(null); setEditProject(null); setEditSkill(null); setEditExperience(null); setExpandedImg(null); setActiveCollection(col)
     }
 
+    // Drag & drop
     const reorder = <T,>(arr: T[], from: number, to: number) => { const a = [...arr]; const [item] = a.splice(from, 1); a.splice(to, 0, item); return a }
 
     const dragSet = (e: React.DragEvent, i: number) => {
@@ -247,6 +258,7 @@ export default function Admin() {
     const updateImg = (i: number, patch: Partial<EditImage>) => { if (!edit) return; const imgs = [...edit.images]; imgs[i] = { ...imgs[i], ...patch }; setEdit({ ...edit, images: imgs }) }
     const logout = () => { signOut(auth); nav('/') }
 
+    // Derived
     const isPhotoCollection = activeCollection === 'photography' || activeCollection === 'pixelart'
 
     const sectionLabel = activeCollection === 'photography' ? 'PHOTO SETS'

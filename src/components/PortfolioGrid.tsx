@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import Lightbox from '../modals/Lightbox'
 import { SectionTitle } from '../functions'
-import type { PhotoSet } from '../types/portfolio'
+import type { PhotoSet } from '../hooks'
 
 const MAX_WIDTH = 1920
 const GAP = 8
@@ -54,8 +54,6 @@ export default function PortfolioGrid({ title, sets, showBorder = true, targetRo
     })
   )
 
-  const resizeImage = (_imgEl: HTMLImageElement): string => _imgEl.src
-
   useEffect(() => {
     if (!flatImages.length) {
       setIsPreloading(false)
@@ -84,9 +82,8 @@ export default function PortfolioGrid({ title, sets, showBorder = true, targetRo
       }
 
       img.onload = () => {
-        const resizedSrc = resizeImage(img)
         const w = Math.min(img.width, MAX_WIDTH)
-        done(w, Math.round((img.height * w) / img.width), resizedSrc)
+        done(w, Math.round((img.height * w) / img.width), img.src)
         // Open lightbox for the clicked image once it loads
         if (initialOpenSrc && !openedInitialRef.current && it.src === initialOpenSrc) {
           openedInitialRef.current = true

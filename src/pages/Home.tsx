@@ -56,7 +56,7 @@ export default function Home() {
 
   return (
     <section className="bg-[#1E1E25]">
-      {/* Hero — sticky so content scrolls over it, offset by header height */}
+      {/* Hero */}
       <div className="sticky top-10 lg:top-20 z-0 grid w-full grid-cols-1 lg:grid-cols-[33%_67%] items-stretch">
         <div className="h-[400px] xl:h-[600px] p-4 md:p-6 lg:p-8 flex items-center justify-center bg-gradient-to-b from-[#373944] to-[#1E1E25] shadow-md">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1.0 }}>
@@ -104,7 +104,7 @@ export default function Home() {
           <Marquee sets={photoSets} height={400} linkTo="/photography" showBorder duration={240} mobileDuration={400} reverse />
         </div>
 
-        {/* COMMISSIONS — single header for About + Contact */}
+        {/* Commissions */}
         <div className="flex flex-col items-center pt-12 pb-4">
           <div className="flex items-center gap-4">
             <img src={logo} alt="dikonakaya logo" className="h-24 w-auto" />
@@ -113,7 +113,6 @@ export default function Home() {
           <Divider className="w-full max-w-[1000px] mt-4 mb-2" />
         </div>
 
-        {/* Centered description */}
         <p className="text-md text-white text-center max-w-3xl mx-auto px-6 pb-8 mt-2">
           Hello everyone o// I'm Dikonakaya and I do all sorts of art stuff, software development, and content creation.
           I like watching anime, playing video games, making art, and learning new things. Below is a summary of some hard
@@ -121,9 +120,9 @@ export default function Home() {
           want to say hi, feel free to reach out! I hope you're having a wonderful week and take care :D
         </p>
 
-        {/* Skills + Experience | Contact */}
+        {/* About & Contact */}
         <div className="flex flex-col lg:flex-row items-center lg:items-start justify-center gap-8 px-6 py-4 pb-16 max-w-[1700px] mx-auto w-full">
-          {/* Left: Skills + Experience stacked */}
+          {/* Skills & Experience */}
           <div id="about" className="scroll-mt-24 w-full lg:flex-1 min-w-0 max-w-2xl lg:max-w-none flex flex-col gap-6">
             <div className="bg-black/30 rounded-md p-6">
               <h3 className="text-xl font-semibold text-white mb-4">Skills</h3>
@@ -190,7 +189,7 @@ export default function Home() {
                   </div>
                   <div className="md:col-span-2">
                     <label className="text-sm text-slate-300">Message</label>
-                    <textarea required value={formData.message} onChange={updateField('message')} className={`${inputClass} h-[10rem] lg:h-[53.3rem] resize-none`} placeholder="Tell me what you're looking for..." />
+                    <textarea required value={formData.message} onChange={updateField('message')} className={`${inputClass} h-[10rem] lg:h-[47.5rem] resize-none`} placeholder="Tell me what you're looking for..." />
                   </div>
                   {siteKey && (
                     <div className="md:col-span-2 flex justify-center">

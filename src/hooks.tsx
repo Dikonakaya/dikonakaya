@@ -1,7 +1,26 @@
 import { useEffect, useState } from 'react'
 import { collection, getDocs, orderBy, query } from 'firebase/firestore'
 import { db } from './firebase'
-import type { PhotoSet } from './types/portfolio'
+
+export type PhotoImage = {
+    url: string
+    title?: string
+    description?: string
+    details?: string
+    year?: number
+    tags?: string[]
+    display?: boolean
+}
+
+export type PhotoSet = {
+    title: string
+    description: string
+    details?: string
+    images: (string | PhotoImage)[]
+    order?: number
+    tags: string[]
+    year?: number
+}
 
 // Portfolio data hook
 function usePortfolio(collectionName: string) {
@@ -63,14 +82,7 @@ export function useProjects() {
             setProjects(snap.docs.map((d, i) => {
                 const data = d.data()
                 return {
-                    id: d.id,
-                    title: data.title || '',
-                    description: data.description || '',
-                    details: data.details || '',
-                    download: data.download || '',
-                    tags: data.tags || '',
-                    thumbnail: data.thumbnail || '',
-                    view: data.view || '',
+                    id: d.id, title: data.title || '', description: data.description || '', details: data.details || '', download: data.download || '', tags: data.tags || '', thumbnail: data.thumbnail || '', view: data.view || '',
                     order: data.order ?? i,
                     year: data.year || 0,
                 }
