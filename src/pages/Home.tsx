@@ -92,14 +92,14 @@ export default function Home() {
       <div className="relative z-10 bg-gradient-to-b from-[#373944] to-[#1E1E25]">
         {/* Pixel Art Marquee */}
         <div id="pixelart" className="pt-8">
-          <SectionTitle title="PIXEL ART" />
+          <SectionTitle title="PIXEL ART" dividerClass="w-full max-w-[90%] sm:max-w-[400px] md:max-w-[600px] mb-5" />
           <Marquee sets={pixelArtSets} height={300} linkTo="/pixelart" duration={200} mobileDuration={360} />
           <Marquee sets={pixelArtSets} height={300} linkTo="/pixelart" duration={200} mobileDuration={360} reverse />
         </div>
 
         {/* Photography Marquee */}
         <div id="photography" className="pt-8">
-          <SectionTitle title="PHOTOGRAPHY" />
+          <SectionTitle title="PHOTOGRAPHY" dividerClass="w-full max-w-[90%] sm:max-w-[400px] md:max-w-[600px] mb-5" />
           <Marquee sets={photoSets} height={400} linkTo="/photography" showBorder duration={240} mobileDuration={400} />
           <Marquee sets={photoSets} height={400} linkTo="/photography" showBorder duration={240} mobileDuration={400} reverse />
         </div>
@@ -110,10 +110,10 @@ export default function Home() {
             <img src={logo} alt="dikonakaya logo" className="h-24 w-auto" />
             <h3 className="text-3xl font-semibold text-white">COMMISSIONS</h3>
           </div>
-          <Divider className="w-full max-w-[1000px] mt-4 mb-2" />
+          <Divider className="w-full max-w-[90%] sm:max-w-[400px] md:max-w-[600px] mt-4 mb-2" />
         </div>
 
-        <p className="text-md text-white text-center max-w-3xl mx-auto px-6 pb-8 mt-2">
+        <p className="text-md text-white text-center max-w-6xl mx-auto px-6 pb-8 mt-2">
           Hello everyone o// I'm Dikonakaya and I do all sorts of art stuff, software development, and content creation.
           I like watching anime, playing video games, making art, and learning new things. Below is a summary of some hard
           skills and professional experience I've garnered over the years. If you're interested in working with me or just
@@ -148,7 +148,7 @@ export default function Home() {
               <div className="space-y-4">
                 {experience.map(j => (
                   <div key={j.id} className="p-3 rounded-md bg-black/50 hover:bg-black/70 transition-colors">
-                    <div className="text-white font-medium">{j.role} <span className="text-slate-300">- {j.company}</span></div>
+                    <div className="text-white font-medium">{j.role}{j.company ? <span className="text-slate-300"> - {j.company}</span> : null}</div>
                     <div className="text-xs text-slate-400">{j.period}</div>
                     <div className="mt-2 text-sm text-slate-300" dangerouslySetInnerHTML={{ __html: discordFormatText(j.details) }} />
                   </div>
@@ -161,7 +161,7 @@ export default function Home() {
           <div id="contact" className="scroll-mt-24 w-full lg:flex-1 min-w-0 max-w-2xl lg:max-w-none">
             <div className="w-full bg-black/30 backdrop-blur-sm rounded-md p-8">
               <h3 className="text-xl font-semibold text-white mb-4">Contact</h3>
-              {status === 'sent' && <h4 className="text-xl font-bold text-white text-center mb-2">MESSAGE SENT</h4>}
+              {status === 'sent' && <h4 className="text-xl font-bold text-white text-center mb-2">Message Sent</h4>}
               <p className="text-sm text-slate-300 text-center mt-2">
                 {status === 'sent'
                   ? submittedName
@@ -189,7 +189,7 @@ export default function Home() {
                   </div>
                   <div className="md:col-span-2">
                     <label className="text-sm text-slate-300">Message</label>
-                    <textarea required value={formData.message} onChange={updateField('message')} className={`${inputClass} h-[10rem] lg:h-[47.5rem] resize-none`} placeholder="Tell me what you're looking for..." />
+                    <textarea required value={formData.message} onChange={updateField('message')} className={`${inputClass} h-[10rem] lg:h-[54.25rem] resize-none`} placeholder="Tell me what you're looking for..." />
                   </div>
                   {siteKey && (
                     <div className="md:col-span-2 flex justify-center">

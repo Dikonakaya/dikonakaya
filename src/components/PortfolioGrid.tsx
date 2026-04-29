@@ -203,7 +203,7 @@ export default function PortfolioGrid({ title, sets, showBorder = true, targetRo
 
   return (
     <div className="w-full">
-      {title && <SectionTitle title={title} dividerClass="w-full max-w-[90%] sm:max-w-[400px] md:max-w-[600px]" />}
+      {title && <SectionTitle title={title} dividerClass="w-full max-w-[90%] sm:max-w-[400px] md:max-w-[600px] mb-7" />}
 
       <div ref={containerRef} className="w-full flex flex-col gap-2">
         {isPreloading && <div className="text-center text-sm text-slate-300 mb-2">Loading images…</div>}

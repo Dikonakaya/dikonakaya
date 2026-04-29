@@ -11,7 +11,11 @@ body,
 }
 
 /* Prevent horizontal scroll and match site background */
-html,
+html {
+  scroll-behavior: smooth;
+  background-color: #1E1E25;
+}
+
 body {
   overflow-x: hidden;
   scroll-behavior: smooth;

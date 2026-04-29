@@ -157,7 +157,7 @@ export default function ProjectGrid({ title }: Props) {
 
   return (
     <div className="w-full">
-      {title && <SectionTitle title={title} />}
+      {title && <SectionTitle title={title} dividerClass="w-full max-w-[90%] sm:max-w-[400px] md:max-w-[600px] mb-5" />}
       <div ref={containerRef} className="w-full flex flex-col gap-4 relative">
         {isPreloading && <div className="text-center text-sm text-slate-300 mb-2">Loading projects…</div>}
         {rows.map((row, rowIndex) => (

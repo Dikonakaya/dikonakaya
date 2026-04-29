@@ -140,12 +140,12 @@ export default function Footer() {
           <div className="relative">
             <FooterCurve />
             <div className="pt-12 pb-6 text-sm text-slate-400">
-              <div className="max-w-4xl mx-auto grid gap-8 grid-cols-1 md:grid-cols-2 items-start">
-                <div className="flex items-center justify-center gap-1">
+              <div className="max-w-4xl mx-auto grid gap-12 grid-cols-1 md:grid-cols-2 items-start">
+                <div className="flex items-center justify-center gap-8">
                   <img src={logo} alt="dikonakaya logo" className="h-20 md:h-24 lg:h-28 aspect-square object-contain cursor-pointer select-none" draggable={false} onClick={() => setShowLogin(true)} onContextMenu={e => e.preventDefault()} onMouseDown={e => e.preventDefault()} />
                   <div className="text-white">
-                    <p>Dikonakaya is a freelance pixel artist</p>
-                    <p>and photographer based in the Philippines &lt;3</p>
+                    <p>Dikonakaya is a freelancer</p>
+                    <p>based in the Philippines &lt;3</p>
                     <br />
                     <a href="/#contact" className="text-white hover:text-slate-400 transition-colors">
                       Get in touch!

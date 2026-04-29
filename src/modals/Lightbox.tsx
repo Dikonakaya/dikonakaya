@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState, useEffect, type TouchEvent as ReactTouchEvent, type MouseEvent as ReactMouseEvent } from 'react'
+import { useRef, useState, useEffect, type TouchEvent as ReactTouchEvent, type MouseEvent as ReactMouseEvent } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import FullscreenImage from './FullscreenImage'
 
@@ -25,14 +25,9 @@ const SWIPE_THRESHOLD = 50
 
 export default function Lightbox({ images, index, onClose, onNext, onPrev }: Props) {
     const img = index !== null ? images[index] || null : null
-    const bottomRef = useRef<HTMLDivElement | null>(null)
     const openedAtRef = useRef(0)
     const touchStartX = useRef<number | null>(null)
     const touchCurrentX = useRef<number | null>(null)
-
-    const [showDescription, setShowDescription] = useState(true)
-    const [showTitle, setShowTitle] = useState(true)
-    const [bottomVisible, setBottomVisible] = useState(false)
     const [fullscreenOpen, setFullscreenOpen] = useState(false)
 
     const openFullscreen = () => {
@@ -41,92 +36,22 @@ export default function Lightbox({ images, index, onClose, onNext, onPrev }: Pro
         }
     }
 
-    // Measure and adjust bottom panel visibility
-    useLayoutEffect(() => {
-        if (!bottomRef.current) return
-        let mounted = true
-
-        const measure = (showDesc: boolean, showTitleLocal: boolean) => {
-            const el = bottomRef.current!
-            const wrapper = document.createElement('div')
-            wrapper.style.cssText = 'position:absolute;left:-9999px;top:0;visibility:hidden;'
-            wrapper.style.width = `${el.clientWidth}px`
-            wrapper.className = el.className
-
-            if (showTitleLocal && img?.title) {
-                const h = document.createElement('h2')
-                h.className = 'text-xl font-semibold m-0'
-                h.textContent = img.title
-                wrapper.appendChild(h)
-            }
-            if (showDesc && img?.description) {
-                const p = document.createElement('p')
-                p.className = 'text-sm m-0'
-                p.textContent = img.description
-                wrapper.appendChild(p)
-            }
-            if (img?.other) {
-                const other = document.createElement('p')
-                other.className = 'text-sm m-0'
-                other.textContent = img.other
-                wrapper.appendChild(other)
-            }
-            if (img?.tags?.length) {
-                const tagWrap = document.createElement('div')
-                tagWrap.className = 'flex flex-wrap gap-2 justify-center'
-                img.tags.forEach((t) => {
-                    const s = document.createElement('span')
-                    s.className = 'text-xs bg-white/10 px-2 py-1 rounded'
-                    s.textContent = t
-                    tagWrap.appendChild(s)
-                })
-                wrapper.appendChild(tagWrap)
-            }
-
-            document.body.appendChild(wrapper)
-            const h = wrapper.scrollHeight
-            document.body.removeChild(wrapper)
-            return h
-        }
-
-        const adjust = () => {
-            if (!mounted || !bottomRef.current) return
-            setBottomVisible(false)
-
-            // On small screens, always show everything
-            if (typeof window !== 'undefined' && window.innerWidth < 1024) {
-                setShowDescription(true)
-                setShowTitle(true)
-                setBottomVisible(true)
-                return
-            }
-
-            const el = bottomRef.current
-            const TOL = 8
-            const clientH = el.clientHeight
-
-            if (measure(true, true) <= clientH + TOL) {
-                setShowDescription(true)
-                setShowTitle(true)
-            } else if (measure(false, true) <= clientH + TOL) {
-                setShowDescription(false)
-                setShowTitle(true)
-            } else {
-                setShowDescription(false)
-                setShowTitle(false)
-            }
-            setBottomVisible(true)
-        }
-
-        adjust()
-        window.addEventListener('resize', adjust)
-        return () => { mounted = false; window.removeEventListener('resize', adjust) }
-    }, [index, img?.title, img?.description, img?.other, img?.tags?.length])
-
-    // Track when lightbox opened
+    // Track when lightbox opened (prevent accidental fullscreen on open)
     useEffect(() => {
         if (index !== null) openedAtRef.current = Date.now()
     }, [index])
+
+    // Keyboard navigation
+    useEffect(() => {
+        if (index === null) return
+        const onKey = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') { if (fullscreenOpen) setFullscreenOpen(false); else onClose() }
+            else if (e.key === 'ArrowRight') onNext()
+            else if (e.key === 'ArrowLeft') onPrev()
+        }
+        window.addEventListener('keydown', onKey)
+        return () => window.removeEventListener('keydown', onKey)
+    }, [index, fullscreenOpen, onClose, onNext, onPrev])
 
     // Handle browser back button
     useEffect(() => {
@@ -177,91 +102,139 @@ export default function Lightbox({ images, index, onClose, onNext, onPrev }: Pro
         if (Date.now() - openedAtRef.current > 200) openFullscreen()
     }
 
-    const btnClass = 'text-white bg-black/40 hover:bg-black/60 rounded-full flex items-center justify-center transition-transform duration-200 ease-out hover:-translate-y-1 hover:scale-105'
+    const btnClass = 'text-white bg-black/40 hover:bg-black/60 rounded-full flex items-center justify-center transition-transform duration-200 ease-out hover:scale-110'
 
     return (
         <AnimatePresence>
             {index !== null && (
                 <MDiv
                     key="lightbox-root"
-                    className="fixed inset-0 z-50 flex items-center justify-center"
+                    className="fixed inset-0 z-50 flex"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    onClick={onClose}
                 >
-                    <MDiv className="absolute inset-0 bg-black/30" onClick={onClose} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} />
+                    {/* Dark backdrop (visual only — click bubbles to MDiv above) */}
+                    <div className="absolute inset-0 bg-black/90 pointer-events-none" />
 
-                    <MDiv
-                        className="relative flex flex-col items-center bg-[#373944] shadow-md rounded-md w-full mx-0 sm:mx-4 sm:max-w-[80vw] sm:max-h-[80vh] max-w-[100vw] max-h-[100vh] overflow-hidden"
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 20 }}
-                        transition={{ duration: 0.25 }}
-                        onClick={(e: ReactMouseEvent) => e.stopPropagation()}
-                    >
-                        {/* Top controls */}
-                        {!fullscreenOpen && (
-                            <div className="absolute top-4 right-4 z-50 flex items-center gap-2">
-                                <button onClick={handleImageClick} className={`hidden lg:flex w-9 h-9 ${btnClass}`} aria-label="Open fullscreen">⛶</button>
-                                <button onClick={onClose} className={`w-9 h-9 ${btnClass}`} aria-label="Close">✕</button>
-                            </div>
-                        )}
+                    {/* Mobile close button — top-left, vertically aligned with ‹ arrow */}
+                    {!fullscreenOpen && (
+                        <button
+                            onClick={(e: ReactMouseEvent) => { e.stopPropagation(); onClose() }}
+                            className={`lg:hidden absolute top-4 left-3 z-20 w-9 h-10 ${btnClass}`}
+                            aria-label="Close"
+                        >✕</button>
+                    )}
 
-                        {/* Image container */}
+                    {/* Main layout: full-screen on mobile, image+panel on desktop */}
+                    <div className="relative flex flex-col lg:flex-row w-full h-full">
+                        {/* ── Image area ── */}
                         <div
-                            className="relative 3xl:w-[1200px] 3xl:h-[800px] 2xl:w-[820px] 2xl:h-[540px] xl:w-[820px] xl:h-[540px] lg:w-[640px] lg:h-[420px] md:w-[640px] md:h-[420px] sm:w-[480px] sm:h-[320px] w-[90vw] max-w-full flex items-center justify-center sm:px-6 sm:py-6 px-2 py-4"
+                            className="relative flex-1 min-h-0"
                             onTouchStart={(e) => handleSwipe('start', e)}
                             onTouchMove={(e) => handleSwipe('move', e)}
                             onTouchEnd={() => handleSwipe('end')}
                         >
-                            {!fullscreenOpen && (
-                                <button onClick={onPrev} aria-label="Previous" className="absolute top-1/2 -translate-y-1/2 z-50 group left-4 md:left-8 lg:-left-4">
-                                    <span className={`w-6 h-10 ${btnClass}`}>‹</span>
-                                </button>
-                            )}
+                            {/* No padding on mobile; padding on desktop */}
+                            <div className="absolute inset-0 flex items-center justify-center lg:p-14">
+                                <AnimatePresence mode="wait">
+                                    {img && (
+                                        <MImg
+                                            key={img.resizedSrc || index}
+                                            src={img.resizedSrc || ''}
+                                            alt={img.title || ''}
+                                            onClick={(e: ReactMouseEvent) => { e.stopPropagation(); handleImageClick() }}
+                                            className="max-w-full max-h-full object-contain rounded-sm lg:cursor-zoom-in select-none"
+                                            initial={{ opacity: 0, scale: 0.99 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            exit={{ opacity: 0, scale: 0.98 }}
+                                            transition={{ duration: 0.05 }}
+                                        />
+                                    )}
+                                </AnimatePresence>
+                            </div>
 
-                            <AnimatePresence mode="wait">
-                                {img && (
-                                    <MImg
-                                        key={img.resizedSrc || index}
-                                        src={img.resizedSrc || ''}
-                                        alt={img.title || ''}
-                                        onClick={handleImageClick}
-                                        className="w-full h-full object-contain rounded-md"
-                                        initial={{ opacity: 0, scale: 0.99 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        exit={{ opacity: 0, scale: 0.98 }}
-                                        transition={{ duration: 0.05 }}
-                                    />
-                                )}
-                            </AnimatePresence>
+                            {/* Mobile info overlay — bottom of image area */}
+                            <div className="lg:hidden absolute bottom-0 inset-x-0 z-10 bg-gradient-to-t from-black/75 to-transparent px-4 pb-5 pt-12 pointer-events-none">
+                                {img?.title && <h2 className="text-base font-semibold text-white leading-snug">{img.title}</h2>}
+                                {img?.description && <p className="text-xs text-white/70 mt-1 leading-relaxed">{img.description}</p>}
+                                {img?.other && <p className="text-xs text-white/60 mt-1">{img.other}</p>}
+                            </div>
 
+                            {/* Prev / Next arrows */}
                             {!fullscreenOpen && (
-                                <button onClick={onNext} aria-label="Next" className="absolute top-1/2 -translate-y-1/2 z-50 group right-4 md:right-8 lg:-right-4">
-                                    <span className={`w-6 h-10 ${btnClass}`}>›</span>
-                                </button>
+                                <>
+                                    <button
+                                        onClick={(e: ReactMouseEvent) => { e.stopPropagation(); onPrev() }}
+                                        aria-label="Previous"
+                                        className={`absolute left-3 top-1/2 -translate-y-1/2 z-10 w-9 h-10 ${btnClass}`}
+                                    >‹</button>
+                                    <button
+                                        onClick={(e: ReactMouseEvent) => { e.stopPropagation(); onNext() }}
+                                        aria-label="Next"
+                                        className={`absolute right-3 top-1/2 -translate-y-1/2 z-10 w-9 h-10 ${btnClass}`}
+                                    >›</button>
+                                </>
                             )}
                         </div>
 
-                        {/* Bottom info panel */}
+                        {/* ── Details panel — desktop only ── */}
                         <div
-                            ref={bottomRef}
-                            className={`w-full mt-2 px-6 py-6 sm:px-8 sm:py-5 bg-[#1E1E25] rounded-b-md text-white text-center overflow-hidden xl:h-[160px] lg:h-[140px] md:h-[140px] sm:h-[140px] h-[160px] flex flex-col items-center justify-center space-y-2 transition-opacity duration-150 ${bottomVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                            className="hidden lg:flex shrink-0 lg:w-72 xl:w-80 bg-[#1E1E25] text-white flex-col border-l border-white/10"
+                            onClick={(e: ReactMouseEvent) => e.stopPropagation()}
                         >
-                            {showTitle && <h2 className="text-xl font-semibold m-0">{img?.title}</h2>}
-                            {showDescription && <p className="text-sm m-0">{img?.description}</p>}
-                            {img?.other && <p className="text-sm m-0">{img.other}</p>}
-                            {img?.tags?.length && (
-                                <div className="flex flex-wrap gap-2 justify-center">
-                                    {img.tags.map((t) => <span key={t} className="text-xs bg-white/10 px-2 py-1 rounded">{t}</span>)}
+                            {/* Panel header: counter + actions */}
+                            <div className="flex items-center justify-between px-5 py-3 border-b border-white/10 shrink-0">
+                                <span className="text-xs text-white/40 select-none tabular-nums">
+                                    {index !== null ? `${index + 1} / ${images.length}` : ''}
+                                </span>
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        onClick={(e: ReactMouseEvent) => { e.stopPropagation(); handleImageClick() }}
+                                        className={`flex w-8 h-8 ${btnClass}`}
+                                        aria-label="Open fullscreen"
+                                    >⛶</button>
+                                    <button
+                                        onClick={(e: ReactMouseEvent) => { e.stopPropagation(); onClose() }}
+                                        className={`w-8 h-8 ${btnClass}`}
+                                        aria-label="Close"
+                                    >✕</button>
                                 </div>
-                            )}
-                        </div>
+                            </div>
 
-                        {fullscreenOpen && img && (
-                            <FullscreenImage src={img.resizedSrc || ''} alt={img.title} onClose={() => setFullscreenOpen(false)} onNext={onNext} onPrev={onPrev} />
-                        )}
-                    </MDiv>
+                            {/* Scrollable content */}
+                            <div className="flex-1 overflow-y-auto px-5 py-4 flex flex-col gap-3">
+                                {img?.title && (
+                                    <h2 className="text-lg font-semibold leading-snug">{img.title}</h2>
+                                )}
+                                {img?.description && (
+                                    <p className="text-sm text-white/70 leading-relaxed">{img.description}</p>
+                                )}
+                                {img?.other && (
+                                    <p className="text-sm text-white/60">{img.other}</p>
+                                )}
+                                {img?.tags?.length ? (
+                                    <div className="flex flex-wrap gap-2 pt-1">
+                                        {img.tags.map((t) => (
+                                            <span key={t} className="text-xs bg-white/10 px-2 py-1 rounded">{t}</span>
+                                        ))}
+                                    </div>
+                                ) : null}
+                            </div>
+                        </div>
+                    </div>
+
+                    {fullscreenOpen && img && (
+                        <FullscreenImage
+                            src={img.resizedSrc || ''}
+                            alt={img.title}
+                            onClose={() => setFullscreenOpen(false)}
+                            onNext={onNext}
+                            onPrev={onPrev}
+                        />
+                    )}
                 </MDiv>
             )}
         </AnimatePresence>

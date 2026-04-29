@@ -25,25 +25,18 @@ export const Divider = ({ className }: { className?: string }) => {
         <div
             ref={ref}
             aria-hidden="true"
-            className={`h-[2px] bg-white mx-auto origin-center transition-all duration-[2000ms] ease-out ${revealed ? 'scale-x-100 opacity-100' : 'scale-x-0 opacity-0'} ${className ?? 'w-full max-w-[900px]'}`}
+            className={`h-[2px] max-w-[90%] bg-white mx-auto origin-center transition-all duration-[2000ms] ease-out ${revealed ? 'scale-x-100 opacity-100' : 'scale-x-0 opacity-0'} ${className ?? 'w-full max-w-[900px]'}`}
         />
     )
 }
 
 // Section title component
-export const SectionTitle = ({ title, dividerClass }: { title: string; dividerClass?: string; titleClass?: string }) => {
-    const { ref, revealed } = useLineReveal()
-    return (
-        <>
-            <h3 className={`text-center text-3xl font-semibold text-white mb-4 `}>{title}</h3>
-            <div
-                ref={ref}
-                aria-hidden="true"
-                className={`h-[2px] bg-white mx-auto mb-8 origin-center transition-all duration-[2000ms] ease-out ${revealed ? 'scale-x-100 opacity-100' : 'scale-x-0 opacity-0'} ${dividerClass ?? 'w-full max-w-[600px]'}`}
-            />
-        </>
-    )
-}
+export const SectionTitle = ({ title, dividerClass }: { title: string; dividerClass?: string; titleClass?: string }) => (
+    <>
+        <h3 className="text-center text-3xl font-semibold text-white mb-4">{title}</h3>
+        <Divider className={dividerClass ?? 'w-full max-w-[600px] mb-5'} />
+    </>
+)
 
 const sizes: Record<string, string> = { xs: '0.75rem', sm: '0.875rem', md: '1rem', lg: '1.125rem', xl: '1.25rem', '2xl': '1.5rem', '3xl': '1.875rem', '4xl': '2.25rem', '5xl': '3rem', '6xl': '3.75rem', '7xl': '4.5rem', '8xl': '6rem', '9xl': '8rem' }
 
