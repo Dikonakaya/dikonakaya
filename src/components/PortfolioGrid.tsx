@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import Lightbox from '../modals/Lightbox'
-import { SectionTitle } from '../Shared'
+import { SectionTitle } from '../functions'
 import type { PhotoSet } from '../types/portfolio'
 
 const MAX_WIDTH = 1920
@@ -29,14 +29,16 @@ type Props = {
   sets: PhotoSet[]
   showBorder?: boolean
   targetRowHeight?: number
+  initialOpenSrc?: string
 }
 
-export default function PortfolioGrid({ title, sets, showBorder = true, targetRowHeight = 300 }: Props) {
+export default function PortfolioGrid({ title, sets, showBorder = true, targetRowHeight = 300, initialOpenSrc }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [imageData, setImageData] = useState<(ImageMeta | null)[]>([])
   const [rows, setRows] = useState<RowData[]>([])
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null)
   const [isPreloading, setIsPreloading] = useState(false)
+  const openedInitialRef = useRef(false)
 
   const flatImages = sets.flatMap((set) =>
     set.images.map((img) => {
@@ -52,15 +54,7 @@ export default function PortfolioGrid({ title, sets, showBorder = true, targetRo
     })
   )
 
-  const resizeImage = (imgEl: HTMLImageElement): string => {
-    if (!imgEl.width || imgEl.width <= MAX_WIDTH) return imgEl.src
-    const scale = MAX_WIDTH / imgEl.width
-    const canvas = document.createElement('canvas')
-    canvas.width = MAX_WIDTH
-    canvas.height = Math.round(imgEl.height * scale)
-    canvas.getContext('2d')?.drawImage(imgEl, 0, 0, canvas.width, canvas.height)
-    return canvas.toDataURL('image/jpeg', 0.85)
-  }
+  const resizeImage = (_imgEl: HTMLImageElement): string => _imgEl.src
 
   useEffect(() => {
     if (!flatImages.length) {
@@ -93,6 +87,11 @@ export default function PortfolioGrid({ title, sets, showBorder = true, targetRo
         const resizedSrc = resizeImage(img)
         const w = Math.min(img.width, MAX_WIDTH)
         done(w, Math.round((img.height * w) / img.width), resizedSrc)
+        // Open lightbox for the clicked image once it loads
+        if (initialOpenSrc && !openedInitialRef.current && it.src === initialOpenSrc) {
+          openedInitialRef.current = true
+          setLightboxIndex(idx)
+        }
       }
       img.onerror = () => done(1200, 792, it.src)
     })

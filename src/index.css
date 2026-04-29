@@ -51,3 +51,32 @@ body {
     transform: translateY(0)
   }
 }
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee var(--marquee-dur, 120s) linear infinite;
+}
+
+@media (max-width: 1023px) {
+  .animate-marquee {
+    animation-duration: var(--marquee-dur-mobile, 240s);
+  }
+}
+
+.scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}

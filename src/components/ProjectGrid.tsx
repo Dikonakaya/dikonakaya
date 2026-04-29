@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { scrollToId, SectionTitle, useProjects } from '../Shared'
+import { scrollToId, SectionTitle } from '../functions'
+import { useProjects } from '../hooks'
 
 const MAX_WIDTH = 1920
 const GAP = 8

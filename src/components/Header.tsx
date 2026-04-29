@@ -1,23 +1,18 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import logoUrl from '../assets/logo_head.png'
-import { scrollToTop, scrollToId } from '../Shared'
+import { scrollToTop, scrollToId } from '../functions'
 
 export default function Navbar() {
-  // State
-  const [openMenu, setOpenMenu] = useState<'portfolio' | 'about' | null>(null)
+  const [openMenu, setOpenMenu] = useState<'portfolio' | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
-  // Refs
   const containerRef = useRef<HTMLDivElement>(null)
   const closeTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // Router hooks
   const location = useLocation()
   const navigate = useNavigate()
-  const isAboutActive = location.pathname === '/about'
 
-  // Handle hash-based navigation (smooth scroll to section)
   useEffect(() => {
     if (!location.hash) return
     const id = location.hash.replace('#', '')
@@ -25,29 +20,21 @@ export default function Navbar() {
     return () => clearTimeout(t)
   }, [location.hash])
 
-  // Dropdown menu hover handlers with delay for better UX
-  const handleMenuEnter = (menu: 'portfolio' | 'about') => {
-    if (closeTimeout.current) {
-      clearTimeout(closeTimeout.current)
-      closeTimeout.current = null
-    }
-    setOpenMenu(menu)
+  const handleMenuEnter = () => {
+    if (closeTimeout.current) { clearTimeout(closeTimeout.current); closeTimeout.current = null }
+    setOpenMenu('portfolio')
   }
 
   const handleMenuLeave = () => {
     closeTimeout.current = setTimeout(() => setOpenMenu(null), 150)
   }
 
-  // Close menus on outside click or Escape key
   useEffect(() => {
     const onDocClick = (e: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) setOpenMenu(null)
     }
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setOpenMenu(null)
-        setSidebarOpen(false)
-      }
+      if (e.key === 'Escape') { setOpenMenu(null); setSidebarOpen(false) }
     }
     document.addEventListener('click', onDocClick)
     document.addEventListener('keydown', onKey)
@@ -67,22 +54,13 @@ export default function Navbar() {
   }
 
   const handleHashLink = (hash: string, e: React.MouseEvent) => {
-    if (location.pathname === '/' && location.hash === `#${hash}`) {
+    if (location.pathname === '/') {
       e.preventDefault()
       scrollToId(hash)
     }
     setOpenMenu(null)
+    setSidebarOpen(false)
   }
-
-  const NavLink = ({ to, children, isActive }: { to: string; children: React.ReactNode; isActive?: boolean }) => (
-    <Link
-      to={to}
-      className={`flex items-center px-3 py-2.5 transition-colors relative z-10 hover:bg-[#1E1E25] ${isActive ? 'text-slate-400' : 'text-white'}`}
-      onClick={scrollToTop}
-    >
-      {children}
-    </Link>
-  )
 
   return (
     <header className="w-full sticky top-0 z-50 shadow-md" ref={containerRef}>
@@ -111,7 +89,12 @@ export default function Navbar() {
           </div>
           <nav className="flex justify-center px-24" />
           <div className="mt-1.5 flex items-center justify-end px-4">
-            <Link to="/contact" aria-label="Commissions - Contact" className="inline-flex items-center px-3 py-1 rounded-md bg-green-600 text-white text-sm font-medium hover:bg-white hover:text-[#373944]" onClick={scrollToTop}>
+            <Link
+              to="/#contact"
+              aria-label="Commissions - Contact"
+              className="inline-flex items-center px-3 py-1 rounded-md bg-green-600 text-white text-sm font-medium hover:bg-white hover:text-[#373944]"
+              onClick={(e) => handleHashLink('contact', e)}
+            >
               Commissions Open
             </Link>
           </div>
@@ -127,72 +110,57 @@ export default function Navbar() {
 
           <nav className="-mt-10 flex lg:justify-center px-24">
             <ul className="flex items-center text-sm">
-              {/* Portfolio dropdown */}
-              <li className="relative" onMouseEnter={() => handleMenuEnter('portfolio')} onMouseLeave={handleMenuLeave}>
+              {/* Home dropdown */}
+              <li className="relative" onMouseEnter={handleMenuEnter} onMouseLeave={handleMenuLeave}>
                 <Link
                   to="/"
                   aria-expanded={openMenu === 'portfolio'}
                   className="flex items-center gap-2 px-3 py-2.5 transition-colors hover:bg-[#1E1E25]"
                   onClick={(e) => { handleHomeClick(e); setOpenMenu(null) }}
                 >
-                  <span className={location.pathname === '/' ? 'text-slate-400' : 'text-white'}>Art Portfolio</span>
+                  <span className={location.pathname === '/' ? 'text-slate-400' : 'text-white'}>Home</span>
                 </Link>
                 <ul
                   aria-hidden={openMenu !== 'portfolio'}
                   className={`absolute left-0 mt-2 w-40 bg-black/50 border border-black/20 rounded-md shadow-md text-white py-1 z-50 transition-opacity duration-200 ${openMenu === 'portfolio' ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
                 >
                   <li>
-                    <Link to="/#pixelart" onClick={(e) => handleHashLink('pixelart', e)} className="block px-4 py-2 transition-colors hover:bg-black">Pixel Art</Link>
+                    <Link to="/#contact" onClick={(e) => { handleHashLink('contact', e); setOpenMenu(null) }} className="block px-4 py-2 transition-colors hover:bg-black">Contact</Link>
                   </li>
                   <li>
-                    <Link to="/#photography" onClick={(e) => handleHashLink('photography', e)} className="block px-4 py-2 transition-colors hover:bg-black">Photography</Link>
+                    <Link to="/#about" onClick={(e) => { handleHashLink('about', e); setOpenMenu(null) }} className="block px-4 py-2 transition-colors hover:bg-black">About Me</Link>
                   </li>
                 </ul>
               </li>
 
-              <li><NavLink to="/projects" isActive={location.pathname === '/projects'}>Projects</NavLink></li>
-              <li><a href="https://ko-fi.com/dikonakaya" target="_blank" className="flex items-center px-3 py-2.5 transition-colors relative z-10 hover:bg-[#1E1E25]">Store</a></li>
-              <li><NavLink to="/contact" isActive={location.pathname === '/contact'}>Contact</NavLink></li>
-
-              {/* About dropdown */}
-              <li className="relative" onMouseEnter={() => handleMenuEnter('about')} onMouseLeave={handleMenuLeave}>
+              <li>
                 <Link
-                  to="/about"
-                  aria-expanded={openMenu === 'about'}
-                  className="flex items-center gap-2 px-3 py-2.5 transition-colors hover:bg-[#1E1E25]"
-                  onClick={(e) => {
-                    if (location.pathname === '/about') {
-                      e.preventDefault()
-                      navigate('/about', { replace: true })
-                    }
-                    scrollToTop()
-                    setOpenMenu(null)
-                  }}
+                  to="/pixelart"
+                  className={`flex items-center px-3 py-2.5 transition-colors relative z-10 hover:bg-[#1E1E25] ${location.pathname === '/pixelart' ? 'text-slate-400' : 'text-white'}`}
+                  onClick={scrollToTop}
                 >
-                  <span className={isAboutActive ? 'text-slate-400' : 'text-white'}>About Me</span>
+                  Pixel Art
                 </Link>
-                <ul
-                  aria-hidden={openMenu !== 'about'}
-                  className={`absolute left-0 mt-2 w-40 bg-black/50 border border-black/20 rounded-md shadow-md text-white py-1 z-50 transition-opacity duration-200 ${openMenu === 'about' ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
-                >
-                  <li>
-                    <Link
-                      to="/about#socials"
-                      onClick={(e) => {
-                        if (location.pathname === '/about') {
-                          e.preventDefault()
-                          navigate('/about#socials', { replace: true })
-                          scrollToId('socials')
-                        }
-                        setOpenMenu(null)
-                      }}
-                      className={`block px-4 py-2 transition-colors hover:bg-black ${location.pathname === '/about' && location.hash === '#socials' ? 'bg-[#1E1E25]' : ''}`}
-                    >
-                      Socials
-                    </Link>
-                  </li>
-                </ul>
               </li>
+              <li>
+                <Link
+                  to="/photography"
+                  className={`flex items-center px-3 py-2.5 transition-colors relative z-10 hover:bg-[#1E1E25] ${location.pathname === '/photography' ? 'text-slate-400' : 'text-white'}`}
+                  onClick={scrollToTop}
+                >
+                  Photography
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/projects"
+                  className={`flex items-center px-3 py-2.5 transition-colors relative z-10 hover:bg-[#1E1E25] ${location.pathname === '/projects' ? 'text-slate-400' : 'text-white'}`}
+                  onClick={scrollToTop}
+                >
+                  Projects
+                </Link>
+              </li>
+              <li><a href="https://ko-fi.com/dikonakaya" target="_blank" rel="noopener noreferrer" className="flex items-center px-3 py-2.5 transition-colors relative z-10 hover:bg-[#1E1E25]">Store</a></li>
             </ul>
           </nav>
           <div className="col-span-3 flex items-center justify-end" />
@@ -207,16 +175,14 @@ export default function Navbar() {
             <div className="text-lg font-bold text-white">Menu</div>
             <button onClick={() => setSidebarOpen(false)} aria-label="Close menu" className="text-white p-1">✕</button>
           </div>
-
           <nav className="flex flex-col gap-2">
-            <Link to="/" className={`px-3 py-2 rounded text-white ${location.pathname === '/' && !location.hash ? 'bg-[#1E1E25]' : ''}`} onClick={(e) => { handleHomeClick(e); setSidebarOpen(false) }}>Portfolio</Link>
-            <Link to="/#pixelart" className={`px-3 py-2 rounded text-white ${location.hash === '#pixelart' ? 'bg-[#1E1E25]' : ''}`} onClick={(e) => { handleHashLink('pixelart', e); setSidebarOpen(false) }}>Pixel Art</Link>
-            <Link to="/#photography" className={`px-3 py-2 rounded text-white ${location.hash === '#photography' ? 'bg-[#1E1E25]' : ''}`} onClick={(e) => { handleHashLink('photography', e); setSidebarOpen(false) }}>Photography</Link>
+            <Link to="/" className={`px-3 py-2 rounded text-white ${location.pathname === '/' && !location.hash ? 'bg-[#1E1E25]' : ''}`} onClick={(e) => { handleHomeClick(e); setSidebarOpen(false) }}>Home</Link>
+            <Link to="/pixelart" className={`px-3 py-2 rounded text-white ${location.pathname === '/pixelart' ? 'bg-[#1E1E25]' : ''}`} onClick={() => { scrollToTop(); setSidebarOpen(false) }}>Pixel Art</Link>
+            <Link to="/photography" className={`px-3 py-2 rounded text-white ${location.pathname === '/photography' ? 'bg-[#1E1E25]' : ''}`} onClick={() => { scrollToTop(); setSidebarOpen(false) }}>Photography</Link>
             <Link to="/projects" className={`px-3 py-2 rounded text-white ${location.pathname === '/projects' ? 'bg-[#1E1E25]' : ''}`} onClick={() => { scrollToTop(); setSidebarOpen(false) }}>Projects</Link>
             <a href="https://ko-fi.com/dikonakaya" target="_blank" rel="noopener noreferrer" className="px-3 py-2 rounded text-white" onClick={() => setSidebarOpen(false)}>Store</a>
-            <Link to="/about" className={`px-3 py-2 rounded text-white ${location.pathname === '/about' && location.hash !== '#socials' ? 'bg-[#1E1E25]' : ''}`} onClick={(e) => { if (location.pathname === '/about') { e.preventDefault(); navigate('/about', { replace: true }) }; scrollToTop(); setSidebarOpen(false) }}>About Me</Link>
-            <Link to="/about#socials" className={`px-3 py-2 rounded text-white ${location.pathname === '/about' && location.hash === '#socials' ? 'bg-[#1E1E25]' : ''}`} onClick={(e) => { if (location.pathname === '/about') { e.preventDefault(); navigate('/about#socials', { replace: true }); scrollToId('socials') }; setSidebarOpen(false) }}>Socials</Link>
-            <Link to="/contact" className={`px-3 py-2 rounded text-white ${location.pathname === '/contact' ? 'bg-[#1E1E25]' : ''}`} onClick={() => { scrollToTop(); setSidebarOpen(false) }}>Contact</Link>
+            <Link to="/#about" className="px-3 py-2 rounded text-white" onClick={(e) => { handleHashLink('about', e); setSidebarOpen(false) }}>About Me</Link>
+            <Link to="/#contact" className="px-3 py-2 rounded text-white" onClick={(e) => { handleHashLink('contact', e); setSidebarOpen(false) }}>Contact</Link>
           </nav>
         </aside>
       </div>

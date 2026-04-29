@@ -3,18 +3,23 @@ import { collection, doc, getDocs, orderBy, query, writeBatch } from 'firebase/f
 import { onAuthStateChanged, signOut } from 'firebase/auth'
 import { db, auth } from '../firebase'
 import { useNavigate } from 'react-router-dom'
-import { SectionTitle } from '../Shared'
+import { SectionTitle } from '../functions'
+import { DiscordFormatTextField } from '../functions'
 
 type EditImage = { url: string; title: string; description: string; details: string; year?: number; tags: string[]; tagsStr: string; display: boolean }
 type EditSet = { id: string; docName: string; title: string; description: string; details: string; images: EditImage[]; order: number; tags: string[]; tagsStr: string; year?: number }
 type EditCarousel = { id: string; docName: string; title: string; description: string; thumbnail: string; url: string; order: number }
 type EditProject = { id: string; docName: string; title: string; description: string; details: string; download: string; tags: string; thumbnail: string; view: string; order: number; year: number }
-type CollectionKey = 'photography' | 'pixelart' | 'carousel' | 'projects'
+type EditSkill = { id: string; docName: string; title: string; description: string; status: string; year: number; order: number }
+type EditExperience = { id: string; docName: string; role: string; company: string; period: string; details: string; order: number }
+type CollectionKey = 'photography' | 'pixelart' | 'carousel' | 'projects' | 'skills' | 'experience'
 
 const emptyImg: EditImage = { url: '', title: '', description: '', details: '', tags: [], tagsStr: '', display: true }
 const emptySet: EditSet = { id: '', docName: '', title: '', description: '', details: '', images: [], order: 0, tags: [], tagsStr: '' }
 const emptyCarousel: EditCarousel = { id: '', docName: '', title: '', description: '', thumbnail: '', url: '', order: 0 }
 const emptyProject: EditProject = { id: '', docName: '', title: '', description: '', details: '', download: '', tags: '', thumbnail: '', view: '', order: 0, year: 0 }
+const emptySkill: EditSkill = { id: '', docName: '', title: '', description: '', status: '', year: 0, order: 0 }
+const emptyExperience: EditExperience = { id: '', docName: '', role: '', company: '', period: '', details: '', order: 0 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const parseImg = (img: any): EditImage => typeof img === 'string'
@@ -67,6 +72,10 @@ export default function Admin() {
     const [edit, setEdit] = useState<EditSet | null>(null)
     const [editCarousel, setEditCarousel] = useState<EditCarousel | null>(null)
     const [editProject, setEditProject] = useState<EditProject | null>(null)
+    const [editSkill, setEditSkill] = useState<EditSkill | null>(null)
+    const [editExperience, setEditExperience] = useState<EditExperience | null>(null)
+    const [skillItems, setSkillItems] = useState<EditSkill[]>([])
+    const [experienceItems, setExperienceItems] = useState<EditExperience[]>([])
     const [expandedImg, setExpandedImg] = useState<number | null>(null)
     const [toast, setToast] = useState('')
     const [mouseDownInside, setMouseDownInside] = useState(false)
@@ -84,13 +93,13 @@ export default function Admin() {
     }, [nav, activeCollection])
 
     useEffect(() => {
-        const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') { setEdit(null); setEditCarousel(null); setEditProject(null); setExpandedImg(null) } }
-        if (edit || editCarousel || editProject) window.addEventListener('keydown', onKey)
+        const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') { setEdit(null); setEditCarousel(null); setEditProject(null); setEditSkill(null); setEditExperience(null); setExpandedImg(null) } }
+        if (edit || editCarousel || editProject || editSkill || editExperience) window.addEventListener('keydown', onKey)
         return () => window.removeEventListener('keydown', onKey)
-    }, [edit, editCarousel, editProject])
+    }, [edit, editCarousel, editProject, editSkill, editExperience])
 
     useEffect(() => {
-        if (edit || editCarousel || editProject || confirm) {
+        if (edit || editCarousel || editProject || editSkill || editExperience || confirm) {
             const scrollY = window.scrollY
             document.body.style.overflowY = 'scroll'; document.body.style.position = 'fixed'; document.body.style.width = '100%'; document.body.style.top = `-${scrollY}px`
         }
@@ -113,6 +122,16 @@ export default function Admin() {
             setProjectItems(snap.docs.map(d => {
                 const data = d.data()
                 return { id: d.id, docName: d.id, title: data.title || '', description: data.description || '', details: data.details || '', download: data.download || '', tags: data.tags || '', thumbnail: data.thumbnail || '', view: data.view || '', order: data.order ?? 0, year: data.year || 0 }
+            }))
+        } else if (col === 'skills') {
+            setSkillItems(snap.docs.map(d => {
+                const data = d.data()
+                return { id: d.id, docName: d.id, title: data.title || '', description: data.description || '', status: data.status || '', year: data.year || 0, order: data.order ?? 0 }
+            }))
+        } else if (col === 'experience') {
+            setExperienceItems(snap.docs.map(d => {
+                const data = d.data()
+                return { id: d.id, docName: d.id, role: data.role || '', company: data.company || '', period: data.period || '', details: data.details || '', order: data.order ?? 0 }
             }))
         }
     }
@@ -154,6 +173,30 @@ export default function Admin() {
         } catch { notify('Error saving') }
     }
 
+    const saveSkill = async () => {
+        if (!editSkill) return
+        try {
+            const batch = writeBatch(db)
+            const newId = editSkill.docName.trim() || `skill_${Date.now()}`
+            if (editSkill.id && editSkill.id !== newId) batch.delete(doc(db, 'skills', editSkill.id))
+            batch.set(doc(db, 'skills', newId), { title: editSkill.title, description: editSkill.description, status: editSkill.status, year: editSkill.year || null, order: editSkill.order })
+            await batch.commit()
+            setEditSkill(null); load('skills'); notify('Skill saved!')
+        } catch { notify('Error saving') }
+    }
+
+    const saveExperience = async () => {
+        if (!editExperience) return
+        try {
+            const batch = writeBatch(db)
+            const newId = editExperience.docName.trim() || `exp_${Date.now()}`
+            if (editExperience.id && editExperience.id !== newId) batch.delete(doc(db, 'experience', editExperience.id))
+            batch.set(doc(db, 'experience', newId), { role: editExperience.role, company: editExperience.company, period: editExperience.period, details: editExperience.details, order: editExperience.order })
+            await batch.commit()
+            setEditExperience(null); load('experience'); notify('Experience saved!')
+        } catch { notify('Error saving') }
+    }
+
     const delItem = async (col: CollectionKey, id: string) => {
         try {
             const batch = writeBatch(db)
@@ -170,6 +213,10 @@ export default function Admin() {
                 carouselItems.forEach((s, i) => batch.update(doc(db, 'carousel', s.id), { order: i }))
             } else if (activeCollection === 'projects') {
                 projectItems.forEach((s, i) => batch.update(doc(db, 'projects', s.id), { order: i }))
+            } else if (activeCollection === 'skills') {
+                skillItems.forEach((s, i) => batch.update(doc(db, 'skills', s.id), { order: i }))
+            } else if (activeCollection === 'experience') {
+                experienceItems.forEach((s, i) => batch.update(doc(db, 'experience', s.id), { order: i }))
             } else {
                 sets.forEach((s, i) => batch.update(doc(db, activeCollection, s.id), { order: i }))
             }
@@ -179,7 +226,7 @@ export default function Admin() {
     }
 
     const switchCollection = (col: CollectionKey) => {
-        setEdit(null); setEditCarousel(null); setEditProject(null); setExpandedImg(null); setActiveCollection(col)
+        setEdit(null); setEditCarousel(null); setEditProject(null); setEditSkill(null); setEditExperience(null); setExpandedImg(null); setActiveCollection(col)
     }
 
     const reorder = <T,>(arr: T[], from: number, to: number) => { const a = [...arr]; const [item] = a.splice(from, 1); a.splice(to, 0, item); return a }
@@ -189,6 +236,8 @@ export default function Admin() {
         if (dragIdx?.type === 'set' && dragIdx.idx !== i) {
             if (activeCollection === 'carousel') setCarouselItems(reorder(carouselItems, dragIdx.idx, i).map((s, j) => ({ ...s, order: j })))
             else if (activeCollection === 'projects') setProjectItems(reorder(projectItems, dragIdx.idx, i).map((s, j) => ({ ...s, order: j })))
+            else if (activeCollection === 'skills') setSkillItems(reorder(skillItems, dragIdx.idx, i).map((s, j) => ({ ...s, order: j })))
+            else if (activeCollection === 'experience') setExperienceItems(reorder(experienceItems, dragIdx.idx, i).map((s, j) => ({ ...s, order: j })))
             else setSets(reorder(sets, dragIdx.idx, i).map((s, j) => ({ ...s, order: j })))
         }
         setDragIdx({ type: 'set', idx: i })
@@ -202,17 +251,19 @@ export default function Admin() {
 
     const sectionLabel = activeCollection === 'photography' ? 'PHOTO SETS'
         : activeCollection === 'pixelart' ? 'PIXEL ART SETS'
-        : activeCollection === 'carousel' ? 'CAROUSEL SLIDES'
-        : 'PROJECTS'
+            : activeCollection === 'carousel' ? 'CAROUSEL SLIDES'
+                : activeCollection === 'skills' ? 'SKILLS'
+                    : activeCollection === 'experience' ? 'EXPERIENCE'
+                        : 'PROJECTS'
 
     return (
         <section className="p-4 mt-4 min-h-screen">
             <SectionTitle title="ADMIN" />
             <div className="max-w-4xl mx-auto">
                 <div className="flex gap-2 mb-4 flex-wrap">
-                    {(['photography', 'pixelart', 'carousel', 'projects'] as CollectionKey[]).map(col => (
+                    {(['photography', 'pixelart', 'carousel', 'projects', 'skills', 'experience'] as CollectionKey[]).map(col => (
                         <button key={col} onClick={() => switchCollection(col)} className={`px-4 py-2 rounded-md font-bold text-sm transition-colors ${activeCollection === col ? 'bg-white text-[#1E1E25]' : 'bg-black/30 text-white hover:bg-black/50'}`}>
-                            {col === 'photography' ? 'PHOTOGRAPHY' : col === 'pixelart' ? 'PIXEL ART' : col === 'carousel' ? 'CAROUSEL' : 'PROJECTS'}
+                            {col === 'photography' ? 'PHOTOGRAPHY' : col === 'pixelart' ? 'PIXEL ART' : col === 'carousel' ? 'CAROUSEL' : col === 'skills' ? 'SKILLS' : col === 'experience' ? 'EXPERIENCE' : 'PROJECTS'}
                         </button>
                     ))}
                     <button onClick={logout} className="ml-auto px-5 py-2 rounded-md font-bold text-sm bg-red-500 text-white hover:bg-white hover:text-[#373944] transition-colors">LOGOUT</button>
@@ -261,11 +312,39 @@ export default function Admin() {
                     </div>
                 ))}
 
+                {activeCollection === 'skills' && skillItems.map((item, i) => (
+                    <div key={item.id} onDragOver={e => dragSet(e, i)} className={`flex items-center gap-2 my-1 ${dragIdx?.type === 'set' && dragIdx.idx === i ? 'opacity-50' : ''}`}>
+                        <div draggable onDragStart={() => setDragIdx({ type: 'set', idx: i })} onDragEnd={() => setDragIdx(null)} className="hidden md:block"><DragHandle /></div>
+                        <button onClick={() => setEditSkill({ ...item })} className="flex-1 flex items-center gap-3 bg-black/30 hover:bg-black/50 rounded-md px-4 py-3 text-left transition-colors">
+                            <div className="min-w-0">
+                                <span className="font-bold block">{item.title}</span>
+                                <span className="text-sm text-slate-400 truncate block">{item.description}</span>
+                            </div>
+                            {item.status && <span className="ml-auto text-xs text-slate-500 flex-shrink-0">{item.status}</span>}
+                        </button>
+                    </div>
+                ))}
+
+                {activeCollection === 'experience' && experienceItems.map((item, i) => (
+                    <div key={item.id} onDragOver={e => dragSet(e, i)} className={`flex items-center gap-2 my-1 ${dragIdx?.type === 'set' && dragIdx.idx === i ? 'opacity-50' : ''}`}>
+                        <div draggable onDragStart={() => setDragIdx({ type: 'set', idx: i })} onDragEnd={() => setDragIdx(null)} className="hidden md:block"><DragHandle /></div>
+                        <button onClick={() => setEditExperience({ ...item })} className="flex-1 flex items-center gap-3 bg-black/30 hover:bg-black/50 rounded-md px-4 py-3 text-left transition-colors">
+                            <div className="min-w-0">
+                                <span className="font-bold block">{item.role}</span>
+                                <span className="text-sm text-slate-400 truncate block">{item.company}</span>
+                            </div>
+                            {item.period && <span className="ml-auto text-xs text-slate-500 flex-shrink-0">{item.period}</span>}
+                        </button>
+                    </div>
+                ))}
+
                 <div className="my-4 flex justify-end gap-2 flex-wrap">
                     <button onClick={saveOrder} className="px-5 py-1 rounded-md font-bold bg-green-600 text-white hover:bg-white hover:text-[#373944] transition-colors">SAVE ORDER</button>
                     <button onClick={() => {
                         if (activeCollection === 'carousel') setEditCarousel({ ...emptyCarousel, order: carouselItems.length })
                         else if (activeCollection === 'projects') setEditProject({ ...emptyProject, order: projectItems.length })
+                        else if (activeCollection === 'skills') setEditSkill({ ...emptySkill, order: skillItems.length })
+                        else if (activeCollection === 'experience') setEditExperience({ ...emptyExperience, order: experienceItems.length })
                         else { setEdit({ ...emptySet, order: sets.length }); setExpandedImg(null) }
                     }} className="px-5 py-1 rounded-md font-bold bg-blue-600 text-white hover:bg-white hover:text-[#373944] transition-colors">NEW</button>
                 </div>
@@ -369,6 +448,50 @@ export default function Admin() {
                                 <button onClick={saveProject} className="px-5 py-1 rounded-md font-bold bg-green-600 text-white hover:bg-white hover:text-[#373944] transition-colors">SAVE</button>
                                 <button onClick={() => { setEditProject(null); notify('Changes discarded!') }} className="px-5 py-1 rounded-md font-bold bg-slate-600 text-white hover:bg-white hover:text-[#373944] transition-colors">CANCEL</button>
                                 {editProject.id && <button onClick={() => setConfirm({ msg: 'Delete this project?', action: () => { delItem('projects', editProject.id); setEditProject(null) } })} className="px-5 py-1 rounded-md font-bold bg-red-500 text-white hover:bg-white hover:text-[#373944] transition-colors">DELETE</button>}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {editSkill && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center overflow-auto z-50" onMouseDown={() => setMouseDownInside(false)} onMouseUp={() => !mouseDownInside && setEditSkill(null)}>
+                    <div className="bg-[#373944] rounded-md max-w-[90vw] max-h-[90vh] overflow-auto" onMouseDown={e => { e.stopPropagation(); setMouseDownInside(true) }} onMouseUp={e => e.stopPropagation()}>
+                        <div className="px-4 pt-1 w-full bg-[#1E1E25] text-white font-bold rounded-t-md">{editSkill.id ? 'EDIT' : 'NEW'} SKILL</div>
+                        <div className="px-6 pt-4 pb-6 min-w-[340px]">
+                            <h3 className="font-bold text-sm">DOCUMENT NAME</h3><input value={editSkill.docName} onChange={e => setEditSkill({ ...editSkill, docName: e.target.value })} className={inp} placeholder="firestore-document-id" />
+                            <h3 className="font-bold text-sm">TITLE</h3><input value={editSkill.title} onChange={e => setEditSkill({ ...editSkill, title: e.target.value })} className={inp} />
+                            <h3 className="font-bold text-sm">DESCRIPTION</h3><DiscordFormatTextField value={editSkill.description} onChange={v => setEditSkill({ ...editSkill, description: v })} placeholder="Skill description..." />
+                            <h3 className="font-bold text-sm">STATUS</h3><input value={editSkill.status} onChange={e => setEditSkill({ ...editSkill, status: e.target.value })} className={inp} placeholder="e.g. Active, Hobby Only" />
+                            <div className="flex gap-2">
+                                <div className="flex-1"><h3 className="font-bold text-sm">YEAR</h3><input type="number" value={editSkill.year || ''} onChange={e => setEditSkill({ ...editSkill, year: +e.target.value || 0 })} className={inp} /></div>
+                                <div className="flex-1"><h3 className="font-bold text-sm">ORDER</h3><input type="number" value={editSkill.order} onChange={e => setEditSkill({ ...editSkill, order: +e.target.value })} className={inp} /></div>
+                            </div>
+                            <div className="flex justify-end gap-2 mt-4">
+                                <button onClick={saveSkill} className="px-5 py-1 rounded-md font-bold bg-green-600 text-white hover:bg-white hover:text-[#373944] transition-colors">SAVE</button>
+                                <button onClick={() => { setEditSkill(null); notify('Changes discarded!') }} className="px-5 py-1 rounded-md font-bold bg-slate-600 text-white hover:bg-white hover:text-[#373944] transition-colors">CANCEL</button>
+                                {editSkill.id && <button onClick={() => setConfirm({ msg: 'Delete this skill?', action: () => { delItem('skills', editSkill.id); setEditSkill(null) } })} className="px-5 py-1 rounded-md font-bold bg-red-500 text-white hover:bg-white hover:text-[#373944] transition-colors">DELETE</button>}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {editExperience && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center overflow-auto z-50" onMouseDown={() => setMouseDownInside(false)} onMouseUp={() => !mouseDownInside && setEditExperience(null)}>
+                    <div className="bg-[#373944] rounded-md max-w-[90vw] max-h-[90vh] overflow-auto" onMouseDown={e => { e.stopPropagation(); setMouseDownInside(true) }} onMouseUp={e => e.stopPropagation()}>
+                        <div className="px-4 pt-1 w-full bg-[#1E1E25] text-white font-bold rounded-t-md">{editExperience.id ? 'EDIT' : 'NEW'} EXPERIENCE</div>
+                        <div className="px-6 pt-4 pb-6 min-w-[340px]">
+                            <h3 className="font-bold text-sm">DOCUMENT NAME</h3><input value={editExperience.docName} onChange={e => setEditExperience({ ...editExperience, docName: e.target.value })} className={inp} placeholder="firestore-document-id" />
+                            <h3 className="font-bold text-sm">ROLE</h3><input value={editExperience.role} onChange={e => setEditExperience({ ...editExperience, role: e.target.value })} className={inp} />
+                            <h3 className="font-bold text-sm">COMPANY</h3><input value={editExperience.company} onChange={e => setEditExperience({ ...editExperience, company: e.target.value })} className={inp} />
+                            <h3 className="font-bold text-sm">PERIOD</h3><input value={editExperience.period} onChange={e => setEditExperience({ ...editExperience, period: e.target.value })} className={inp} placeholder="e.g. 2023 - Present" />
+                            <h3 className="font-bold text-sm">DETAILS</h3><DiscordFormatTextField value={editExperience.details} onChange={v => setEditExperience({ ...editExperience, details: v })} placeholder="Experience details..." />
+                            <h3 className="font-bold text-sm">ORDER</h3><input type="number" value={editExperience.order} onChange={e => setEditExperience({ ...editExperience, order: +e.target.value })} className={inp} />
+                            <div className="flex justify-end gap-2 mt-4">
+                                <button onClick={saveExperience} className="px-5 py-1 rounded-md font-bold bg-green-600 text-white hover:bg-white hover:text-[#373944] transition-colors">SAVE</button>
+                                <button onClick={() => { setEditExperience(null); notify('Changes discarded!') }} className="px-5 py-1 rounded-md font-bold bg-slate-600 text-white hover:bg-white hover:text-[#373944] transition-colors">CANCEL</button>
+                                {editExperience.id && <button onClick={() => setConfirm({ msg: 'Delete this experience?', action: () => { delItem('experience', editExperience.id); setEditExperience(null) } })} className="px-5 py-1 rounded-md font-bold bg-red-500 text-white hover:bg-white hover:text-[#373944] transition-colors">DELETE</button>}
                             </div>
                         </div>
                     </div>

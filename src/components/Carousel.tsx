@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { useCarousel } from '../Shared'
+import { useCarousel } from '../hooks'
 
 type Props = { interval?: number }
 
