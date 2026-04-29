@@ -229,7 +229,7 @@ export default function PortfolioGrid({ title, sets, showBorder = true, targetRo
                   <button
                     key={idx}
                     onClick={() => setLightboxIndex(flatIndex)}
-                    className="relative overflow-visible p-0 border-0 focus:outline-none rounded-md transition-transform duration-300 hover:scale-[1.02]"
+                    className="hover-elevate overflow-visible p-0 border-0 focus:outline-none rounded-md hover:scale-[1.02]"
                     style={{ flex: row.capped ? 'none' : `0 0 ${width}px` }}
                   >
                     <div className="relative group">

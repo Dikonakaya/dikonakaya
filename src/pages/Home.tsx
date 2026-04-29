@@ -57,36 +57,36 @@ export default function Home() {
   return (
     <section className="bg-[#1E1E25]">
       {/* Hero */}
-      <div className="sticky top-10 lg:top-20 z-0 grid w-full grid-cols-1 lg:grid-cols-[33%_67%] items-stretch">
-        <div className="h-[400px] xl:h-[600px] p-4 md:p-6 lg:p-8 flex items-center justify-center bg-gradient-to-b from-[#373944] to-[#1E1E25] shadow-md">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1.0 }}>
-            <img src={logo} alt="Dikonakaya" className="h-[120px] md:h-[160px] lg:h-[180px] xl:h-[300px] w-auto mx-auto" />
-            <h1 className="text-2xl md:text-4xl lg:text-4xl xl:text-6xl font-extrabold leading-snug md:leading-tight text-white text-center">DIKONAKAYA</h1>
-            <p className="mt-2 md:mt-4 max-w-md md:max-w-2xl text-slate-400 text-sm md:text-base text-center leading-snug md:leading-tight">
-              Pixel Artist<br />Photographer<br />Software Developer
-            </p>
-            <div className="mt-4 md:mt-6 flex justify-center gap-3">
-              <Link
-                to="/projects"
-                className="inline-flex items-center px-3 py-2 rounded-md bg-black text-white text-sm md:text-base font-medium hover:bg-white hover:text-[#373944] transition-all duration-300 hover:-translate-y-1 hover:scale-105"
-                onClick={scrollToTop}
-              >
-                View Projects
-              </Link>
-              <button
-                className="inline-flex items-center px-3 py-2 rounded-md bg-black text-white text-sm md:text-base font-medium hover:bg-white hover:text-[#373944] transition-all duration-300 hover:-translate-y-1 hover:scale-105"
-                onClick={() => scrollToId('contact')}
-              >
-                Contact Me
-              </button>
-            </div>
-          </motion.div>
+      {/* Carousel */}
+      <div className="hidden lg:block sticky top-10 lg:top-20 z-0 lg:ml-[33%] lg:h-[400px] xl:h-[600px] shadow-md overflow-hidden">
+        <div className="w-full h-full">
+          <Carousel />
         </div>
-        <div className="hidden lg:block lg:h-[400px] xl:h-[600px] shadow-md w-full overflow-hidden">
-          <div className="w-full h-full">
-            <Carousel />
+      </div>
+      {/* Left */}
+      <div className="h-[400px] xl:h-[600px] p-4 md:p-6 lg:p-8 lg:w-[33%] lg:-mt-[400px] xl:-mt-[600px] flex items-center justify-center bg-gradient-to-b from-[#373944] to-[#1E1E25] shadow-md">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1.0 }}>
+          <img src={logo} alt="Dikonakaya" className="h-[120px] md:h-[160px] lg:h-[180px] xl:h-[300px] w-auto mx-auto" />
+          <h1 className="text-2xl md:text-4xl lg:text-4xl xl:text-6xl font-extrabold leading-snug md:leading-tight text-white text-center">DIKONAKAYA</h1>
+          <p className="mt-2 md:mt-4 max-w-md md:max-w-2xl text-slate-400 text-sm md:text-base text-center leading-snug md:leading-tight">
+            Pixel Artist<br />Photographer<br />Software Developer
+          </p>
+          <div className="mt-4 md:mt-6 flex justify-center gap-3">
+            <Link
+              to="/projects"
+              className="inline-flex items-center px-3 py-2 rounded-md bg-black text-white text-sm md:text-base font-medium hover:bg-white hover:text-[#373944] transition-all duration-300 hover:-translate-y-1 hover:scale-105"
+              onClick={scrollToTop}
+            >
+              View Projects
+            </Link>
+            <button
+              className="inline-flex items-center px-3 py-2 rounded-md bg-black text-white text-sm md:text-base font-medium hover:bg-white hover:text-[#373944] transition-all duration-300 hover:-translate-y-1 hover:scale-105"
+              onClick={() => scrollToId('contact')}
+            >
+              Contact Me
+            </button>
           </div>
-        </div>
+        </motion.div>
       </div>
 
       <div className="relative z-10 bg-gradient-to-b from-[#373944] to-[#1E1E25]">
@@ -105,7 +105,7 @@ export default function Home() {
         </div>
 
         {/* Commissions */}
-        <div className="flex flex-col items-center pt-12 pb-4">
+        <div id="about" className="scroll-mt-12 flex flex-col items-center pt-12 pb-4">
           <div className="flex items-center gap-4">
             <img src={logo} alt="dikonakaya logo" className="h-24 w-auto" />
             <h3 className="text-3xl font-semibold text-white">COMMISSIONS</h3>
@@ -123,7 +123,7 @@ export default function Home() {
         {/* About & Contact */}
         <div className="flex flex-col lg:flex-row items-center lg:items-start justify-center gap-8 px-6 py-4 pb-16 max-w-[1700px] mx-auto w-full">
           {/* Skills & Experience */}
-          <div id="about" className="scroll-mt-24 w-full lg:flex-1 min-w-0 max-w-2xl lg:max-w-none flex flex-col gap-6">
+          <div className="scroll-mt-24 w-full lg:flex-1 min-w-0 max-w-2xl lg:max-w-none flex flex-col gap-6">
             <div className="bg-black/30 rounded-md p-6">
               <h3 className="text-xl font-semibold text-white mb-4">Skills</h3>
               <div className="space-y-3">

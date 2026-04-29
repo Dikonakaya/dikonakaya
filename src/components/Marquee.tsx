@@ -1,12 +1,13 @@
 import React, { useEffect, useRef } from 'react'
-import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { scrollToTop } from '../functions'
 import type { PhotoSet } from '../hooks'
 
-function getImageUrl(img: string | { url?: string; display?: boolean }): string | null {
-    if (typeof img === 'string') return img
+function getImageItem(img: string | { url?: string; title?: string; description?: string; display?: boolean }, setTitle: string, setDescription: string): { src: string; title: string; description: string } | null {
+    if (typeof img === 'string') return { src: img, title: setTitle, description: setDescription }
     if (img.display === false) return null
-    return img.url ?? null
+    if (!img.url) return null
+    return { src: img.url, title: img.title || setTitle, description: img.description || setDescription }
 }
 
 type Props = {
@@ -30,13 +31,15 @@ export default function Marquee({ sets, height = 180, linkTo, showBorder = false
         prevX: 0,
         prevTime: 0,
         rafId: 0,
+        hasDragged: false,
+        dragStartX: 0,
     })
 
-    const srcs = sets
-        .flatMap(set => set.images.map(img => getImageUrl(img as string | { url?: string; display?: boolean })))
-        .filter((u): u is string => u !== null && u !== '')
+    const items = sets
+        .flatMap(set => set.images.map(img => getImageItem(img as string | { url?: string; title?: string; description?: string; display?: boolean }, set.title, set.description)))
+        .filter((u): u is { src: string; title: string; description: string } => u !== null)
 
-    const doubled = [...srcs, ...srcs]
+    const doubled = [...items, ...items]
 
     // RAF loop: auto-scroll + momentum
     useEffect(() => {
@@ -94,13 +97,14 @@ export default function Marquee({ sets, height = 180, linkTo, showBorder = false
 
         sc.current.rafId = requestAnimationFrame(tick)
         return () => cancelAnimationFrame(sc.current.rafId)
-    }, [duration, mobileDuration, reverse, srcs.length])
+    }, [duration, mobileDuration, reverse, items.length])
 
     // Document-level mouse events (prevents stuck cursor state)
     useEffect(() => {
         const onMouseMove = (e: MouseEvent) => {
             if (!sc.current.isDragging) return
             e.preventDefault()
+            if (Math.abs(e.pageX - sc.current.dragStartX) > 5) sc.current.hasDragged = true
             const now = performance.now()
             const dx = sc.current.prevX - e.pageX
             const dt = now - sc.current.prevTime
@@ -125,6 +129,8 @@ export default function Marquee({ sets, height = 180, linkTo, showBorder = false
     const onMouseDown = (e: React.MouseEvent) => {
         e.preventDefault() // prevent native image/text drag hijacking mouseup
         sc.current.isDragging = true
+        sc.current.hasDragged = false
+        sc.current.dragStartX = e.pageX
         sc.current.prevX = e.pageX
         sc.current.prevTime = performance.now()
         sc.current.velocity = 0
@@ -133,12 +139,15 @@ export default function Marquee({ sets, height = 180, linkTo, showBorder = false
 
     const onTouchStart = (e: React.TouchEvent) => {
         sc.current.isDragging = true
+        sc.current.hasDragged = false
+        sc.current.dragStartX = e.touches[0].pageX
         sc.current.prevX = e.touches[0].pageX
         sc.current.prevTime = performance.now()
         sc.current.velocity = 0
     }
     const onTouchMove = (e: React.TouchEvent) => {
         if (!sc.current.isDragging) return
+        if (Math.abs(e.touches[0].pageX - sc.current.dragStartX) > 5) sc.current.hasDragged = true
         const now = performance.now()
         const dx = sc.current.prevX - e.touches[0].pageX
         const dt = now - sc.current.prevTime
@@ -149,8 +158,15 @@ export default function Marquee({ sets, height = 180, linkTo, showBorder = false
     }
     const onTouchEnd = () => { sc.current.isDragging = false }
 
+    const navigate = useNavigate()
+    const handleImageClick = (src: string) => {
+        if (sc.current.hasDragged || !linkTo) return
+        scrollToTop()
+        navigate(linkTo, { state: { openSrc: src } })
+    }
+
     // Early return after all hooks (Rules of Hooks)
-    if (!srcs.length) return null
+    if (!items.length) return null
 
     return (
         <div
@@ -167,14 +183,14 @@ export default function Marquee({ sets, height = 180, linkTo, showBorder = false
                 className="flex gap-2 w-max"
                 style={{ willChange: 'transform' }}
             >
-                {doubled.map((src, i) => (
+                {doubled.map((item, i) => (
                     linkTo ? (
-                        <Link key={i} to={linkTo} onClick={scrollToTop}
-                            className={`flex-shrink-0 block rounded group transition-transform duration-300 hover:scale-[1.02]${showBorder ? ' border-2 border-white' : ''}`}
+                        <div key={i} onClick={() => handleImageClick(item.src)}
+                            className={`hover-elevate flex-shrink-0 block rounded group hover:scale-[1.02]${showBorder ? ' border-2 border-white' : ''}`}
                         >
                             <div className="overflow-hidden rounded">
                                 <img
-                                    src={src}
+                                    src={item.src}
                                     alt=""
                                     draggable={false}
                                     className="object-cover block transition-transform duration-1000 group-hover:scale-105 will-change-transform"
@@ -182,20 +198,34 @@ export default function Marquee({ sets, height = 180, linkTo, showBorder = false
                                     loading="lazy"
                                 />
                             </div>
-                        </Link>
+                            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded overflow-hidden">
+                                <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-transparent" />
+                                <div className="relative flex flex-col justify-start p-3 text-left text-white">
+                                    <h4 className="text-sm font-semibold leading-tight">{item.title}</h4>
+                                    {item.description && <p className="text-xs mt-0.5 opacity-80">{item.description}</p>}
+                                </div>
+                            </div>
+                        </div>
                     ) : (
                         <div key={i}
-                            className={`flex-shrink-0 rounded group transition-transform duration-300 hover:scale-[1.02]${showBorder ? ' border-2 border-white' : ''}`}
+                            className={`hover-elevate flex-shrink-0 rounded group hover:scale-[1.02]${showBorder ? ' border-2 border-white' : ''}`}
                         >
                             <div className="overflow-hidden rounded">
                                 <img
-                                    src={src}
+                                    src={item.src}
                                     alt=""
                                     draggable={false}
                                     className="object-cover block transition-transform duration-1000 group-hover:scale-105 will-change-transform"
                                     style={{ height: `${height}px` }}
                                     loading="lazy"
                                 />
+                            </div>
+                            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded overflow-hidden">
+                                <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-transparent" />
+                                <div className="relative flex flex-col justify-start p-3 text-left text-white">
+                                    <h4 className="text-sm font-semibold leading-tight">{item.title}</h4>
+                                    {item.description && <p className="text-xs mt-0.5 opacity-80">{item.description}</p>}
+                                </div>
                             </div>
                         </div>
                     )
