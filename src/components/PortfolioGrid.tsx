@@ -27,12 +27,13 @@ type RowData = { images: ImageMeta[]; scale: number; capped: boolean }
 type Props = {
   title?: string
   sets: PhotoSet[]
+  display?: string | string[]
   showBorder?: boolean
   targetRowHeight?: number
   initialOpenSrc?: string
 }
 
-export default function PortfolioGrid({ title, sets, showBorder = true, targetRowHeight = 300, initialOpenSrc }: Props) {
+export default function PortfolioGrid({ title, sets, display, showBorder = true, targetRowHeight = 300, initialOpenSrc }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [imageData, setImageData] = useState<(ImageMeta | null)[]>([])
   const [rows, setRows] = useState<RowData[]>([])
@@ -40,7 +41,18 @@ export default function PortfolioGrid({ title, sets, showBorder = true, targetRo
   const [isPreloading, setIsPreloading] = useState(false)
   const openedInitialRef = useRef(false)
 
-  const flatImages = sets.flatMap((set) =>
+  const allowedDocNames = (Array.isArray(display) ? display : typeof display === 'string' ? [display] : [])
+    .map((name) => name.trim())
+    .filter(Boolean)
+
+  const visibleSets = allowedDocNames.length
+    ? sets.filter((set) => {
+      const docName = (set.docName ?? set.id ?? '').trim()
+      return allowedDocNames.includes(docName)
+    })
+    : sets
+
+  const flatImages = visibleSets.flatMap((set) =>
     set.images.map((img) => {
       const o = typeof img === 'object' ? img : null
       return {

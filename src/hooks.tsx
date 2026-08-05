@@ -13,6 +13,8 @@ export type PhotoImage = {
 }
 
 export type PhotoSet = {
+    id?: string
+    docName?: string
     title: string
     description: string
     details?: string
@@ -30,6 +32,8 @@ function usePortfolio(collectionName: string) {
             setSets(snap.docs.map((doc) => {
                 const d = doc.data()
                 return {
+                    id: doc.id,
+                    docName: doc.id,
                     title: d.title,
                     description: d.description,
                     details: d.details,
