@@ -62,6 +62,7 @@ export default function PortfolioGrid({ title, sets, display, showBorder = true,
         details: o?.details || set.details,
         tags: o?.tags?.length ? o.tags : set.tags,
         display: o ? o.display !== false : true,
+        homeDisplay: o ? o.homeDisplay !== false : true,
       }
     })
   )

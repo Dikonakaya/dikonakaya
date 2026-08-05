@@ -3,9 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import { scrollToTop } from '../functions'
 import type { PhotoSet } from '../hooks'
 
-function getImageItem(img: string | { url?: string; title?: string; description?: string; display?: boolean }, setTitle: string, setDescription: string): { src: string; title: string; description: string } | null {
+function getImageItem(img: string | { url?: string; title?: string; description?: string; display?: boolean; homeDisplay?: boolean }, setTitle: string, setDescription: string): { src: string; title: string; description: string } | null {
     if (typeof img === 'string') return { src: img, title: setTitle, description: setDescription }
-    if (img.display === false) return null
+    if (img.display === false || img.homeDisplay === false) return null
     if (!img.url) return null
     return { src: img.url, title: img.title || setTitle, description: img.description || setDescription }
 }
@@ -36,7 +36,7 @@ export default function Marquee({ sets, height = 180, linkTo, showBorder = false
     })
 
     const items = sets
-        .flatMap(set => set.images.map(img => getImageItem(img as string | { url?: string; title?: string; description?: string; display?: boolean }, set.title, set.description)))
+        .flatMap(set => set.images.map(img => getImageItem(img as string | { url?: string; title?: string; description?: string; display?: boolean; homeDisplay?: boolean }, set.title, set.description)))
         .filter((u): u is { src: string; title: string; description: string } => u !== null)
 
     const doubled = [...items, ...items]

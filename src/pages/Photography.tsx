@@ -16,10 +16,7 @@ export default function Photography() {
                         <PortfolioGrid title="CAR PHOTOGRAPHY" sets={sets} display={['carphotography']} showBorder={true} targetRowHeight={350} initialOpenSrc={state?.openSrc} />
                     </div>
                     <div className="mb-8">
-                        <PortfolioGrid title="PRODUCT PHOTOGRAPHY" sets={sets} display={['productphotography']} showBorder={true} targetRowHeight={350} initialOpenSrc={state?.openSrc} />
-                    </div>
-                    <div className="mb-8">
-                        <PortfolioGrid title="OTHER PHOTOGRAPHY" sets={sets} display={['otherphotography']} showBorder={true} targetRowHeight={350} initialOpenSrc={state?.openSrc} />
+                        <PortfolioGrid title="OTHER STUFF" sets={sets} display={['streetlandscapephotography', 'tofu60v1', 'rk87', 'jris65', '2025keyboardcollection']} showBorder={true} targetRowHeight={350} initialOpenSrc={state?.openSrc} />
                     </div>
                 </div>
             </div>

@@ -10,6 +10,7 @@ export type PhotoImage = {
     year?: number
     tags?: string[]
     display?: boolean
+    homeDisplay?: boolean
 }
 
 export type PhotoSet = {

@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom'
 import { SectionTitle, DiscordFormatTextField } from '../functions'
 
 // Types
-type EditImage = { url: string; title: string; description: string; details: string; year?: number; tags: string[]; tagsStr: string; display: boolean }
+type EditImage = { url: string; title: string; description: string; details: string; year?: number; tags: string[]; tagsStr: string; display: boolean; homeDisplay: boolean }
 type EditSet = { id: string; docName: string; title: string; description: string; details: string; images: EditImage[]; order: number; tags: string[]; tagsStr: string; year?: number }
 type EditCarousel = { id: string; docName: string; title: string; description: string; thumbnail: string; url: string; order: number }
 type EditProject = { id: string; docName: string; title: string; description: string; details: string; download: string; tags: string; thumbnail: string; view: string; order: number; year: number }
@@ -15,7 +15,7 @@ type EditExperience = { id: string; docName: string; role: string; company: stri
 type CollectionKey = 'photography' | 'pixelart' | 'carousel' | 'projects' | 'skills' | 'experience'
 
 // Defaults
-const emptyImg: EditImage = { url: '', title: '', description: '', details: '', tags: [], tagsStr: '', display: true }
+const emptyImg: EditImage = { url: '', title: '', description: '', details: '', tags: [], tagsStr: '', display: true, homeDisplay: true }
 const emptySet: EditSet = { id: '', docName: '', title: '', description: '', details: '', images: [], order: 0, tags: [], tagsStr: '' }
 const emptyCarousel: EditCarousel = { id: '', docName: '', title: '', description: '', thumbnail: '', url: '', order: 0 }
 const emptyProject: EditProject = { id: '', docName: '', title: '', description: '', details: '', download: '', tags: '', thumbnail: '', view: '', order: 0, year: 0 }
@@ -25,11 +25,11 @@ const emptyExperience: EditExperience = { id: '', docName: '', role: '', company
 // Helpers
 const parseImg = (img: any): EditImage => typeof img === 'string'
     ? { ...emptyImg, url: img }
-    : { url: img.url || '', title: img.title || '', description: img.description || '', details: img.details || '', year: img.year, tags: img.tags || [], tagsStr: (img.tags || []).join(', '), display: img.display !== false }
+    : { url: img.url || '', title: img.title || '', description: img.description || '', details: img.details || '', year: img.year, tags: img.tags || [], tagsStr: (img.tags || []).join(', '), display: img.display !== false, homeDisplay: img.homeDisplay !== false }
 
 const serImg = (img: EditImage): string | Record<string, unknown> => {
     const tags = img.tagsStr.split(',').map((t: string) => t.trim()).filter(Boolean)
-    if (!img.title && !img.description && !img.details && !img.year && !tags.length && img.display) return img.url
+    if (!img.title && !img.description && !img.details && !img.year && !tags.length && img.display && img.homeDisplay !== false) return img.url
     const o: Record<string, unknown> = { url: img.url }
     if (img.title) o.title = img.title
     if (img.description) o.description = img.description
@@ -37,6 +37,7 @@ const serImg = (img: EditImage): string | Record<string, unknown> => {
     if (img.year) o.year = img.year
     if (tags.length) o.tags = tags
     if (!img.display) o.display = false
+    if (img.homeDisplay === false) o.homeDisplay = false
     return o
 }
 
@@ -383,10 +384,16 @@ export default function Admin() {
                                         <div draggable onDragStart={() => setDragIdx({ type: 'image', idx: i })} onDragEnd={() => setDragIdx(null)} className="hidden md:block"><DragHandle /></div>
                                         <button onClick={() => setExpandedImg(expandedImg === i ? null : i)} className="text-slate-400 hover:text-white text-xs w-4 flex-shrink-0">{expandedImg === i ? '▼' : '▶'}</button>
                                         <input value={img.url} onChange={e => updateImg(i, { url: e.target.value })} placeholder="Image URL" className="bg-[#0b0b0d] text-white border border-white/10 p-2 my-1 flex-1 min-w-0 rounded" />
-                                        <label className="flex items-center gap-1 text-xs cursor-pointer select-none flex-shrink-0" title={img.display ? 'Visible on page + lightbox' : 'Lightbox only'}>
-                                            <input type="checkbox" checked={img.display} onChange={e => updateImg(i, { display: e.target.checked })} className="accent-green-500" />
-                                            <span className={img.display ? 'text-green-400' : 'text-slate-500'}>{img.display ? 'show' : 'hide'}</span>
-                                        </label>
+                                        <div className="flex items-center gap-2 flex-shrink-0">
+                                            <label className="flex items-center gap-1 text-[10px] cursor-pointer select-none" title={img.display ? 'Visible in dedicated portfolio page' : 'Hidden from portfolio page'}>
+                                                <input type="checkbox" checked={img.display} onChange={e => updateImg(i, { display: e.target.checked })} className="accent-green-500" />
+                                                <span className={img.display ? 'text-green-400' : 'text-slate-500'}>portfolio</span>
+                                            </label>
+                                            <label className="flex items-center gap-1 text-[10px] cursor-pointer select-none" title={img.homeDisplay !== false ? 'Visible on homepage' : 'Hidden from homepage'}>
+                                                <input type="checkbox" checked={img.homeDisplay !== false} onChange={e => updateImg(i, { homeDisplay: e.target.checked })} className="accent-sky-500" />
+                                                <span className={img.homeDisplay !== false ? 'text-sky-400' : 'text-slate-500'}>home</span>
+                                            </label>
+                                        </div>
                                         {img.url && <AdminImg src={img.url} className="w-12 h-9 object-cover rounded border border-white/10 flex-shrink-0 hidden md:block" />}
                                         <DelBtn onClick={() => setEdit({ ...edit, images: edit.images.filter((_, j) => j !== i) })} />
                                     </div>
